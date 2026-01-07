@@ -592,7 +592,6 @@ const HomeScreen: React.FC = () => {
             data={carouselData}
             scrollAnimationDuration={800}
             onSnapToItem={(index: number) => {
-              console.log("Active slide:", index); // 👈 add this line
               setCurrentIndex(index);
             }}
             renderItem={({ item }: { item: CarouselItem }) => (
