@@ -1,98 +1,1053 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Dimensions,
+  Image,
+  FlatList,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import Carousel from "react-native-reanimated-carousel";
+import { MotiView } from "moti";
+import { useRouter } from "expo-router";
+import * as Location from "expo-location";
+import { Easing } from "react-native-reanimated";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+// const router = useRouter();
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+const { width } = Dimensions.get("window");
+const cardWidth = (width - 80) / 4;
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+// ✅ Interfaces
+interface CarouselItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  offer: string;
+  gradient?: readonly string[];
+  image: string;
+}
+const fallbackGradient: readonly string[] = ["#7C3AED", "#A855F7"];
+
+interface ServiceItem {
+  id: number;
+  name: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  color: string;
 }
 
+interface HorizontalItem {
+  id: string;
+  name: string;
+  price: number;
+  rating: number;
+  image: string;
+}
+
+// ✅ Fallback Gradient
+// ✅ Carousel Data
+const carouselData: CarouselItem[] = [
+  {
+    id: "1",
+    title: "Salon at Home",
+    subtitle: "Premium grooming services",
+    offer: "20% OFF",
+    gradient: ["#A855F7", "#EC4899"],
+    image:
+      "https://images.pexels.com/photos/4107281/pexels-photo-4107281.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "2",
+    title: "AC Repair",
+    subtitle: "Cool comfort all summer",
+    offer: "10% OFF",
+    gradient: ["#06B6D4", "#3B82F6"],
+    image:
+      "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=800",
+  },
+  {
+    id: "3",
+    title: "Home Cleaning",
+    subtitle: "Spotless and refreshing",
+    offer: "15% OFF",
+    gradient: ["#8B5CF6", "#7C3AED"],
+    image:
+      "https://images.unsplash.com/photo-1581579185169-1c9a9c97bd0b?auto=format&fit=crop&w=800&q=60",
+  },
+  {
+    id: "4",
+    title: "Pest Control",
+    subtitle: "Say goodbye to unwanted guests",
+    offer: "25% OFF",
+    gradient: ["#F97316", "#F59E0B"],
+    image:
+      "https://images.pexels.com/photos/6197120/pexels-photo-6197120.jpeg?auto=compress&cs=tinysrgb&w=800",
+  },
+  {
+    id: "5",
+    title: "Painting Service",
+    subtitle: "Transform your walls with color",
+    offer: "30% OFF",
+    gradient: ["#EC4899", "#F43F5E"],
+    image:
+      "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=800",
+  },
+  {
+    id: "6",
+    title: "Appliance Repair",
+    subtitle: "Fast fixes, reliable service",
+    offer: "15% OFF",
+    gradient: ["#06B6D4", "#0EA5E9"],
+    image:
+      "https://images.pexels.com/photos/4792479/pexels-photo-4792479.jpeg?auto=compress&cs=tinysrgb&w=800",
+  },
+  {
+    id: "7",
+    title: "Home Décor",
+    subtitle: "Style your space beautifully",
+    offer: "10% OFF",
+    gradient: ["#7C3AED", "#A855F7"],
+    image:
+      "https://images.pexels.com/photos/1571461/pexels-photo-1571461.jpeg?auto=compress&cs=tinysrgb&w=800",
+  },
+  {
+    id: "8",
+    title: "Gardening",
+    subtitle: "Refresh your outdoors",
+    offer: "20% OFF",
+    gradient: ["#22C55E", "#16A34A"],
+    image:
+      "https://images.pexels.com/photos/4505170/pexels-photo-4505170.jpeg?auto=compress&cs=tinysrgb&w=800",
+  },
+];
+
+// ✅ Services
+const services: ServiceItem[] = [
+  { id: 1, name: "Cleaning", icon: "sparkles-outline", color: "#8B5CF6" },
+  { id: 2, name: "Electrician", icon: "flash-outline", color: "#F59E0B" },
+  { id: 3, name: "Plumbing", icon: "water-outline", color: "#3B82F6" },
+  { id: 4, name: "AC Repair", icon: "snow-outline", color: "#06B6D4" },
+  { id: 5, name: "Men’s Salon", icon: "cut-outline", color: "#22C55E" },
+  { id: 6, name: "Women’s Salon", icon: "woman-outline", color: "#EC4899" },
+  { id: 7, name: "Massage & Spa", icon: "heart-outline", color: "#EF4444" },
+  { id: 8, name: "Appliance Repair", icon: "tv-outline", color: "#6366F1" },
+];
+
+// ✅ Offers / Essentials / Repair sections (horizontal lists)
+const specialists: HorizontalItem[] = [
+  {
+    id: "1",
+    name: "Home Deep Cleaning",
+    price: 999,
+    rating: 4.8,
+    image:
+      "https://images.pexels.com/photos/4239148/pexels-photo-4239148.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "2",
+    name: "Kitchen Cleaning",
+    price: 799,
+    rating: 4.7,
+    image:
+      "https://images.pexels.com/photos/5854186/pexels-photo-5854186.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "3",
+    name: "Bathroom Cleaning",
+    price: 699,
+    rating: 4.6,
+    image:
+      "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+];
+
+const offers: HorizontalItem[] = [
+  {
+    id: "1",
+    name: "Salon at Home (Women)",
+    price: 1499,
+    rating: 4.9,
+    image:
+      "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "2",
+    name: "Men’s Haircut + Beard Combo",
+    price: 499,
+    rating: 4.8,
+    image:
+      "https://images.pexels.com/photos/3998393/pexels-photo-3998393.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "3",
+    name: "Full Body Massage at Home",
+    price: 1299,
+    rating: 4.7,
+    image:
+      "https://images.pexels.com/photos/3865792/pexels-photo-3865792.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "4",
+    name: "AC Service & Cleaning",
+    price: 899,
+    rating: 4.8,
+    image:
+      "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "5",
+    name: "Refrigerator Repair",
+    price: 999,
+    rating: 4.6,
+    image:
+      "https://images.pexels.com/photos/9462630/pexels-photo-9462630.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "6",
+    name: "Home Deep Cleaning",
+    price: 1099,
+    rating: 4.8,
+    image:
+      "https://images.pexels.com/photos/4107120/pexels-photo-4107120.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "7",
+    name: "Bathroom Cleaning Service",
+    price: 699,
+    rating: 4.7,
+    image:
+      "https://images.pexels.com/photos/4239144/pexels-photo-4239144.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "8",
+    name: "Kitchen Cleaning Package",
+    price: 799,
+    rating: 4.6,
+    image:
+      "https://images.pexels.com/photos/5217884/pexels-photo-5217884.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "9",
+    name: "Home Painting Offer",
+    price: 1899,
+    rating: 4.9,
+    image:
+      "https://images.pexels.com/photos/3865795/pexels-photo-3865795.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "10",
+    name: "Pest Control Special",
+    price: 599,
+    rating: 4.5,
+    image:
+      "https://images.pexels.com/photos/5854186/pexels-photo-5854186.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "11",
+    name: "Laundry & Ironing Combo",
+    price: 399,
+    rating: 4.4,
+    image:
+      "https://images.pexels.com/photos/3951628/pexels-photo-3951628.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "12",
+    name: "Carpet Shampoo Cleaning",
+    price: 1199,
+    rating: 4.6,
+    image:
+      "https://images.pexels.com/photos/4107281/pexels-photo-4107281.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+];
+
+const cleaningEssentials: HorizontalItem[] = [
+  {
+    id: "1",
+    name: "Vacuum Cleaner",
+    price: 2499,
+    rating: 4.5,
+    image:
+      "https://images.pexels.com/photos/4107281/pexels-photo-4107281.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "2",
+    name: "Floor Mop Set",
+    price: 499,
+    rating: 4.4,
+    image:
+      "https://images.pexels.com/photos/5217884/pexels-photo-5217884.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "3",
+    name: "Cleaning Spray Kit",
+    price: 299,
+    rating: 4.3,
+    image:
+      "https://images.pexels.com/photos/4239144/pexels-photo-4239144.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "4",
+    name: "Bathroom Cleaner Pack",
+    price: 399,
+    rating: 4.6,
+    image:
+      "https://images.pexels.com/photos/5649814/pexels-photo-5649814.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "5",
+    name: "Glass Cleaning Solution",
+    price: 349,
+    rating: 4.5,
+    image:
+      "https://images.pexels.com/photos/6195127/pexels-photo-6195127.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "6",
+    name: "Kitchen Degreaser Spray",
+    price: 449,
+    rating: 4.6,
+    image:
+      "https://images.pexels.com/photos/4239142/pexels-photo-4239142.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "7",
+    name: "Microfiber Cloth Pack",
+    price: 199,
+    rating: 4.7,
+    image:
+      "https://images.pexels.com/photos/4239140/pexels-photo-4239140.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "8",
+    name: "Dishwashing Liquid",
+    price: 249,
+    rating: 4.4,
+    image:
+      "https://images.pexels.com/photos/7504847/pexels-photo-7504847.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "9",
+    name: "Sofa Cleaning Foam",
+    price: 699,
+    rating: 4.5,
+    image:
+      "https://images.pexels.com/photos/4107282/pexels-photo-4107282.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "10",
+    name: "Carpet Shampoo Bottle",
+    price: 799,
+    rating: 4.6,
+    image:
+      "https://images.pexels.com/photos/4107120/pexels-photo-4107120.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "11",
+    name: "Air Freshener Refill",
+    price: 349,
+    rating: 4.4,
+    image:
+      "https://images.pexels.com/photos/7282454/pexels-photo-7282454.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "12",
+    name: "Toilet Cleaner Gel",
+    price: 299,
+    rating: 4.7,
+    image:
+      "https://images.pexels.com/photos/5649812/pexels-photo-5649812.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "13",
+    name: "Laundry Detergent Powder",
+    price: 499,
+    rating: 4.8,
+    image:
+      "https://images.pexels.com/photos/3951628/pexels-photo-3951628.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "14",
+    name: "Dustbin Bags Roll",
+    price: 199,
+    rating: 4.3,
+    image:
+      "https://images.pexels.com/photos/7262894/pexels-photo-7262894.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "15",
+    name: "Steam Mop Cleaner",
+    price: 1899,
+    rating: 4.7,
+    image:
+      "https://images.pexels.com/photos/4107284/pexels-photo-4107284.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "16",
+    name: "Surface Disinfectant Spray",
+    price: 299,
+    rating: 4.5,
+    image:
+      "https://images.pexels.com/photos/4239143/pexels-photo-4239143.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "17",
+    name: "Fabric Softener Liquid",
+    price: 399,
+    rating: 4.6,
+    image:
+      "https://images.pexels.com/photos/5854186/pexels-photo-5854186.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+];
+
+const homeRepair: HorizontalItem[] = [
+  {
+    id: "1",
+    name: "Carpentry Work",
+    price: 799,
+    rating: 4.6,
+    image:
+      "https://images.pexels.com/photos/4505170/pexels-photo-4505170.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "2",
+    name: "Plumbing Fix",
+    price: 599,
+    rating: 4.7,
+    image:
+      "https://images.pexels.com/photos/5854186/pexels-photo-5854186.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "3",
+    name: "Painting Service",
+    price: 1999,
+    rating: 4.9,
+    image:
+      "https://images.pexels.com/photos/3865792/pexels-photo-3865792.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "4",
+    name: "Wall Mounting & Drilling",
+    price: 499,
+    rating: 4.5,
+    image:
+      "https://images.pexels.com/photos/4792479/pexels-photo-4792479.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "5",
+    name: "Electrical Installation",
+    price: 699,
+    rating: 4.8,
+    image:
+      "https://images.pexels.com/photos/3825582/pexels-photo-3825582.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "6",
+    name: "Curtain & Rod Setup",
+    price: 899,
+    rating: 4.6,
+    image:
+      "https://images.pexels.com/photos/6207825/pexels-photo-6207825.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "7",
+    name: "Door Lock Repair",
+    price: 499,
+    rating: 4.4,
+    image:
+      "https://images.pexels.com/photos/4792485/pexels-photo-4792485.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+];
+
+const HorizontalCard: React.FC<{ item: HorizontalItem }> = ({ item }) => (
+  <TouchableOpacity activeOpacity={0.8} style={styles.horizontalCard}>
+    <Image
+      source={{ uri: item.image }}
+      style={styles.cardImage}
+      resizeMode="cover"
+      onError={(e) => console.log("Image failed to load:", e.nativeEvent.error)}
+    />
+    <Text style={styles.cardTitle}>{item.name}</Text>
+    <View style={styles.priceRow}>
+      <Text style={styles.priceText}>₹{item.price}</Text>
+      <View style={styles.ratingBox}>
+        <Ionicons name="star" size={12} color="#FFD700" />
+        <Text style={styles.ratingText}>{item.rating}</Text>
+      </View>
+    </View>
+  </TouchableOpacity>
+);
+
+const HomeScreen: React.FC = () => {
+  const [search, setSearch] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const router = useRouter();
+
+  // ✅ Location state
+  const [location, setLocation] = useState<string>("Tap to enable location");
+  const [loadingLocation, setLoadingLocation] = useState<boolean>(false);
+
+  // ✅ Function to fetch location (can be triggered manually)
+  const handleLocationFetch = async () => {
+    try {
+      setLoadingLocation(true);
+
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setLocation("Permission denied");
+        setLoadingLocation(false);
+        return;
+      }
+
+      const loc = await Location.getCurrentPositionAsync({});
+      const reverse = await Location.reverseGeocodeAsync({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+      });
+
+      if (reverse.length > 0) {
+        const { city, region } = reverse[0];
+        setLocation(`${city ?? "Unknown"}, ${region ?? ""}`);
+      } else {
+        setLocation(
+          `Lat: ${loc.coords.latitude.toFixed(
+            2
+          )}, Lon: ${loc.coords.longitude.toFixed(2)}`
+        );
+      }
+    } catch (error) {
+      console.log("Location error:", error);
+      setLocation("Unable to fetch");
+    } finally {
+      setLoadingLocation(false);
+    }
+  };
+  // ✅ this closes the effect correctly
+
+  const specialOffer = {
+    id: "special1",
+    title: "Premium Home Makeover",
+    subtitle: "Uplift your space with our expert renovation team",
+    offer: "Up to 25% OFF",
+    gradient: ["#8B5CF6", "#EC4899"],
+    image:
+      "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200",
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar backgroundColor="#fff" style="dark" />
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.locationWrapper}
+            onPress={handleLocationFetch}
+          >
+            <Ionicons name="location-outline" size={20} color="#7C3AED" />
+            <View>
+              <Text style={styles.deliverLabel}>Deliver to</Text>
+              <Text style={styles.locationText}>
+                {loadingLocation ? "Detecting..." : location}{" "}
+                <Text style={{ color: "#A855F7" }}>▼</Text>
+              </Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+            <Ionicons name="notifications-outline" size={24} color="#111" />
+            <View style={styles.notificationDot} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Search */}
+        <View style={styles.searchContainer}>
+          <Ionicons name="search-outline" size={20} color="#999" />
+          <TextInput
+            placeholder="Search for services..."
+            placeholderTextColor="#999"
+            style={styles.searchInput}
+            value={search}
+            onChangeText={setSearch}
+          />
+          <TouchableOpacity style={styles.micButton}>
+            <Ionicons name="mic-outline" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Offers Carousel */}
+        <View style={styles.carouselWrapper}>
+          <Carousel
+            loop
+            width={width - 32}
+            height={180}
+            autoPlay
+            autoPlayInterval={3500}
+            data={carouselData}
+            scrollAnimationDuration={800}
+            onSnapToItem={(index: number) => {
+              console.log("Active slide:", index); // 👈 add this line
+              setCurrentIndex(index);
+            }}
+            renderItem={({ item }: { item: CarouselItem }) => (
+              <LinearGradient
+                {...({
+                  colors: item.gradient ?? fallbackGradient,
+                  start: { x: 0, y: 0 },
+                  end: { x: 1, y: 1 },
+                  style: styles.gradientCard,
+                } as any)}
+              >
+                <Image
+                  source={{ uri: item.image }}
+                  style={styles.carouselImage}
+                  resizeMode="cover"
+                />
+
+                <View style={styles.carouselTextBox}>
+                  <Text style={styles.carouselOffer}>{item.offer}</Text>
+                  <Text style={styles.carouselTitle}>{item.title}</Text>
+                  <Text style={styles.carouselSubtitle}>{item.subtitle}</Text>
+                  <TouchableOpacity style={styles.claimButton}>
+                    <Text style={{ color: "#000", fontWeight: "600" }}>
+                      Claim Now
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </LinearGradient>
+            )}
+          />
+
+          {/* ✅ Animated Connected Dots */}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 10,
+            }}
+          >
+            {carouselData.map((_, index) => {
+              const isActive = currentIndex === index;
+
+              return (
+                <MotiView
+                  key={index}
+                  animate={{
+                    width: isActive ? 30 : 10, // 🔥 stretched active dot
+                    height: 10,
+                    borderRadius: 5,
+                    backgroundColor: isActive ? "#7C3AED" : "#D1D5DB",
+                    marginHorizontal: isActive ? 2 : 5, // closer spacing for connected feel
+                  }}
+                  transition={{
+                    type: "timing",
+                    duration: 500,
+                    easing: Easing.out(Easing.cubic),
+                  }}
+                />
+              );
+            })}
+          </View>
+
+          {/* ✅ Pagination Dots */}
+          {/* <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              marginTop: 8,
+            }}
+          >
+            {carouselData.map((_, index) => {
+              const isActive = currentIndex === index;
+
+              return (
+                <MotiView
+                  key={index}
+                  from={{ opacity: 0.5, scale: 0.8, translateY: 0 }}
+                  animate={{
+                    opacity: isActive ? 1 : 0.3,
+                    scale: isActive ? 1.4 : 0.8,
+                    translateY: isActive ? -2 : 0, // slight lift animation
+                  }}
+                  transition={{
+                    type: "timing",
+                    duration: 400,
+                    easing: Easing.out(Easing.cubic),
+                  }}
+                  style={{
+                    width: isActive ? 10 : 8,
+                    height: isActive ? 10 : 8,
+                    borderRadius: 5,
+                    backgroundColor: isActive ? "#7C3AED" : "#D1D5DB",
+                    marginHorizontal: 5,
+                  }}
+                />
+              );
+            })}
+          </View> */}
+        </View>
+
+        {/* Services */}
+        <Text style={styles.sectionHeading}>Services</Text>
+        <View style={styles.grid}>
+          {services.map((service, index) => (
+            <MotiView
+              key={service.id}
+              from={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 80, type: "timing" }}
+            >
+              <TouchableOpacity
+                activeOpacity={0.85}
+                style={styles.serviceCard}
+                onPress={() =>
+                  router.push(
+                    `/services/${service.name.replace(
+                      /[^\w]/g,
+                      ""
+                    )}Screen` as any
+                  )
+                }
+              >
+                <View
+                  style={[
+                    styles.iconContainer,
+                    { backgroundColor: service.color },
+                  ]}
+                >
+                  <Ionicons name={service.icon} size={28} color="#fff" />
+                </View>
+                <Text style={styles.serviceName}>{service.name}</Text>
+              </TouchableOpacity>
+            </MotiView>
+          ))}
+        </View>
+
+        {/* Specialists Section */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionHeading}>We Are Specialists In</Text>
+          <TouchableOpacity onPress={() => router.push("/categories")}>
+            <Text style={styles.seeAll}>See more</Text>
+          </TouchableOpacity>
+        </View>
+        <FlatList
+          horizontal
+          data={specialists}
+          renderItem={({ item }) => <HorizontalCard item={item} />}
+          keyExtractor={(item) => item.id}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingVertical: 4 }} // ✅ adds space top & bottom
+        />
+
+        {/* Offers & Discounts */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionHeading}>Offers & Discounts</Text>
+          <TouchableOpacity onPress={() => router.push("/offers" as any)}>
+            <Text style={styles.seeAll}>See more</Text>
+          </TouchableOpacity>
+        </View>
+        <FlatList
+          horizontal
+          data={offers}
+          renderItem={({ item }) => <HorizontalCard item={item} />}
+          keyExtractor={(item) => item.id}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingVertical: 4 }} // ✅ adds space top & bottom
+        />
+
+        {/* Cleaning Essentials */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionHeading}>Cleaning Essentials</Text>
+          <TouchableOpacity onPress={() => router.push("/cleaning" as any)}>
+            <Text style={styles.seeAll}>See more</Text>
+          </TouchableOpacity>
+        </View>
+        <FlatList
+          horizontal
+          data={cleaningEssentials}
+          renderItem={({ item }) => <HorizontalCard item={item} />}
+          keyExtractor={(item) => item.id}
+        />
+        {/* Home Repair & Installation */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionHeading}>Home Repair & Installation</Text>
+          <TouchableOpacity onPress={() => router.push("/repair" as any)}>
+            <Text style={styles.seeAll}>See more</Text>
+          </TouchableOpacity>
+        </View>
+        <FlatList
+          horizontal
+          data={homeRepair}
+          renderItem={({ item }) => <HorizontalCard item={item} />}
+          keyExtractor={(item) => item.id}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingVertical: 4 }} // ✅ adds space top & bottom
+        />
+        <FlatList
+          horizontal
+          data={homeRepair}
+          renderItem={({ item }) => <HorizontalCard item={item} />}
+          keyExtractor={(item) => item.id}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingVertical: 4 }} // ✅ adds space top & bottom
+        />
+
+        {/* Big Promotional Banner */}
+        <View style={styles.bigBannerWrapper}>
+          <LinearGradient
+            colors={specialOffer.gradient as [string, string]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.bigBanner}
+          >
+            <Image
+              source={{ uri: specialOffer.image }}
+              style={styles.bigBannerImage}
+              resizeMode="cover"
+            />
+            <View style={styles.bigBannerTextBox}>
+              <Text style={styles.bigBannerOffer}>{specialOffer.offer}</Text>
+              <Text style={styles.bigBannerTitle}>{specialOffer.title}</Text>
+              <Text style={styles.bigBannerSubtitle}>
+                {specialOffer.subtitle}
+              </Text>
+              <TouchableOpacity
+                style={styles.bigBannerButton}
+                onPress={() => router.push("/special-offer")} // 👈 opens a new screen
+              >
+                <Text style={{ color: "#000", fontWeight: "600" }}>
+                  Explore Now
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </LinearGradient>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default HomeScreen;
+
+//
+// ✅ Styles
+//
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  safeArea: { flex: 1, backgroundColor: "#fff" },
+  scrollContainer: { flexGrow: 1, padding: 16, paddingBottom: 120 },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
   },
-  stepContainer: {
-    gap: 8,
+  locationWrapper: { flexDirection: "row", alignItems: "center" },
+  deliverLabel: { fontSize: 12, color: "#6B7280" },
+  locationText: { fontSize: 16, fontWeight: "600", color: "#111827" },
+  notificationDot: {
+    position: "absolute",
+    right: -2,
+    top: -2,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#EF4444",
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginBottom: 20,
+  },
+  searchInput: { flex: 1, fontSize: 14, color: "#111" },
+  micButton: { backgroundColor: "#7C3AED", padding: 8, borderRadius: 8 },
+  carouselWrapper: { alignItems: "center", marginBottom: 25 },
+  gradientCard: {
+    width: width - 32,
+    height: 180,
+    borderRadius: 16,
+    overflow: "hidden",
+    position: "relative",
+    marginBottom: 12,
+  },
+  carouselImage: {
+    ...StyleSheet.absoluteFillObject,
+    // opacity: 0.25,
+    borderRadius: 16,
+    opacity: 1, // ✅ make the background image visible
+    resizeMode: "cover", // ✅ ensures proper scaling
+  },
+  carouselTextBox: { padding: 16, justifyContent: "flex-end", height: "100%" },
+  carouselOffer: {
+    backgroundColor: "rgba(255,255,255,0.3)",
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
+    alignSelf: "flex-start",
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    marginBottom: 6,
+  },
+  carouselTitle: { fontSize: 18, fontWeight: "700", color: "#fff" },
+  carouselSubtitle: { fontSize: 13, color: "#F3F4F6", marginBottom: 10 },
+  claimButton: {
+    backgroundColor: "#fff",
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    alignSelf: "flex-start",
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    paddingVertical: 4,
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 22,
+    marginBottom: 12,
+  },
+  sectionHeading: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 12,
+    color: "#111827",
+  },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: 1,
+  },
+  serviceCard: {
+    width: cardWidth + 10,
+    alignItems: "center",
+    marginBottom: 23,
+  },
+  iconContainer: {
+    width: 70,
+    height: 70,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
+  serviceName: {
+    fontSize: 13,
+    color: "#111827",
+    textAlign: "center",
+    fontWeight: "600",
+    width: 90,
+  },
+  horizontalCard: {
+    backgroundColor: "#fff",
+    width: 150,
+    borderRadius: 20,
+    marginRight: 14,
+    shadowColor: "#9498a0ff", // soft gray
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+    paddingBottom: 10,
+    overflow: "hidden", // ✅ ensures image isn’t hidden or clipped
+    position: "relative",
+  },
+
+  cardImage: {
+    width: "100%",
+    height: 150,
+    resizeMode: "cover",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    backgroundColor: "#ccc",
+  },
+  cardOverlay: {
+    position: "absolute",
     bottom: 0,
     left: 0,
-    position: 'absolute',
+    right: 0,
+    padding: 10,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+  }, // ✅ translucent overlay for text
+  cardTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#111",
+    marginHorizontal: 8,
+    marginTop: 6,
+  },
+
+  priceRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginHorizontal: 8,
+    marginTop: 2,
+  },
+  priceText: { fontSize: 13, color: "#7C3AED", fontWeight: "600" },
+  ratingBox: { flexDirection: "row", alignItems: "center" },
+  ratingText: { fontSize: 12, color: "#111" },
+  seeAll: { color: "#7C3AED", fontWeight: "500" },
+  bigBannerWrapper: {
+    alignItems: "center",
+    marginVertical: 20,
+    marginBottom: 2,
+  },
+  bigBanner: {
+    width: width - 32,
+    height: 200,
+    borderRadius: 18,
+    overflow: "hidden",
+    justifyContent: "center",
+  },
+  bigBannerImage: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.25,
+    borderRadius: 18,
+  },
+  bigBannerTextBox: {
+    paddingHorizontal: 20,
+  },
+  bigBannerOffer: {
+    backgroundColor: "rgba(255,255,255,0.25)",
+    alignSelf: "flex-start",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 12,
+    marginBottom: 8,
+  },
+  bigBannerTitle: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  bigBannerSubtitle: {
+    color: "#f3f4f6",
+    fontSize: 13,
+    marginBottom: 12,
+  },
+  bigBannerButton: {
+    backgroundColor: "#fff",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    alignSelf: "flex-start",
   },
 });

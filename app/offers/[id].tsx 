@@ -1,0 +1,83 @@
+import React from "react";
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+
+export default function OfferDetails() {
+  const { id } = useLocalSearchParams();
+  const router = useRouter();
+
+  return (
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <Image
+        source={{
+          uri: "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        }}
+        style={styles.image}
+      />
+
+      <View style={styles.detailsBox}>
+        <Text style={styles.title}>Offer #{id}</Text>
+        <Text style={styles.subtitle}>Exclusive home service offer</Text>
+
+        <View style={styles.infoBox}>
+          <Text style={styles.infoText}>✅ Professional team</Text>
+          <Text style={styles.infoText}>✅ 100% satisfaction guaranteed</Text>
+          <Text style={styles.infoText}>✅ Safe and hygienic service</Text>
+        </View>
+
+        <TouchableOpacity style={styles.button} onPress={() => router.back()}>
+          <Text style={styles.buttonText}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F9F9F7",
+  },
+  image: {
+    width: "100%",
+    height: 260,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  detailsBox: {
+    padding: 20,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "800",
+    color: "#1B4332",
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#555",
+    marginVertical: 10,
+  },
+  infoBox: {
+    backgroundColor: "#E6F7F5",
+    padding: 16,
+    borderRadius: 12,
+    marginVertical: 12,
+  },
+  infoText: {
+    fontSize: 15,
+    color: "#1B4332",
+    marginBottom: 6,
+  },
+  button: {
+    backgroundColor: "#1B4332",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+});

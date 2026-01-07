@@ -1,24 +1,24 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+// app/_layout.tsx
+import { Stack } from "expo-router";
+import React from "react";
+import "react-native-reanimated";
+import { ThemeProvider } from "./context/ThemeContext"; // ✅ fixed path
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
-
+/**
+ * RootLayout - Main app navigation container.
+ * This connects bottom tabs and service detail screens into one stack.
+ */
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+    // ✅ Wrap everything inside ThemeProvider for global dark/light theme
+    <ThemeProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* Bottom tab navigation (Home, Explore, etc.) */}
+        <Stack.Screen name="(tabs)" />
+
+        {/* Service screens (Cleaning, Electrician, etc.) */}
+        <Stack.Screen name="services" />
       </Stack>
-      <StatusBar style="auto" />
     </ThemeProvider>
   );
 }
