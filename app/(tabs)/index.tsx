@@ -465,6 +465,52 @@ const homeRepair: HorizontalItem[] = [
   },
 ];
 
+// ✅ Recommended Services Data
+const recommendedServices = [
+  {
+    id: "r1",
+    name: "Sofa Cleaning",
+    price: 499,
+    rating: 4.8,
+    image:
+      "https://images.pexels.com/photos/4107281/pexels-photo-4107281.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "r2",
+    name: "Bathroom Cleaning",
+    price: 699,
+    rating: 4.7,
+    image:
+      "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "r3",
+    name: "Pest Control",
+    price: 599,
+    rating: 4.6,
+    image:
+      "https://images.pexels.com/photos/6197120/pexels-photo-6197120.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "r4",
+    name: "Wall Painting",
+    price: 1599,
+    rating: 4.9,
+    image:
+      "https://images.pexels.com/photos/3865795/pexels-photo-3865795.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "r5",
+    name: "AC Service",
+    price: 899,
+    rating: 4.7,
+    image:
+      "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+];
+
+
+
 const HorizontalCard: React.FC<{ item: HorizontalItem }> = ({ item }) => (
   <TouchableOpacity activeOpacity={0.8} style={styles.horizontalCard}>
     <Image
@@ -483,6 +529,21 @@ const HorizontalCard: React.FC<{ item: HorizontalItem }> = ({ item }) => (
     </View>
   </TouchableOpacity>
 );
+// ✅ Compact Mini Service Card Component
+const MiniServiceCard: React.FC<{ item: any }> = ({ item }) => (
+  <TouchableOpacity activeOpacity={0.8} style={styles.miniCard}>
+    <Image
+      source={{ uri: item.image }}
+      style={styles.miniCardImage}
+      resizeMode="cover"
+    />
+    <Text numberOfLines={1} style={styles.miniCardTitle}>
+      {item.name}
+    </Text>
+    <Text style={styles.miniCardPrice}>₹{item.price}</Text>
+  </TouchableOpacity>
+);
+
 
 const HomeScreen: React.FC = () => {
   const [search, setSearch] = useState("");
@@ -828,6 +889,67 @@ const HomeScreen: React.FC = () => {
             </View>
           </LinearGradient>
         </View>
+
+        {/* ✅ Recommended Services Section */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionHeading}>Recommended For You</Text>
+          <TouchableOpacity onPress={() => router.push("/recommended" as any)}>
+            <Text style={styles.seeAll}>See all</Text>
+          </TouchableOpacity>
+        </View>
+
+        <FlatList
+          horizontal
+          data={recommendedServices}
+          renderItem={({ item }) => <MiniServiceCard item={item} />}
+          keyExtractor={(item) => item.id}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingVertical: 6 }}
+        />
+{/* 
+          ✅ Quick Home Services Section
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionHeading}>Quick Home Services</Text>
+            <TouchableOpacity
+              onPress={() => router.push("/quick-services" as any)}
+            >
+              <Text style={styles.seeAll}>See all</Text>
+            </TouchableOpacity>
+          </View>
+
+        <FlatList
+          horizontal
+          data={services.slice(0, 6)} // first 6 quick services
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[styles.miniCard, { width: 100 }]}
+              onPress={() => {
+                const routePath = `/services/${item.name.replace(
+                  /[^\w]/g,
+                  ""
+                )}`;
+                router.push(routePath as any);
+              }}
+            >
+              <View
+                style={[
+                  styles.iconContainer,
+                  { backgroundColor: item.color, width: 60, height: 60 },
+                ]}
+              >
+                <Ionicons name={item.icon} size={26} color="#fff" />
+              </View>
+              <Text
+                numberOfLines={1}
+                style={{ fontSize: 12, textAlign: "center" }}
+              >
+                {item.name}
+              </Text>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          showsHorizontalScrollIndicator={false}
+        /> */}
       </ScrollView>
     </SafeAreaView>
   );
@@ -1048,5 +1170,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 10,
     alignSelf: "flex-start",
+  },
+  miniCard: {
+    backgroundColor: "#fff",
+    width: 120,
+    borderRadius: 14,
+    marginRight: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
+    overflow: "hidden",
+    alignItems: "center",
+    paddingBottom: 8,
+  },
+  miniCardImage: {
+    width: "100%",
+    height: 100,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+    backgroundColor: "#E5E7EB",
+  },
+  miniCardTitle: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#111827",
+    marginTop: 6,
+    paddingHorizontal: 4,
+    textAlign: "center",
+  },
+  miniCardPrice: {
+    fontSize: 12,
+    color: "#7C3AED",
+    fontWeight: "500",
+    marginTop: 2,
   },
 });
