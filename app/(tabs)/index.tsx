@@ -803,7 +803,7 @@ const HomeScreen: React.FC = () => {
           renderItem={({ item }) => <HorizontalCard item={item} />}
           keyExtractor={(item) => item.id}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingVertical: 4 }} // ✅ adds space top & bottom
+          contentContainerStyle={{ paddingVertical: 4 }} // // boxes height
         />
 
         {/* Offers & Discounts */}
@@ -819,7 +819,7 @@ const HomeScreen: React.FC = () => {
           renderItem={({ item }) => <HorizontalCard item={item} />}
           keyExtractor={(item) => item.id}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingVertical: 4 }} // ✅ adds space top & bottom
+          contentContainerStyle={{ paddingVertical: 4 }} // // boxes height
         />
 
         {/* Cleaning Essentials */}
@@ -834,7 +834,10 @@ const HomeScreen: React.FC = () => {
           data={cleaningEssentials}
           renderItem={({ item }) => <HorizontalCard item={item} />}
           keyExtractor={(item) => item.id}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingVertical: 4 }} // boxes height
         />
+
         {/* Home Repair & Installation */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionHeading}>Home Repair & Installation</Text>
@@ -906,7 +909,7 @@ const HomeScreen: React.FC = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingVertical: 6 }}
         />
-{/* 
+        {/* 
           ✅ Quick Home Services Section
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionHeading}>Quick Home Services</Text>
@@ -995,7 +998,7 @@ const styles = StyleSheet.create({
   carouselWrapper: { alignItems: "center", marginBottom: 25 },
   gradientCard: {
     width: width - 32,
-    height: 180,
+    height: 180,  // increased height for carousel
     borderRadius: 16,
     overflow: "hidden",
     position: "relative",
@@ -1054,8 +1057,8 @@ const styles = StyleSheet.create({
     marginBottom: 23,
   },
   iconContainer: {
-    width: 70,
-    height: 70,
+    width: 65,   // height and width for circular icon background
+    height: 65,
     borderRadius: 50,
     justifyContent: "center",
     alignItems: "center",
@@ -1089,10 +1092,10 @@ const styles = StyleSheet.create({
 
   cardImage: {
     width: "100%",
-    height: 150,
+    height: 100,  // increased height in specialist section
     resizeMode: "cover",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
     backgroundColor: "#ccc",
   },
   cardOverlay: {
@@ -1129,7 +1132,7 @@ const styles = StyleSheet.create({
   },
   bigBanner: {
     width: width - 32,
-    height: 200,
+    height: 200, // bigger height for big banner
     borderRadius: 18,
     overflow: "hidden",
     justifyContent: "center",
