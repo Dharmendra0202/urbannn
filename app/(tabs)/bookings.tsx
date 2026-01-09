@@ -27,46 +27,224 @@ export default function BookingsScreen() {
   const router = useRouter();
 
   // ✅ Sample data
-  const bookings = {
-    upcoming: [
-      {
-        id: 1,
-        title: "Full Home Cleaning",
-        date: "Sat, Jan 20",
-        time: "10:00 AM",
-        address: "123 Main Street, Apartment 4B",
-        price: "₹1499",
-        status: "Upcoming",
-        image:
-          "https://images.pexels.com/photos/4239148/pexels-photo-4239148.jpeg?auto=compress&cs=tinysrgb&w=600",
-      },
-    ],
-    completed: [
-      {
-        id: 2,
-        title: "AC Service",
-        date: "Mon, Jan 15",
-        time: "2:00 PM",
-        address: "456 Oak Avenue, House 12",
-        price: "₹499",
-        status: "Completed",
-        image:
-          "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=600",
-      },
-      {
-        id: 3,
-        title: "Haircut",
-        date: "Wed, Jan 10",
-        time: "11:00 AM",
-        address: "789 Pine Road, Suite 301",
-        price: "₹299",
-        status: "Completed",
-        image:
-          "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=600",
-      },
-    ],
-    cancelled: [],
-  };
+   const bookings = {
+     upcoming: [
+       {
+         id: 1,
+         title: "Full Home Cleaning",
+         date: "Sat, Jan 20",
+         time: "10:00 AM",
+         address: "123 Main Street, Apartment 4B",
+         price: "₹1499",
+         status: "Upcoming",
+         image:
+           "https://images.pexels.com/photos/4239148/pexels-photo-4239148.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 2,
+         title: "Car Wash & Wax",
+         date: "Sun, Jan 21",
+         time: "9:30 AM",
+         address: "201 King Street, Parking Lot B",
+         price: "₹699",
+         status: "Upcoming",
+         image:
+           "https://images.pexels.com/photos/6872590/pexels-photo-6872590.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 3,
+         title: "Kitchen Deep Cleaning",
+         date: "Mon, Jan 22",
+         time: "8:00 AM",
+         address: "742 Evergreen Terrace, Flat 9A",
+         price: "₹899",
+         status: "Upcoming",
+         image:
+           "https://images.pexels.com/photos/4239035/pexels-photo-4239035.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 4,
+         title: "Plumber Service",
+         date: "Tue, Jan 23",
+         time: "1:00 PM",
+         address: "55 Baker Street, Apt 14",
+         price: "₹499",
+         status: "Upcoming",
+         image:
+           "https://images.pexels.com/photos/5854191/pexels-photo-5854191.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 5,
+         title: "Salon at Home – Hair Spa",
+         date: "Wed, Jan 24",
+         time: "3:30 PM",
+         address: "99 Palm Avenue, Villa 2",
+         price: "₹1299",
+         status: "Upcoming",
+         image:
+           "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 6,
+         title: "AC Repair & Gas Filling",
+         date: "Thu, Jan 25",
+         time: "11:00 AM",
+         address: "18 Garden View Apartments, Block C",
+         price: "₹1599",
+         status: "Upcoming",
+         image:
+           "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 7,
+         title: "Sofa Shampoo Cleaning",
+         date: "Fri, Jan 26",
+         time: "9:00 AM",
+         address: "22 Elm Street, Tower 5, Floor 2",
+         price: "₹999",
+         status: "Upcoming",
+         image:
+           "https://images.pexels.com/photos/4239148/pexels-photo-4239148.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 8,
+         title: "Bathroom Deep Cleaning",
+         date: "Sat, Jan 27",
+         time: "2:00 PM",
+         address: "7 Blue Horizon Society, Wing A",
+         price: "₹799",
+         status: "Upcoming",
+         image:
+           "https://images.pexels.com/photos/4239151/pexels-photo-4239151.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 9,
+         title: "Pest Control (Ants & Cockroaches)",
+         date: "Sun, Jan 28",
+         time: "12:30 PM",
+         address: "114 Rosewood Lane, Block D",
+         price: "₹1199",
+         status: "Upcoming",
+         image:
+           "https://images.pexels.com/photos/6197120/pexels-photo-6197120.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 10,
+         title: "Electrician – Switchboard Fix",
+         date: "Mon, Jan 29",
+         time: "5:00 PM",
+         address: "301 Riverwalk, Apt 11",
+         price: "₹299",
+         status: "Upcoming",
+         image:
+           "https://images.pexels.com/photos/4792479/pexels-photo-4792479.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 11,
+         title: "Carpet Shampoo & Dry",
+         date: "Tue, Jan 30",
+         time: "4:00 PM",
+         address: "45 Downtown Plaza, Tower 3",
+         price: "₹1399",
+         status: "Upcoming",
+         image:
+           "https://images.pexels.com/photos/4239148/pexels-photo-4239148.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 12,
+         title: "Home Painting – Living Room",
+         date: "Wed, Jan 31",
+         time: "9:30 AM",
+         address: "20 Hill View Residency, Block F",
+         price: "₹2499",
+         status: "Upcoming",
+         image:
+           "https://images.pexels.com/photos/6474475/pexels-photo-6474475.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+     ],
+
+     completed: [
+       {
+         id: 2,
+         title: "AC Service",
+         date: "Mon, Jan 15",
+         time: "2:00 PM",
+         address: "456 Oak Avenue, House 12",
+         price: "₹499",
+         status: "Completed",
+         image:
+           "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 3,
+         title: "Haircut",
+         date: "Wed, Jan 10",
+         time: "11:00 AM",
+         address: "789 Pine Road, Suite 301",
+         price: "₹299",
+         status: "Completed",
+         image:
+           "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 4,
+         title: "Bathroom Deep Cleaning",
+         date: "Tue, Jan 9",
+         time: "9:30 AM",
+         address: "23 Green View Apartments, Tower 2",
+         price: "₹899",
+         status: "Completed",
+         image:
+           "https://images.pexels.com/photos/4239151/pexels-photo-4239151.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 5,
+         title: "Sofa & Carpet Cleaning",
+         date: "Sun, Jan 7",
+         time: "3:00 PM",
+         address: "221B Baker Street, Floor 1",
+         price: "₹1199",
+         status: "Completed",
+         image:
+           "https://images.pexels.com/photos/4239148/pexels-photo-4239148.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 6,
+         title: "Electrician – Light Fixture Install",
+         date: "Fri, Jan 5",
+         time: "6:00 PM",
+         address: "12 Park Avenue, Apartment 10C",
+         price: "₹349",
+         status: "Completed",
+         image:
+           "https://images.pexels.com/photos/4792479/pexels-photo-4792479.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 7,
+         title: "Salon at Home – Facial & Manicure",
+         date: "Thu, Jan 4",
+         time: "10:30 AM",
+         address: "8 Rose Garden Complex, Flat 16",
+         price: "₹999",
+         status: "Completed",
+         image:
+           "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+       {
+         id: 8,
+         title: "Pest Control (Termites)",
+         date: "Wed, Jan 3",
+         time: "8:00 AM",
+         address: "100 Lakeside Residency, Wing B",
+         price: "₹1499",
+         status: "Completed",
+         image:
+           "https://images.pexels.com/photos/6197120/pexels-photo-6197120.jpeg?auto=compress&cs=tinysrgb&w=600",
+       },
+     ],
+
+     cancelled: [],
+   };
 
   // ✅ Filter bookings based on search
   const filteredBookings = bookings[activeTab].filter((b) =>
