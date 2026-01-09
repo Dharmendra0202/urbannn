@@ -6,18 +6,25 @@ import {
   StyleSheet,
   ScrollView,
   Image,
+  Modal,
+  RefreshControl,
+  TextInput,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors, gradients } from "../theme/colors";
-import { useRouter } from "expo-router"; // ✅ Added import
+import { useRouter } from "expo-router";
 
 export default function BookingsScreen() {
-  const [activeTab, setActiveTab] = useState<"upcoming" | "completed" | "cancelled">(
-    "upcoming"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "upcoming" | "completed" | "cancelled"
+  >("upcoming");
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [rating, setRating] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const router = useRouter(); // ✅ Added router instance
+  const router = useRouter();
 
   // ✅ Sample data
   const bookings = {
@@ -61,12 +68,44 @@ export default function BookingsScreen() {
     cancelled: [],
   };
 
+  // ✅ Filter bookings based on search
+  const filteredBookings = bookings[activeTab].filter((b) =>
+    b.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // ✅ Pull-to-refresh
+  const onRefresh = async () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  };
+
+  // ⭐ Rating component
+  const RatingStars = ({ rating, setRating }: any) => (
+    <View style={{ flexDirection: "row", marginTop: 8 }}>
+      {[1, 2, 3, 4, 5].map((star) => (
+        <TouchableOpacity key={star} onPress={() => setRating(star)}>
+          <Ionicons
+            name={star <= rating ? "star" : "star-outline"}
+            size={20}
+            color="#FACC15"
+            style={{ marginRight: 4 }}
+          />
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+
+  // ✅ Render Bookings
   const renderBookings = (list: any[], status: string) => {
     if (list.length === 0) {
       return (
         <View style={styles.emptyContainer}>
           <Ionicons name="calendar-outline" size={42} color="#9CA3AF" />
-          <Text style={styles.emptyTitle}>No {status.toLowerCase()} bookings</Text>
+          <Text style={styles.emptyTitle}>
+            No {status.toLowerCase()} bookings
+          </Text>
           <Text style={styles.emptySubtitle}>
             You don’t have any {status.toLowerCase()} bookings
           </Text>
@@ -75,7 +114,11 @@ export default function BookingsScreen() {
     }
 
     return list.map((item) => (
-      <View key={item.id} style={styles.bookingCard}>
+      <TouchableOpacity
+        key={item.id}
+        style={styles.bookingCard}
+        onPress={() => setSelectedBooking(item)}
+      >
         <Image source={{ uri: item.image }} style={styles.image} />
 
         <View style={{ flex: 1, marginLeft: 10 }}>
@@ -120,7 +163,6 @@ export default function BookingsScreen() {
           <Text style={styles.totalText}>Total</Text>
           <Text style={styles.price}>{item.price}</Text>
 
-          {/* Buttons */}
           {item.status === "Upcoming" ? (
             <View style={styles.actionButtons}>
               <TouchableOpacity style={styles.rescheduleBtn}>
@@ -131,34 +173,46 @@ export default function BookingsScreen() {
               </TouchableOpacity>
             </View>
           ) : (
-            <TouchableOpacity style={styles.bookAgainBtn}>
-              <LinearGradient
-                colors={gradients.purple}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.bookAgainGradient}
-              >
-                <Text style={styles.bookAgainText}>Book Again</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+            <>
+              <TouchableOpacity style={styles.bookAgainBtn}>
+                <LinearGradient
+                  colors={gradients.purple}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.bookAgainGradient}
+                >
+                  <Text style={styles.bookAgainText}>Book Again</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+              <RatingStars rating={rating} setRating={setRating} />
+            </>
           )}
         </View>
-      </View>
+      </TouchableOpacity>
     ));
   };
 
   return (
     <View style={styles.container}>
-      {/* ✅ Header with working back button */}
+      {/* ✅ Header */}
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => router.replace("/categories")} // ✅ Updated navigation
+          onPress={() => router.replace("/categories")}
           style={styles.backButton}
         >
           <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>My Bookings</Text>
       </View>
+
+      {/* 🔍 Search */}
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search bookings..."
+        placeholderTextColor="#9CA3AF"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
 
       {/* Tabs */}
       <View style={styles.tabContainer}>
@@ -183,10 +237,49 @@ export default function BookingsScreen() {
         ))}
       </View>
 
-      {/* Tab Content */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {renderBookings(bookings[activeTab], activeTab)}
+      {/* Content */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {renderBookings(filteredBookings, activeTab)}
       </ScrollView>
+
+      {/* ➕ Floating Button */}
+      {/* <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push("/book-service")}
+      >
+        <Ionicons name="add" size={28} color="#fff" />
+      </TouchableOpacity> */}
+
+      {/* 📋 Booking Details Modal */}
+      <Modal visible={!!selectedBooking} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{selectedBooking?.title}</Text>
+            <Text style={styles.modalText}>Date: {selectedBooking?.date}</Text>
+            <Text style={styles.modalText}>Time: {selectedBooking?.time}</Text>
+            <Text style={styles.modalText}>
+              Address: {selectedBooking?.address}
+            </Text>
+            <Text style={styles.modalText}>
+              Price: {selectedBooking?.price}
+            </Text>
+            <Text style={styles.modalText}>Staff: John Doe</Text>
+            <Text style={styles.modalText}>Payment: Online</Text>
+
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setSelectedBooking(null)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -196,15 +289,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     padding: 16,
-    paddingTop: 60, // 🧭 Adjust this to control top spacing
+    paddingTop: 60,
   },
 
   header: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
-  backButton: { padding: 4, marginRight: 8 }, // ✅ Added padding for touch area
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "700",
+  backButton: { padding: 4, marginRight: 8 },
+  headerTitle: { fontSize: 20, fontWeight: "700", color: colors.textPrimary },
+
+  searchInput: {
+    backgroundColor: "#F3F4F6",
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    fontSize: 14,
     color: colors.textPrimary,
+    marginBottom: 12,
   },
 
   tabContainer: {
@@ -282,4 +381,36 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   emptySubtitle: { fontSize: 13, color: "#6B7280" },
+
+  fab: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "#7C3AED",
+    borderRadius: 50,
+    padding: 16,
+    elevation: 4,
+  },
+
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    width: "85%",
+  },
+  modalTitle: { fontSize: 18, fontWeight: "700", marginBottom: 8 },
+  modalText: { fontSize: 14, color: "#4B5563", marginBottom: 4 },
+  closeButton: {
+    backgroundColor: "#7C3AED",
+    borderRadius: 8,
+    paddingVertical: 10,
+    marginTop: 12,
+  },
+  closeButtonText: { color: "#fff", fontWeight: "600", textAlign: "center" },
 });
