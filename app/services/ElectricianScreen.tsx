@@ -6,8 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Image,
   FlatList,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -17,159 +17,191 @@ import { useRouter } from "expo-router";
 export default function ElectricianScreen() {
   const router = useRouter();
 
-  // 🔹 Sample data (Replace with backend data later)
-  const topElectricians = [
+  const sections = [
     {
-      id: "1",
-      name: "Amit Sharma",
-      rating: 4.9,
-      experience: "8 yrs experience",
-      image: "https://i.pravatar.cc/150?img=3",
+      title: "⚡ Electrical Services",
+      colors: ["#4F46E5", "#7C3AED"],
+      description: "Expert electricians to light up your home and office.",
+      data: [
+        {
+          icon: "bulb-outline",
+          title: "Light Installation 💡",
+          desc: "Ceiling, wall & decorative lighting setup",
+          color: "#FACC15",
+        },
+        {
+          icon: "flash-outline",
+          title: "Switch Board Repair 🔌",
+          desc: "Fix or replace old and damaged boards",
+          color: "#F59E0B",
+        },
+        {
+          icon: "construct-outline",
+          title: "Wiring & Fittings 🧰",
+          desc: "Full home wiring, repair & new installations",
+          color: "#3B82F6",
+        },
+      ],
     },
     {
-      id: "2",
-      name: "Rahul Verma",
-      rating: 4.8,
-      experience: "5 yrs experience",
-      image: "https://i.pravatar.cc/150?img=5",
+      title: "🔧 Repairs & Installation",
+      colors: ["#0EA5E9", "#06B6D4"],
+      description: "Seamless setup, repairs, and maintenance.",
+      data: [
+        {
+          icon: "battery-charging-outline",
+          title: "Inverter & Battery Setup 🔋",
+          desc: "Complete power backup installation",
+          color: "#22C55E",
+        },
+        {
+          icon: "tv-outline",
+          title: "Appliance Connections 📺",
+          desc: "Geysers, washing machines & more",
+          color: "#EC4899",
+        },
+        {
+          icon: "speedometer-outline",
+          title: "Voltage Stabilizer ⚙️",
+          desc: "Protect your devices from power surges",
+          color: "#8B5CF6",
+        },
+      ],
     },
     {
-      id: "3",
-      name: "Vijay Singh",
-      rating: 4.7,
-      experience: "6 yrs experience",
-      image: "https://i.pravatar.cc/150?img=7",
+      title: "🧰 Safety & Verification",
+      colors: ["#F97316", "#FB923C"],
+      description: "We care about your safety and service quality.",
+      data: [
+        {
+          icon: "shield-checkmark-outline",
+          title: "Verified Professionals 🧑‍🔧",
+          desc: "Background checked and certified staff",
+          color: "#22C55E",
+        },
+        {
+          icon: "ribbon-outline",
+          title: "Guaranteed Work 🛠️",
+          desc: "Warranty on every electrical service",
+          color: "#3B82F6",
+        },
+        {
+          icon: "happy-outline",
+          title: "Customer Satisfaction 🌟",
+          desc: "Rated 4.9⭐ across 5,000+ happy clients",
+          color: "#F59E0B",
+        },
+      ],
     },
   ];
 
-  const commonServices = [
-    {
-      icon: "bulb-outline",
-      title: "Light Installation",
-      desc: "Ceiling, wall & decorative lights",
-    },
-    {
-      icon: "flash-outline",
-      title: "Switch Board Repair",
-      desc: "Replace or fix switches & sockets",
-    },
-    {
-      icon: "construct-outline",
-      title: "Wiring & Fittings",
-      desc: "Home wiring, circuit repair & upgrades",
-    },
-    {
-      icon: "battery-charging-outline",
-      title: "Inverter Setup",
-      desc: "Installation & maintenance of inverters",
-    },
-    {
-      icon: "tv-outline",
-      title: "Appliance Connections",
-      desc: "Washing machines, geysers, TVs, etc.",
-    },
-  ];
-
-  const safetyChecks = [
-    "All electricians are background verified",
-    "100% satisfaction guaranteed",
-    "Use of high-quality wires and components",
-    "Trained and certified professionals",
-  ];
+  const specialOffer = {
+    title: "🎁 New Year Offer!",
+    subtitle: "Get 25% OFF on all electrical services this month",
+    gradient: ["#7C3AED", "#EC4899"],
+    icon: "gift-outline",
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* HEADER SECTION */}
+    <SafeAreaView style={styles.safeArea}>
+      {/* 🔹 Header */}
       <LinearGradient
         colors={["#6366F1", "#8B5CF6"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.headerGradient}
       >
-        <View style={styles.headerTop}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <View style={styles.headerRow}>
+          <TouchableOpacity onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Electrician Services</Text>
+          <Text style={styles.headerTitle}>Electrician Services ⚡</Text>
+          <View style={{ width: 24 }} />
         </View>
         <Text style={styles.headerSubtitle}>
-          Reliable electricians for your home and office
+          Professional electricians for safe, bright, and powerful homes 🔌
         </Text>
         <Image
-          source={{ uri: "https://cdn-icons-png.flaticon.com/512/2857/2857392.png" }}
+          source={{
+            uri: "https://cdn-icons-png.flaticon.com/512/2857/2857392.png",
+          }}
           style={styles.headerImage}
         />
       </LinearGradient>
 
-      {/* BODY */}
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* 🔹 BEST ELECTRICIANS SECTION */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Best Electricians Near You</Text>
+      {/* 🔹 Content */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+      >
+        {sections.map((section, index) => {
+          const sectionColors = (
+            Array.isArray(section.colors)
+              ? section.colors
+              : ["#7C3AED", "#A855F7"]
+          ) as readonly string[];
 
-          <FlatList
-            data={topElectricians}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.electricianCard} activeOpacity={0.8}>
-                <Image source={{ uri: item.image }} style={styles.profileImage} />
-                <Text style={styles.electricianName}>{item.name}</Text>
-                <Text style={styles.electricianExp}>{item.experience}</Text>
-                <View style={styles.ratingRow}>
-                  <Ionicons name="star" size={14} color="#FBBF24" />
-                  <Text style={styles.ratingText}>{item.rating}</Text>
+          return (
+            <View key={index} style={styles.section}>
+              <LinearGradient
+                {...({
+                  colors: sectionColors,
+                  start: { x: 0, y: 0 },
+                  end: { x: 1, y: 1 },
+                  style: styles.sectionBanner,
+                } as any)}
+              >
+                <Text style={styles.sectionTitle}>{section.title}</Text>
+                <Text style={styles.sectionDesc}>{section.description}</Text>
+              </LinearGradient>
+
+              {section.data.map((item, i) => (
+                <View key={i} style={styles.card}>
+                  <View
+                    style={[
+                      styles.iconBox,
+                      { backgroundColor: item.color + "20" },
+                    ]}
+                  >
+                    <Ionicons
+                      name={item.icon as any}
+                      size={26}
+                      color={item.color}
+                    />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.cardTitle}>{item.title}</Text>
+                    <Text style={styles.cardDesc}>{item.desc}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.bookButton}>
+                    <Text style={styles.bookText}>Book</Text>
+                  </TouchableOpacity>
                 </View>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-
-        {/* 🔹 COMMON SERVICES SECTION */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Common Electrical Services</Text>
-          {commonServices.map((service, index) => (
-            <View key={index} style={styles.serviceCard}>
-              <View style={styles.serviceIconBox}>
-                <Ionicons name={service.icon as any} size={24} color="#6366F1" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.serviceTitle}>{service.title}</Text>
-                <Text style={styles.serviceDesc}>{service.desc}</Text>
-              </View>
-              <TouchableOpacity style={styles.bookButton}>
-                <Text style={styles.bookText}>Book</Text>
-              </TouchableOpacity>
+              ))}
             </View>
-          ))}
-        </View>
+          );
+        })}
 
-        {/* 🔹 SAFETY CHECKS SECTION */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Safety & Quality Assurance</Text>
-          {safetyChecks.map((item, index) => (
-            <View key={index} style={styles.checkItem}>
-              <Ionicons name="shield-checkmark-outline" size={20} color="#22C55E" />
-              <Text style={styles.checkText}>{item}</Text>
-            </View>
-          ))}
-        </View>
+        {/* 🔹 Special Offer */}
+        <LinearGradient
+          colors={specialOffer.gradient as [string, string]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.offerCard}
+        >
+          <Ionicons name={specialOffer.icon as any} size={32} color="#fff" />
+          <View style={{ marginLeft: 12 }}>
+            <Text style={styles.offerTitle}>{specialOffer.title}</Text>
+            <Text style={styles.offerSubtitle}>{specialOffer.subtitle}</Text>
+          </View>
+        </LinearGradient>
 
-        {/* 🔹 OFFERS SECTION */}
-        <View style={styles.section}>
-          <LinearGradient
-            colors={["#FDE68A", "#FCD34D"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.offerCard}
-          >
-            <Ionicons name="gift-outline" size={28} color="#92400E" />
-            <View style={{ marginLeft: 10 }}>
-              <Text style={styles.offerTitle}>Special Offer</Text>
-              <Text style={styles.offerDesc}>Get 20% off on your first electrician service</Text>
-            </View>
-          </LinearGradient>
+        {/* 🔹 Footer Message */}
+        <View style={styles.footer}>
+          <Ionicons name="flash-outline" size={20} color="#7C3AED" />
+          <Text style={styles.footerText}>
+            Power your home with trusted professionals ⚡
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -178,90 +210,94 @@ export default function ElectricianScreen() {
 
 // 💅🏻 Styles
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  safeArea: { flex: 1, backgroundColor: "#F9FAFB" },
+  scroll: { padding: 16, paddingBottom: 140 },
 
   headerGradient: {
+    paddingVertical: 35,
     paddingHorizontal: 16,
-    paddingTop: 35,
-    paddingBottom: 45,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    position: "relative",
-    overflow: "hidden",
-  },
-  headerTop: {
-    flexDirection: "row",
-    alignItems: "center",
     marginBottom: 12,
+    position: "relative",
   },
-  backButton: { marginRight: 10 },
-  headerTitle: { fontSize: 22, fontWeight: "700", color: "#fff" },
-  headerSubtitle: { fontSize: 14, color: "#E0E7FF", marginTop: 4 },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  headerTitle: { fontSize: 22, fontWeight: "800", color: "#fff" },
+  headerSubtitle: { color: "#E0E7FF", fontSize: 13, marginTop: 8 },
   headerImage: {
     position: "absolute",
-    right: 20,
-    bottom: 10,
+    right: 10,
+    bottom: 0,
     width: 100,
     height: 100,
     opacity: 0.25,
   },
 
-  section: { marginTop: 20, paddingHorizontal: 16 },
-  sectionTitle: { fontSize: 18, fontWeight: "700", color: "#111827", marginBottom: 12 },
-
-  electricianCard: {
-    backgroundColor: "#F9FAFB",
-    padding: 16,
+  section: { marginBottom: 24 },
+  sectionBanner: {
     borderRadius: 14,
-    alignItems: "center",
-    marginRight: 14,
-    width: 140,
-    elevation: 3,
+    padding: 16,
+    marginBottom: 12,
+    elevation: 2,
   },
-  profileImage: { width: 60, height: 60, borderRadius: 30, marginBottom: 8 },
-  electricianName: { fontSize: 15, fontWeight: "600", color: "#111" },
-  electricianExp: { fontSize: 12, color: "#6B7280", marginBottom: 4 },
-  ratingRow: { flexDirection: "row", alignItems: "center" },
-  ratingText: { fontSize: 12, color: "#111", marginLeft: 4 },
+  sectionTitle: { fontSize: 18, fontWeight: "800", color: "#fff" },
+  sectionDesc: { fontSize: 13, color: "#F3F4F6", marginTop: 4 },
 
-  serviceCard: {
+  card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#fff",
     borderRadius: 14,
     padding: 14,
-    marginBottom: 12,
-    elevation: 1,
+    marginBottom: 10,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
   },
-  serviceIconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#EEF2FF",
-    alignItems: "center",
+  iconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
     justifyContent: "center",
+    alignItems: "center",
     marginRight: 12,
   },
-  serviceTitle: { fontSize: 15, fontWeight: "600", color: "#111" },
-  serviceDesc: { fontSize: 13, color: "#6B7280" },
+  cardTitle: { fontSize: 15, fontWeight: "700", color: "#111827" },
+  cardDesc: { fontSize: 13, color: "#6B7280", marginTop: 2 },
   bookButton: {
-    backgroundColor: "#6366F1",
+    backgroundColor: "#7C3AED",
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 8,
   },
   bookText: { color: "#fff", fontWeight: "600", fontSize: 13 },
 
-  checkItem: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
-  checkText: { fontSize: 14, color: "#374151", marginLeft: 8 },
-
   offerCard: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 14,
-    padding: 16,
-    elevation: 2,
+    borderRadius: 16,
+    padding: 18,
+    marginVertical: 24,
+    elevation: 3,
   },
-  offerTitle: { fontSize: 16, fontWeight: "700", color: "#78350F" },
-  offerDesc: { fontSize: 13, color: "#92400E" },
+  offerTitle: { fontSize: 16, fontWeight: "700", color: "#fff" },
+  offerSubtitle: { fontSize: 13, color: "#E0E7FF", marginTop: 2 },
+
+  footer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 16,
+  },
+  footerText: {
+    color: "#4B5563",
+    fontSize: 13,
+    marginLeft: 8,
+    textAlign: "center",
+  },
 });
