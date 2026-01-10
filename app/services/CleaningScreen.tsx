@@ -127,136 +127,133 @@ export default function CleaningScreen() {
     },
   ];
 
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* Gradient Header */}
+return (
+  <SafeAreaView style={styles.safeArea}>
+    {/* Gradient Header */}
+    <LinearGradient
+      colors={["#7C3AED", "#A855F7"]}
+      style={styles.headerGradient}
+    >
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Home & Cleaning Services</Text>
+        <View style={{ width: 24 }} />
+      </View>
+      <Text style={styles.headerSubtitle}>
+        Transform your home into a sparkling, fresh, and comfortable space ✨
+      </Text>
+    </LinearGradient>
+
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scroll}
+    >
+      {sections.map((section, index) => {
+        const sectionColor = (
+          Array.isArray(section.color) ? section.color : ["#7C3AED", "#A855F7"]
+        ) as readonly string[]; // ✅ correct type
+
+        return (
+          // ✅ FIXED HERE: replaced "//// colors issue fixed here" with valid JSX comment
+          <View key={index} style={styles.section}>
+            {/* colors issue fixed here */}
+            <LinearGradient
+              {...({
+                colors: sectionColor,
+                start: { x: 0, y: 0 },
+                end: { x: 1, y: 1 },
+                style: styles.sectionBanner,
+              } as any)}
+            >
+              <Text style={styles.sectionTitle}>{section.title}</Text>
+              <Text style={styles.sectionDesc}>{section.description}</Text>
+            </LinearGradient>
+
+            <FlatList
+              data={section.data}
+              keyExtractor={(item) => item.id}
+              scrollEnabled={false}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.card}
+                  onPress={() => console.log(`Selected ${item.title}`)}
+                >
+                  <View
+                    style={[
+                      styles.iconBox,
+                      { backgroundColor: item.color + "20" },
+                    ]}
+                  >
+                    <Ionicons
+                      name={item.icon as any}
+                      size={26}
+                      color={item.color}
+                    />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.cardTitle}>{item.title}</Text>
+                    <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        );
+      })}
+
+      {/* ✅ Big Promotional Banner */}
       <LinearGradient
-        colors={["#7C3AED", "#A855F7"]}
-        style={styles.headerGradient}
+        colors={["#7C3AED", "#EC4899"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.bigBanner}
       >
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#fff" />
+        <Image
+          source={{
+            uri: "https://images.pexels.com/photos/4107281/pexels-photo-4107281.jpeg?auto=compress&cs=tinysrgb&w=800",
+          }}
+          style={styles.bannerImage}
+          resizeMode="cover"
+        />
+        <View style={styles.bannerContent}>
+          <Text style={styles.bannerTitle}>✨ Premium Home Makeover</Text>
+          <Text style={styles.bannerSubtitle}>
+            Book a full home transformation package and get 25% OFF!
+          </Text>
+          <TouchableOpacity style={styles.bannerButton}>
+            <Text style={styles.bannerButtonText}>Explore Offers →</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Home & Cleaning Services</Text>
-          <View style={{ width: 24 }} />
         </View>
-        <Text style={styles.headerSubtitle}>
-          Transform your home into a sparkling, fresh, and comfortable space ✨
-        </Text>
       </LinearGradient>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scroll}
-      >
-        {sections.map((section, index) => {
-          const sectionColor = (
-            Array.isArray(section.color)
-              ? section.color
-              : ["#7C3AED", "#A855F7"]
-          ) as readonly string[]; // ✅ correct type
+      {/* ✅ Bonus Section - Quick Essentials */}
+      <View style={{ marginTop: 24 }}>
+        <Text style={styles.quickTitle}>🧹 Quick Essentials</Text>
+        <Text style={styles.quickSubtitle}>
+          Must-have cleaning products to keep your home spotless
+        </Text>
 
-          return (
-            <View key={index} style={styles.section}> //// colors issue fixed here 
-              <LinearGradient
-                {...({
-                  colors: sectionColor,
-                  start: { x: 0, y: 0 },
-                  end: { x: 1, y: 1 },
-                  style: styles.sectionBanner,
-                } as any)}
-              >
-                <Text style={styles.sectionTitle}>{section.title}</Text>
-                <Text style={styles.sectionDesc}>{section.description}</Text>
-              </LinearGradient> 
-
-              <FlatList
-                data={section.data}
-                keyExtractor={(item) => item.id}
-                scrollEnabled={false}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.card}
-                    onPress={() => console.log(`Selected ${item.title}`)}
-                  >
-                    <View
-                      style={[
-                        styles.iconBox,
-                        { backgroundColor: item.color + "20" },
-                      ]}
-                    >
-                      <Ionicons
-                        name={item.icon as any}
-                        size={26}
-                        color={item.color}
-                      />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.cardTitle}>{item.title}</Text>
-                      <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
-                    </View>
-                    <Ionicons
-                      name="chevron-forward"
-                      size={20}
-                      color="#9CA3AF"
-                    />
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-          );
-        })}
-
-        {/* ✅ Big Promotional Banner */}
-        <LinearGradient
-          colors={["#7C3AED", "#EC4899"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.bigBanner}
-        >
-          <Image
-            source={{
-              uri: "https://images.pexels.com/photos/4107281/pexels-photo-4107281.jpeg?auto=compress&cs=tinysrgb&w=800",
-            }}
-            style={styles.bannerImage}
-            resizeMode="cover"
-          />
-          <View style={styles.bannerContent}>
-            <Text style={styles.bannerTitle}>✨ Premium Home Makeover</Text>
-            <Text style={styles.bannerSubtitle}>
-              Book a full home transformation package and get 25% OFF!
+        <View style={styles.quickList}>
+          {[
+            "🧽 Floor Mop Set",
+            "🪣 Cleaning Spray Kit",
+            "🧴 Disinfectant",
+            "🧼 Surface Cleaner",
+            "🧤 Gloves & Cloth Pack",
+          ].map((item, idx) => (
+            <Text key={idx} style={styles.quickItem}>
+              {item}
             </Text>
-            <TouchableOpacity style={styles.bannerButton}>
-              <Text style={styles.bannerButtonText}>Explore Offers →</Text>
-            </TouchableOpacity>
-          </View>
-        </LinearGradient>
-
-        {/* ✅ Bonus Section - Quick Essentials */}
-        <View style={{ marginTop: 24 }}>
-          <Text style={styles.quickTitle}>🧹 Quick Essentials</Text>
-          <Text style={styles.quickSubtitle}>
-            Must-have cleaning products to keep your home spotless
-          </Text>
-
-          <View style={styles.quickList}>
-            {[
-              "🧽 Floor Mop Set",
-              "🪣 Cleaning Spray Kit",
-              "🧴 Disinfectant",
-              "🧼 Surface Cleaner",
-              "🧤 Gloves & Cloth Pack",
-            ].map((item, idx) => (
-              <Text key={idx} style={styles.quickItem}>
-                {item}
-              </Text>
-            ))}
-          </View>
+          ))}
         </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+      </View>
+    </ScrollView>
+  </SafeAreaView>
+);
+
 }
 
 const styles = StyleSheet.create({
