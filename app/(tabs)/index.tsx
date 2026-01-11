@@ -549,6 +549,26 @@ const HomeScreen: React.FC = () => {
   const [search, setSearch] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const router = useRouter();
+  // ✅ Derived filtered lists based on search
+  const filteredSpecialists = specialists.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredOffers = offers.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredEssentials = cleaningEssentials.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredRepair = homeRepair.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredRecommended = recommendedServices.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   // ✅ Location state
   const [location, setLocation] = useState<string>("Tap to enable location");
@@ -799,7 +819,7 @@ const HomeScreen: React.FC = () => {
         </View>
         <FlatList
           horizontal
-          data={specialists}
+          data={filteredSpecialists} // ✅ now shows only searched items
           renderItem={({ item }) => <HorizontalCard item={item} />}
           keyExtractor={(item) => item.id}
           showsHorizontalScrollIndicator={false}
@@ -813,14 +833,23 @@ const HomeScreen: React.FC = () => {
             <Text style={styles.seeAll}>See more</Text>
           </TouchableOpacity>
         </View>
-        <FlatList
-          horizontal
-          data={offers}
-          renderItem={({ item }) => <HorizontalCard item={item} />}
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingVertical: 4 }} // // boxes height
-        />
+
+        {filteredOffers.length === 0 ? (
+          <Text
+            style={{ textAlign: "center", color: "#6B7280", marginBottom: 10 }}
+          >
+            No offers found
+          </Text>
+        ) : (
+          <FlatList
+            horizontal
+            data={filteredOffers} // ✅ connected to your search bar
+            renderItem={({ item }) => <HorizontalCard item={item} />}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingVertical: 4 }} // boxes height
+          />
+        )}
 
         {/* Cleaning Essentials */}
         <View style={styles.sectionHeader}>
@@ -829,14 +858,23 @@ const HomeScreen: React.FC = () => {
             <Text style={styles.seeAll}>See more</Text>
           </TouchableOpacity>
         </View>
-        <FlatList
-          horizontal
-          data={cleaningEssentials}
-          renderItem={({ item }) => <HorizontalCard item={item} />}
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingVertical: 4 }} // boxes height
-        />
+
+        {filteredEssentials.length === 0 ? (
+          <Text
+            style={{ textAlign: "center", color: "#6B7280", marginBottom: 10 }}
+          >
+            No cleaning essentials found
+          </Text>
+        ) : (
+          <FlatList
+            horizontal
+            data={filteredEssentials} // ✅ filters cleaning essentials
+            renderItem={({ item }) => <HorizontalCard item={item} />}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingVertical: 4 }} // boxes height
+          />
+        )}
 
         {/* Home Repair & Installation */}
         <View style={styles.sectionHeader}>
@@ -845,22 +883,23 @@ const HomeScreen: React.FC = () => {
             <Text style={styles.seeAll}>See more</Text>
           </TouchableOpacity>
         </View>
-        <FlatList
-          horizontal
-          data={homeRepair}
-          renderItem={({ item }) => <HorizontalCard item={item} />}
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingVertical: 4 }} // ✅ adds space top & bottom
-        />
-        <FlatList
-          horizontal
-          data={homeRepair}
-          renderItem={({ item }) => <HorizontalCard item={item} />}
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingVertical: 4 }} // ✅ adds space top & bottom
-        />
+
+        {filteredRepair.length === 0 ? (
+          <Text
+            style={{ textAlign: "center", color: "#6B7280", marginBottom: 10 }}
+          >
+            No repair services found
+          </Text>
+        ) : (
+          <FlatList
+            horizontal
+            data={filteredRepair} // ✅ filters repair list
+            renderItem={({ item }) => <HorizontalCard item={item} />}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingVertical: 4 }} // ✅ adds space top & bottom
+          />
+        )}
 
         {/* Big Promotional Banner */}
         <View style={styles.bigBannerWrapper}>
@@ -901,14 +940,23 @@ const HomeScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <FlatList
-          horizontal
-          data={recommendedServices}
-          renderItem={({ item }) => <MiniServiceCard item={item} />}
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingVertical: 6 }}
-        />
+        {filteredRecommended.length === 0 ? (
+          <Text
+            style={{ textAlign: "center", color: "#6B7280", marginBottom: 10 }}
+          >
+            No recommended services found
+          </Text>
+        ) : (
+          <FlatList
+            horizontal
+            data={filteredRecommended} // ✅ filters recommended section
+            renderItem={({ item }) => <MiniServiceCard item={item} />}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingVertical: 6 }}
+          />
+        )}
+
         {/* 
           ✅ Quick Home Services Section
           <View style={styles.sectionHeader}>
