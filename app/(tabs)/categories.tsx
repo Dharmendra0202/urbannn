@@ -7,8 +7,8 @@ import {
   ScrollView,
   ImageBackground,
   Image,
-  Dimensions,
   FlatList,
+  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -20,31 +20,35 @@ import { Easing } from "react-native-reanimated";
 const { width } = Dimensions.get("window");
 const cardWidth = (width - 64) / 4;
 
+// 🎨 Theme Colors
 const colors = {
   background: "#F9FAFB",
-  textPrimary: "#111827",
-  textSecondary: "#6B7280",
+  textPrimary: "#0F172A",
+  textSecondary: "#64748B",
   white: "#FFFFFF",
-  accent: "#7C3AED",
-  accentLight: "#A855F7",
+  accent: "#7C3AED", // purple accent
+  blue: "#06B6D4",
+  teal: "#3B82F6",
+  gradientStart: "#06B6D4",
+  gradientEnd: "#3B82F6",
 };
 
-// ✅ Gradient Presets
+// ✅ Gradients
 const gradients: Record<string, [string, string]> = {
-  purple: ["#8B5CF6", "#7C3AED"],
-  orange: ["#F59E0B", "#F97316"],
+  blue: ["#06B6D4", "#3B82F6"],
+  teal: ["#14B8A6", "#0EA5E9"],
+  purple: ["#A855F7", "#7C3AED"],
   pink: ["#EC4899", "#F472B6"],
-  green: ["#22C55E", "#16A34A"],
-  blue: ["#3B82F6", "#06B6D4"],
+  orange: ["#F59E0B", "#F97316"],
 };
 
 // ✅ Categories
 const categories = [
   {
     id: 1,
-    name: "Cleaning",
+    name: "Home Cleaning",
     icon: "sparkles-outline",
-    gradient: gradients.purple,
+    gradient: gradients.blue,
   },
   {
     id: 2,
@@ -52,13 +56,13 @@ const categories = [
     icon: "flash-outline",
     gradient: gradients.orange,
   },
-  { id: 3, name: "Plumbing", icon: "water-outline", gradient: gradients.blue },
+  { id: 3, name: "Plumbing", icon: "water-outline", gradient: gradients.teal },
   { id: 4, name: "AC Repair", icon: "snow-outline", gradient: gradients.blue },
   {
     id: 5,
     name: "Men’s Salon",
     icon: "cut-outline",
-    gradient: gradients.green,
+    gradient: gradients.purple,
   },
   {
     id: 6,
@@ -76,7 +80,7 @@ const categories = [
     id: 8,
     name: "Appliance Repair",
     icon: "tv-outline",
-    gradient: gradients.purple,
+    gradient: gradients.teal,
   },
 ];
 
@@ -102,7 +106,14 @@ const featured = [
   },
 ];
 
-// ✅ Top Rated Professionals
+// ✅ Offers
+const offers = [
+  { id: 1, title: "🎉 20% OFF on First Booking", colors: gradients.blue },
+  { id: 2, title: "💆 Free Add-on with Spa Services", colors: gradients.pink },
+  { id: 3, title: "💡 ₹100 Cashback on AC Repairs", colors: gradients.teal },
+];
+
+// ✅ Professionals
 const professionals = [
   {
     id: 1,
@@ -133,32 +144,6 @@ const professionals = [
     image: "https://randomuser.me/api/portraits/women/55.jpg",
   },
 ];
-type Offer = {
-  id: number;
-  title: string;
-  colors: [string, string]; // exactly two colors
-};
-
-const offers: Offer[] = [
-  {
-    id: 1,
-    title: "🎉 25% OFF on First Booking!",
-    colors: ["#7C3AED", "#A855F7"],
-  },
-  {
-    id: 2,
-    title: "💆 Free Massage Add-on on Spa Services",
-    colors: ["#F472B6", "#EC4899"],
-  },
-  {
-    id: 3,
-    title: "💡 Get ₹100 Cashback on AC Repairs",
-    colors: ["#3B82F6", "#06B6D4"],
-  },
-];
-
-
-
 
 export default function CategoriesScreen() {
   const router = useRouter();
@@ -186,27 +171,21 @@ export default function CategoriesScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
 
-        <MotiText
-          from={{ opacity: 0, translateY: -10 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          transition={{ type: "timing", duration: 700 }}
-          style={styles.headerTitle}
-        >
-          All <Text style={{ color: colors.accentLight }}>Categories</Text>
-        </MotiText>
+        <View>
+          <Text style={styles.greeting}>Hey there 👋</Text>
+          <Text style={styles.headerTitle}>Find trusted experts near you</Text>
+        </View>
       </View>
 
-      {/* 🔮 Gradient Banner */}
+      {/* 🌈 Hero Banner */}
       <LinearGradient
-        colors={["#8B5CF6", "#7C3AED"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        colors={[colors.gradientStart, colors.gradientEnd]}
         style={styles.banner}
       >
         <View>
-          <Text style={styles.bannerTitle}>Discover Expert Services</Text>
+          <Text style={styles.bannerTitle}>Book Home Services Easily 🏡</Text>
           <Text style={styles.bannerSub}>
-            Your comfort, our responsibility 💜
+            Reliable professionals, just a tap away
           </Text>
         </View>
         <Image
@@ -217,7 +196,8 @@ export default function CategoriesScreen() {
         />
       </LinearGradient>
 
-      {/* 💫 Animated Category Grid */}
+      {/* 💫 Categories */}
+      <Text style={styles.sectionTitle}>Explore Categories</Text>
       <View style={styles.grid}>
         {categories.map((cat, index) => (
           <MotiView
@@ -234,11 +214,21 @@ export default function CategoriesScreen() {
             <TouchableOpacity
               style={styles.categoryCard}
               activeOpacity={0.9}
-              onPress={() =>
-                router.push(
-                  `/services/${cat.name.replace(/[^\w]/g, "")}Screen` as any
-                )
-              }
+              onPress={() => {
+                const routeMap: Record<string, string> = {
+                  "Home Cleaning": "/services/CleaningScreen",
+                  Electrician: "/services/ElectricianScreen",
+                  Plumbing: "/services/PlumbingScreen",
+                  "AC Repair": "/services/ACRepairScreen",
+                  "Men’s Salon": "/services/MensSalonScreen",
+                  "Women’s Salon": "/services/WomensSalonScreen",
+                  "Massage & Spa": "/services/MassageSpaScreen",
+                  "Appliance Repair": "/services/ApplianceRepairScreen",
+                };
+
+                const route = routeMap[cat.name];
+                if (route) router.push(route as any);
+              }}
             >
               <LinearGradient
                 colors={[...cat.gradient]}
@@ -256,34 +246,7 @@ export default function CategoriesScreen() {
         ))}
       </View>
 
-      {/* ✨ Featured Services */}
-      <Text style={styles.sectionTitle}>
-        <Text style={{ color: colors.accent }}>Featured </Text>Services
-      </Text>
-
-      {featured.map((item) => (
-        <TouchableOpacity
-          key={item.id}
-          activeOpacity={0.9}
-          style={styles.featuredCard}
-        >
-          <ImageBackground
-            source={{ uri: item.image }}
-            imageStyle={{ borderRadius: 16 }}
-            style={styles.featuredImage}
-          >
-            <LinearGradient
-              colors={["rgba(0,0,0,0.25)", "rgba(0,0,0,0.6)"]}
-              style={styles.overlay}
-            >
-              <Text style={styles.featuredHeading}>{item.title}</Text>
-              <Text style={styles.featuredSub}>Tap to explore →</Text>
-            </LinearGradient>
-          </ImageBackground>
-        </TouchableOpacity>
-      ))}
-
-      {/* 🎁 Ongoing Offers (moved below featured) */}
+      {/* 🎁 Offers */}
       <Text style={styles.sectionTitle}>Special Offers 🎁</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {offers.map((offer) => (
@@ -291,15 +254,40 @@ export default function CategoriesScreen() {
             key={offer.id}
             colors={offer.colors}
             style={styles.offerCard}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
           >
             <Text style={styles.offerText}>{offer.title}</Text>
           </LinearGradient>
         ))}
       </ScrollView>
 
-      {/* 🏅 Top Rated Professionals (moved below offers) */}
+      {/* 🌟 Featured Services */}
+      <Text style={styles.sectionTitle}>Featured Services</Text>
+      {featured.map((item, i) => (
+        <MotiView
+          key={item.id}
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ delay: i * 150, duration: 600 }}
+        >
+          <TouchableOpacity activeOpacity={0.9} style={styles.featuredCard}>
+            <ImageBackground
+              source={{ uri: item.image }}
+              imageStyle={{ borderRadius: 16 }}
+              style={styles.featuredImage}
+            >
+              <LinearGradient
+                colors={["rgba(0,0,0,0.2)", "rgba(0,0,0,0.6)"]}
+                style={styles.overlay}
+              >
+                <Text style={styles.featuredHeading}>{item.title}</Text>
+                <Text style={styles.featuredSub}>Tap to explore →</Text>
+              </LinearGradient>
+            </ImageBackground>
+          </TouchableOpacity>
+        </MotiView>
+      ))}
+
+      {/* 🏅 Professionals */}
       <Text style={styles.sectionTitle}>Top Rated Professionals ⭐</Text>
       <FlatList
         horizontal
@@ -311,27 +299,74 @@ export default function CategoriesScreen() {
             <Text style={styles.proName}>{item.name}</Text>
             <Text style={styles.proJob}>{item.job}</Text>
             <View style={styles.proRating}>
-              <Ionicons name="star" color="#FAC515" size={14} />
+              <Ionicons name="star" color="#FACC15" size={14} />
               <Text style={styles.proRatingText}>{item.rating}</Text>
             </View>
           </View>
         )}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingVertical: 0,
-          paddingBottom: 0,
-          marginBottom: 0,
-        }}
       />
 
-      {/* <View style={{ height: 1, backgroundColor: "#E5E7EB", marginTop: 10 }} /> */}
+      {/* 🌟 New Sections */}
+      <Text style={styles.sectionTitle}>🔥 Trending Now</Text>
+      <LinearGradient colors={gradients.teal} style={styles.trendingCard}>
+        <Text style={styles.trendingText}>
+          AC Servicing, Deep Cleaning, Home Spa
+        </Text>
+      </LinearGradient>
+
+      <Text style={styles.sectionTitle}>💬 What Our Customers Say</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {[
+          "“Amazing experience!”",
+          "“Fast & professional!”",
+          "“Highly recommended 👏”",
+        ].map((review, i) => (
+          <MotiView
+            key={i}
+            from={{ opacity: 0, translateY: 15 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ delay: i * 100 }}
+            style={styles.reviewCard}
+          >
+            <Text style={styles.reviewText}>{review}</Text>
+          </MotiView>
+        ))}
+      </ScrollView>
+
+      <Text style={styles.sectionTitle}>💎 Why Choose Us</Text>
+      <View style={styles.whyContainer}>
+        {[
+          { icon: "shield-checkmark-outline", text: "Verified Experts" },
+          { icon: "time-outline", text: "On-Time Service" },
+          { icon: "heart-outline", text: "100% Satisfaction" },
+        ].map((item, i) => (
+          <View key={i} style={styles.whyCard}>
+            <Ionicons name={item.icon as any} size={26} color={colors.blue} />
+            <Text style={styles.whyText}>{item.text}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* 🚀 Call To Action */}
+      <LinearGradient colors={gradients.blue} style={styles.ctaCard}>
+        <Text style={styles.ctaText}>Ready to book your next service?</Text>
+        <TouchableOpacity style={styles.ctaButton}>
+          <Text style={styles.ctaButtonText}>Book Now</Text>
+        </TouchableOpacity>
+      </LinearGradient>
+
+      {/* 📞 Footer */}
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          Need help? Contact our 24/7 Support 💬
+        </Text>
+        <Text style={styles.footerBrand}>UrbanEase © 2026</Text>
+      </View>
     </ScrollView>
   );
 }
 
-//
-// 🎨 Styles
-//
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -339,27 +374,34 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingTop: 60,
   },
-  header: { flexDirection: "row", alignItems: "center", marginBottom: 24 },
-  backButton: { padding: 4, marginRight: 8 },
-  headerTitle: { fontSize: 26, fontWeight: "800", color: colors.textPrimary },
+  header: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
+  backButton: { padding: 6, marginRight: 10 },
+  greeting: { color: colors.textSecondary, fontSize: 14 },
+  headerTitle: { fontSize: 22, fontWeight: "700", color: colors.textPrimary },
   banner: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
+    alignItems: "center",
     borderRadius: 20,
     padding: 18,
     marginBottom: 24,
   },
   bannerTitle: { color: "#fff", fontSize: 20, fontWeight: "700" },
-  bannerSub: { color: "#EDE9FE", fontSize: 14, marginTop: 4 },
+  bannerSub: { color: "#E0F2FE", fontSize: 13, marginTop: 4 },
   bannerImage: { width: 70, height: 70, tintColor: "#fff" },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: colors.textPrimary,
+    marginVertical: 14,
+  },
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 10,
   },
-  categoryCard: { width: cardWidth, alignItems: "center", marginBottom: 20 },
+  categoryCard: { width: cardWidth, alignItems: "center", marginBottom: 18 },
   iconContainer: {
     width: 65,
     height: 65,
@@ -373,21 +415,14 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: colors.textPrimary,
     textAlign: "center",
-    width: 80,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: colors.textPrimary,
-    marginVertical: 14,
-  },
+  offerCard: { padding: 16, borderRadius: 16, marginRight: 12, width: 250 },
+  offerText: { color: "#fff", fontWeight: "600", fontSize: 15 },
   featuredCard: { borderRadius: 16, overflow: "hidden", marginBottom: 14 },
   featuredImage: { height: 150, borderRadius: 16, justifyContent: "flex-end" },
   overlay: { borderRadius: 16, padding: 16 },
   featuredHeading: { fontSize: 17, fontWeight: "700", color: "#fff" },
-  featuredSub: { fontSize: 13, color: "#EDE9FE", marginTop: 4 },
-  offerCard: { padding: 16, borderRadius: 16, marginRight: 12, width: 250 },
-  offerText: { color: "#fff", fontWeight: "600", fontSize: 15 },
+  featuredSub: { fontSize: 13, color: "#E0F2FE", marginTop: 4 },
   proCard: {
     backgroundColor: "#fff",
     width: 140,
@@ -395,57 +430,74 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginRight: 12,
     alignItems: "center",
-    justifyContent: "flex-start",
-    overflow: "hidden",
-
-    // ✨ remove shadow to make it flat
-    shadowColor: "transparent",
-    elevation: 0,
-
-    // ✨ visually align with section background
     borderWidth: 1,
     borderColor: "#E5E7EB",
   },
-
-  sectionDivider: {
-    height: 1,
-    backgroundColor: "#E5E7EB", // light gray line
-    marginTop: 10,
-    marginBottom: 10,
-    borderRadius: 1,
+  proImage: { width: 75, height: 75, borderRadius: 999, marginBottom: 10 },
+  proName: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#111827",
+    textAlign: "center",
   },
-
-proImage: {
-  width: 75,
-  height: 75,
-  borderRadius: 999,
-  marginBottom: 10,
-},
-
-proName: {
-  fontSize: 13,
-  fontWeight: "700",
-  color: "#111827",
-  textAlign: "center",
-  marginTop: 0,   // ✅ keep centered
-},
-
-proJob: {
-  fontSize: 12,
-  color: "#6B7280",
-  textAlign: "center",
-  marginTop: 4,   // ✅ slight gap only
-},
-
-proRating: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "center",  // ✅ centers stars + text
-  marginTop: 6,
-},
-proRatingText: {
-  fontSize: 12,
-  color: "#6B7280",
-  marginLeft: 4,
-},
+  proJob: { fontSize: 12, color: "#6B7280", textAlign: "center", marginTop: 2 },
+  proRating: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 4,
+  },
+  proRatingText: { fontSize: 12, color: "#6B7280", marginLeft: 4 },
+  trendingCard: { padding: 18, borderRadius: 16, marginBottom: 14 },
+  trendingText: { color: "#fff", fontWeight: "600", fontSize: 15 },
+  reviewCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginRight: 12,
+    width: 220,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  reviewText: { fontSize: 14, color: colors.textPrimary, fontStyle: "italic" },
+  whyContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  whyCard: { alignItems: "center", width: "30%" },
+  whyText: {
+    marginTop: 8,
+    fontSize: 12,
+    color: colors.textSecondary,
+    textAlign: "center",
+  },
+  ctaCard: {
+    borderRadius: 16,
+    padding: 20,
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  ctaText: { color: "#fff", fontSize: 16, fontWeight: "600", marginBottom: 10 },
+  ctaButton: {
+    backgroundColor: "#fff",
+    borderRadius: 30,
+    paddingVertical: 10,
+    paddingHorizontal: 26,
+  },
+  ctaButtonText: { color: colors.teal, fontWeight: "700", fontSize: 15 },
+  footer: {
+    alignItems: "center",
+    paddingVertical: 20,
+    borderTopWidth: 1,
+    borderColor: "#E5E7EB",
+    marginTop: 10,
+  },
+  footerText: { color: colors.textSecondary, fontSize: 13 },
+  footerBrand: {
+    marginTop: 4,
+    color: colors.textPrimary,
+    fontWeight: "700",
+    fontSize: 14,
+  },
 });
