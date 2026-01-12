@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  FlatList,
+  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -16,6 +16,7 @@ import { useRouter } from "expo-router";
 
 export default function ApplianceRepairScreen() {
   const router = useRouter();
+  const [search, setSearch] = useState("");
 
   const appliances = [
     {
@@ -70,6 +71,11 @@ export default function ApplianceRepairScreen() {
     "⭐ Rated 4.8+ by 10K+ happy customers",
   ];
 
+  // ✅ Search filter
+  const filteredAppliances = appliances.filter((a) =>
+    a.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -82,12 +88,16 @@ export default function ApplianceRepairScreen() {
             <TouchableOpacity onPress={() => router.back()}>
               <Ionicons name="arrow-back" size={26} color="#fff" />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Appliance Repair Services ⚙️</Text>
+            <Text style={styles.headerTitle}>Appliance Repair ⚙️</Text>
+            <TouchableOpacity
+              onPress={() => alert("Notifications Coming Soon!")}
+            >
+              <Ionicons name="notifications-outline" size={26} color="#fff" />
+            </TouchableOpacity>
           </View>
           <Text style={styles.headerSubtitle}>
-            Reliable repairs for all your home & kitchen appliances 🔧
+            Reliable repairs for your home & kitchen appliances 🔧
           </Text>
-
           <Image
             source={{
               uri: "https://cdn-icons-png.flaticon.com/512/3643/3643104.png",
@@ -97,40 +107,88 @@ export default function ApplianceRepairScreen() {
           />
         </LinearGradient>
 
-        {/* ⚡ Appliance Grid Section */}
+        {/* 🔍 Search */}
+        <View style={styles.searchContainer}>
+          <Ionicons name="search-outline" size={20} color="#9CA3AF" />
+          <TextInput
+            placeholder="Search for an appliance..."
+            placeholderTextColor="#9CA3AF"
+            style={styles.searchInput}
+            value={search}
+            onChangeText={setSearch}
+          />
+        </View>
+
+        {/* ⭐ Featured Service */}
+        <LinearGradient
+          colors={["#A78BFA", "#7C3AED"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.featureCard}
+        >
+          <Image
+            source={{
+              uri: "https://cdn-icons-png.flaticon.com/512/8080/8080852.png",
+            }}
+            style={styles.featureImage}
+          />
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text style={styles.featureTitle}>Premium Home AC Tune-Up</Text>
+            <Text style={styles.featureDesc}>
+              Get your AC cleaned, repaired, and optimized for summer 🌞
+            </Text>
+            <TouchableOpacity
+              style={styles.featureBtn}
+              onPress={() => router.push("/booking" as any)}
+            >
+              <Text style={styles.featureBtnText}>Book Now</Text>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+
+        {/* ⚡ Appliance Grid */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Choose a Service 🔌</Text>
 
-          <View style={styles.grid}>
-            {appliances.map((appliance, index) => (
-              <MotiView
-                key={appliance.id}
-                from={{ opacity: 0, translateY: 15 }}
-                animate={{ opacity: 1, translateY: 0 }}
-                transition={{ delay: index * 100 }}
-                style={[styles.card, { borderColor: appliance.color }]}
-              >
-                <MaterialCommunityIcons
-                  name={appliance.icon as any}
-                  size={34}
-                  color={appliance.color}
-                />
-                <Text style={styles.cardTitle}>{appliance.name}</Text>
-                <Text style={styles.cardDesc}>{appliance.desc}</Text>
-                <TouchableOpacity
-                  style={[styles.bookBtn, { backgroundColor: appliance.color }]}
-                  onPress={() => router.push("/services/booking" as any)}
+          {filteredAppliances.length === 0 ? (
+            <Text style={styles.noResultsText}>
+              No matching appliance found
+            </Text>
+          ) : (
+            <View style={styles.grid}>
+              {filteredAppliances.map((appliance, index) => (
+                <MotiView
+                  key={appliance.id}
+                  from={{ opacity: 0, translateY: 15 }}
+                  animate={{ opacity: 1, translateY: 0 }}
+                  transition={{ delay: index * 80 }}
+                  style={[styles.card, { borderColor: appliance.color }]}
                 >
-                  <Text style={styles.bookText}>Book Now</Text>
-                </TouchableOpacity>
-              </MotiView>
-            ))}
-          </View>
+                  <MaterialCommunityIcons
+                    name={appliance.icon as any}
+                    size={36}
+                    color={appliance.color}
+                  />
+                  <Text style={styles.cardTitle}>{appliance.name}</Text>
+                  <Text style={styles.cardDesc}>{appliance.desc}</Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.bookBtn,
+                      { backgroundColor: appliance.color },
+                    ]}
+                    onPress={() => router.push("/booking" as any)}
+                  >
+                    <Text style={styles.bookText}>Book Now</Text>
+                  </TouchableOpacity>
+                </MotiView>
+              ))}
+            </View>
+          )}
         </View>
 
         {/* 💡 Why Choose Us */}
         <LinearGradient colors={["#E0F2FE", "#F0F9FF"]} style={styles.whyCard}>
-          <Text style={styles.whyTitle}>Why Choose Us? 💯</Text>
+          <Text style={styles.whyTitle}>Why Choose Us 💯</Text>
           {perks.map((p, i) => (
             <Text key={i} style={styles.perkText}>
               {p}
@@ -138,27 +196,9 @@ export default function ApplianceRepairScreen() {
           ))}
         </LinearGradient>
 
-        {/* 💥 Offer Section */}
-        <LinearGradient
-          colors={["#FCD34D", "#FBBF24"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.offerCard}
-        >
-          <Ionicons name="gift-outline" size={34} color="#78350F" />
-          <View style={{ marginLeft: 10 }}>
-            <Text style={styles.offerTitle}>Special Festive Offer 🎁</Text>
-            <Text style={styles.offerDesc}>
-              Get flat 25% off on your first appliance service!
-            </Text>
-          </View>
-        </LinearGradient>
-
         {/* 🧰 Trusted Brands */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            We Service All Major Brands 🏷️
-          </Text>
+          <Text style={styles.sectionTitle}>We Service Top Brands 🏷️</Text>
           <View style={styles.brandRow}>
             {[
               "https://upload.wikimedia.org/wikipedia/commons/0/0e/LG_logo_%282015%29.svg",
@@ -167,12 +207,20 @@ export default function ApplianceRepairScreen() {
               "https://upload.wikimedia.org/wikipedia/commons/e/e0/Haier_logo.svg",
               "https://upload.wikimedia.org/wikipedia/commons/f/f3/Voltas_logo.svg",
             ].map((logo, i) => (
-              <Image
-                key={i}
-                source={{ uri: logo }}
-                style={styles.brandLogo}
-                resizeMode="contain"
-              />
+              <Image key={i} source={{ uri: logo }} style={styles.brandLogo} />
+            ))}
+          </View>
+        </View>
+
+        {/* 💬 Ratings & Reviews */}
+        <View style={styles.reviewSection}>
+          <Text style={styles.reviewHeading}>Customer Love ❤️</Text>
+          <Text style={styles.reviewQuote}>
+            "Quick, reliable, and affordable! My fridge works like new again."
+          </Text>
+          <View style={styles.ratingRow}>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Ionicons key={i} name="star" size={18} color="#FACC15" />
             ))}
           </View>
         </View>
@@ -183,7 +231,6 @@ export default function ApplianceRepairScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#fff" },
-
   headerGradient: {
     paddingVertical: 30,
     paddingHorizontal: 16,
@@ -199,26 +246,58 @@ const styles = StyleSheet.create({
   },
   headerTitle: { fontSize: 22, fontWeight: "700", color: "#fff" },
   headerSubtitle: {
-    color: "#F3F4F6",
+    color: "#E5E7EB",
     fontSize: 14,
     marginTop: 10,
     lineHeight: 18,
   },
   headerImage: {
     width: "100%",
-    height: 160,
+    height: 140,
     opacity: 0.8,
     marginTop: 10,
   },
-
-  section: { marginTop: 24, paddingHorizontal: 16 },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginTop: 16,
+    marginHorizontal: 16,
+  },
+  searchInput: { flex: 1, fontSize: 14, color: "#111" },
+  featureCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 16,
+    marginHorizontal: 16,
+    marginVertical: 20,
+    padding: 14,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  featureImage: { width: 70, height: 70 },
+  featureTitle: { fontSize: 15, fontWeight: "700", color: "#fff" },
+  featureDesc: { fontSize: 12, color: "#E0E7FF", marginVertical: 4 },
+  featureBtn: {
+    backgroundColor: "#fff",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    alignSelf: "flex-start",
+  },
+  featureBtnText: { color: "#7C3AED", fontWeight: "600", fontSize: 12 },
+  section: { marginTop: 8, paddingHorizontal: 16 },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
     color: "#111827",
     marginBottom: 12,
   },
-
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -226,12 +305,16 @@ const styles = StyleSheet.create({
   },
   card: {
     width: "47%",
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#FFFFFF",
     borderWidth: 2,
     borderRadius: 14,
     padding: 14,
     marginBottom: 14,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
   cardTitle: {
     fontSize: 14,
@@ -253,11 +336,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   bookText: { color: "#fff", fontWeight: "600", fontSize: 12 },
-
+  noResultsText: {
+    textAlign: "center",
+    color: "#6B7280",
+    fontSize: 13,
+    fontWeight: "500",
+    marginBottom: 20,
+  },
   whyCard: {
     margin: 16,
     borderRadius: 16,
     padding: 16,
+    backgroundColor: "#F0F9FF",
   },
   whyTitle: {
     fontSize: 17,
@@ -266,27 +356,34 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   perkText: { fontSize: 13, color: "#0C4A6E", marginBottom: 6 },
-
-  offerCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: 18,
-    padding: 16,
-    marginHorizontal: 16,
-    marginBottom: 20,
-  },
-  offerTitle: { fontSize: 16, fontWeight: "700", color: "#78350F" },
-  offerDesc: { fontSize: 13, color: "#92400E" },
-
   brandRow: {
     flexDirection: "row",
     justifyContent: "space-around",
     flexWrap: "wrap",
     marginTop: 8,
   },
-  brandLogo: {
-    width: 80,
-    height: 40,
-    margin: 6,
+  brandLogo: { width: 80, height: 40, margin: 6 },
+  reviewSection: {
+    margin: 16,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: "#F9FAFB",
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
+  reviewHeading: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 6,
+  },
+  reviewQuote: {
+    fontSize: 13,
+    color: "#6B7280",
+    fontStyle: "italic",
+    marginBottom: 10,
+  },
+  ratingRow: { flexDirection: "row" },
 });

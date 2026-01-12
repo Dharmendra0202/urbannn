@@ -236,7 +236,7 @@ export default function CategoriesScreen() {
               activeOpacity={0.9}
               onPress={() =>
                 router.push(
-                  `/services/${cat.name.replace(/\s+/g, "")}Screen` as any
+                  `/services/${cat.name.replace(/[^\w]/g, "")}Screen` as any
                 )
               }
             >
