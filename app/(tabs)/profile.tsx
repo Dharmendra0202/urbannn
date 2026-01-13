@@ -1,5 +1,5 @@
 // app/(tabs)/profile.tsx
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,15 +8,26 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  TextInput,
+  Modal,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../context/ThemeContext";
 import { MotiView } from "moti";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ProfileScreen() {
   const { theme, toggleTheme } = useTheme();
+  const navigation = useNavigation<any>();
   const isDark = theme === "dark";
+
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [generatedOtp, setGeneratedOtp] = useState("");
+  const [step, setStep] = useState<"email" | "otp">("email");
 
   const colors = {
     background: isDark ? "#0B0B0E" : "#FFFFFF",
@@ -24,6 +35,44 @@ export default function ProfileScreen() {
     subText: isDark ? "#A1A1AA" : "#6B7280",
     card: isDark ? "#15151A" : "#F8FAFC",
     border: isDark ? "#2A2A2F" : "#E5E7EB",
+  };
+
+  // 🧠 Step 1: When user presses logout
+  const handleLogoutPress = () => {
+    setShowOtpModal(true);
+    setStep("email");
+  };
+
+  // 🧠 Step 2: Generate OTP
+  const sendOtp = () => {
+    if (!email.includes("@")) {
+      Alert.alert("Invalid Email", "Please enter a valid email address.");
+      return;
+    }
+
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedOtp(newOtp);
+    setStep("otp");
+
+    // Simulate sending email (in real app you'd call backend here)
+    Alert.alert("OTP Sent", `An OTP has been sent to ${email}`);
+  };
+
+  // 🧠 Step 3: Verify OTP
+  const verifyOtpAndLogout = () => {
+    if (otp === generatedOtp) {
+      setShowOtpModal(false);
+      setOtp("");
+      setEmail("");
+      setGeneratedOtp("");
+      Alert.alert("Success", "Email verified. Logging out...");
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Login" }],
+      });
+    } else {
+      Alert.alert("Invalid OTP", "The OTP you entered is incorrect.");
+    }
   };
 
   return (
@@ -73,7 +122,9 @@ export default function ProfileScreen() {
 
       {/* ACCOUNT SECTION */}
       <View style={styles.sectionWrapper}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>ACCOUNT</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          ACCOUNT
+        </Text>
         <View style={[styles.card, { backgroundColor: colors.card }]}>
           {[
             { icon: "person-outline", label: "Edit Profile" },
@@ -88,12 +139,20 @@ export default function ProfileScreen() {
               style={[styles.item, { borderBottomColor: colors.border }]}
             >
               <View style={styles.itemLeft}>
-                <Ionicons name={item.icon as any} size={22} color={colors.text} />
+                <Ionicons
+                  name={item.icon as any}
+                  size={22}
+                  color={colors.text}
+                />
                 <Text style={[styles.itemText, { color: colors.text }]}>
                   {item.label}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color={colors.subText} />
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={colors.subText}
+              />
             </TouchableOpacity>
           ))}
         </View>
@@ -101,7 +160,9 @@ export default function ProfileScreen() {
 
       {/* SETTINGS */}
       <View style={styles.sectionWrapper}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>SETTINGS</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          SETTINGS
+        </Text>
         <View style={[styles.card, { backgroundColor: colors.card }]}>
           <TouchableOpacity
             style={[styles.item, { borderBottomColor: colors.border }]}
@@ -119,7 +180,11 @@ export default function ProfileScreen() {
             style={[styles.item, { borderBottomColor: colors.border }]}
           >
             <View style={styles.itemLeft}>
-              <Ionicons name="help-circle-outline" size={22} color={colors.text} />
+              <Ionicons
+                name="help-circle-outline"
+                size={22}
+                color={colors.text}
+              />
               <Text style={[styles.itemText, { color: colors.text }]}>
                 Help & Support
               </Text>
@@ -146,7 +211,11 @@ export default function ProfileScreen() {
       </View>
 
       {/* LOGOUT BUTTON */}
-      <TouchableOpacity activeOpacity={0.9} style={styles.logoutCard}>
+      <TouchableOpacity
+        activeOpacity={0.9}
+        style={styles.logoutCard}
+        onPress={handleLogoutPress}
+      >
         <LinearGradient
           colors={["#FEE2E2", "#FECACA"]}
           start={{ x: 0, y: 0 }}
@@ -158,7 +227,66 @@ export default function ProfileScreen() {
         </LinearGradient>
       </TouchableOpacity>
 
-      <Text style={[styles.version, { color: colors.subText }]}>Version 1.0.0</Text>
+      {/* OTP MODAL */}
+      <Modal visible={showOtpModal} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalBox, { backgroundColor: colors.card }]}>
+            {step === "email" ? (
+              <>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  Enter Email
+                </Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    { color: colors.text, borderColor: colors.border },
+                  ]}
+                  placeholder="Enter your email"
+                  placeholderTextColor={colors.subText}
+                  value={email}
+                  onChangeText={setEmail}
+                />
+                <TouchableOpacity style={styles.modalButton} onPress={sendOtp}>
+                  <Text style={styles.modalButtonText}>Send OTP</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  Enter OTP
+                </Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    { color: colors.text, borderColor: colors.border },
+                  ]}
+                  placeholder="Enter 6-digit OTP"
+                  placeholderTextColor={colors.subText}
+                  value={otp}
+                  onChangeText={setOtp}
+                  keyboardType="numeric"
+                />
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={verifyOtpAndLogout}
+                >
+                  <Text style={styles.modalButtonText}>Verify & Logout</Text>
+                </TouchableOpacity>
+              </>
+            )}
+
+            <TouchableOpacity onPress={() => setShowOtpModal(false)}>
+              <Text style={[styles.cancelText, { color: colors.subText }]}>
+                Cancel
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Text style={[styles.version, { color: colors.subText }]}>
+        Version 1.0.0
+      </Text>
     </ScrollView>
   );
 }
@@ -185,7 +313,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   editText: { color: "#111", fontWeight: "600" },
-
   statsContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -194,7 +321,6 @@ const styles = StyleSheet.create({
   statBox: { alignItems: "center" },
   statValue: { fontSize: 18, fontWeight: "700" },
   statLabel: { fontSize: 13 },
-
   sectionWrapper: { marginHorizontal: 16, marginBottom: 25 },
   sectionTitle: { fontSize: 14, fontWeight: "700", marginBottom: 10 },
   card: {
@@ -223,6 +349,52 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 14,
   },
-  logoutText: { color: "#B91C1C", fontWeight: "600", fontSize: 16, marginLeft: 6 },
+  logoutText: {
+    color: "#B91C1C",
+    fontWeight: "600",
+    fontSize: 16,
+    marginLeft: 6,
+  },
   version: { textAlign: "center", fontSize: 13, marginVertical: 20 },
+
+  // 🔹 Modal styles
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalBox: {
+    width: "85%",
+    borderRadius: 16,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 15,
+  },
+  modalButton: {
+    backgroundColor: "#8B5CF6",
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  modalButtonText: {
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "600",
+    fontSize: 15,
+  },
+  cancelText: {
+    textAlign: "center",
+    marginTop: 12,
+    fontSize: 14,
+  },
 });
