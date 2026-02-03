@@ -1,7 +1,9 @@
+// components/HorizontalCard.tsx
 import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+// Define the item type
 export interface HorizontalItem {
   id: string;
   name: string;
@@ -10,25 +12,23 @@ export interface HorizontalItem {
   image: string;
 }
 
+// Props for the card
 interface HorizontalCardProps {
   item: HorizontalItem;
-  onPress?: () => void;
+  onPress?: () => void; // ✅ optional to fix TS error
 }
 
 const HorizontalCard: React.FC<HorizontalCardProps> = ({ item, onPress }) => {
   return (
     <TouchableOpacity
+      style={styles.cardContainer}
       activeOpacity={0.8}
-      style={styles.horizontalCard}
-      onPress={onPress} // ✅ clickable
+      onPress={onPress} // ✅ now safe to pass from FlatList
     >
       <Image
         source={{ uri: item.image }}
         style={styles.cardImage}
         resizeMode="cover"
-        onError={(e) =>
-          console.log("Image failed to load:", e.nativeEvent.error)
-        }
       />
       <Text style={styles.cardTitle}>{item.name}</Text>
       <View style={styles.priceRow}>
@@ -45,7 +45,7 @@ const HorizontalCard: React.FC<HorizontalCardProps> = ({ item, onPress }) => {
 export default HorizontalCard;
 
 const styles = StyleSheet.create({
-  horizontalCard: {
+  cardContainer: {
     backgroundColor: "#fff",
     width: 150,
     borderRadius: 20,
@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
     elevation: 3,
     paddingBottom: 10,
     overflow: "hidden",
-    position: "relative",
   },
   cardImage: {
     width: "100%",

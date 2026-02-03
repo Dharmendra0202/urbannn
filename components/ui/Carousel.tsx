@@ -1,7 +1,7 @@
+import { Button } from "@/app/components/ui/Button";
 import React, { useState } from "react";
-import { View, Dimensions, Image, StyleSheet } from "react-native";
+import { Dimensions, Image, StyleSheet, View } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
-import { Button } from "@/components/ui/Button";
 
 const { width } = Dimensions.get("window");
 
