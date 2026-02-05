@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { colors, gradients } from "../theme/colors";
+import { colors, gradients } from "../../theme/colors";
 import { useRouter } from "expo-router";
 
 export default function BookingsScreen() {
