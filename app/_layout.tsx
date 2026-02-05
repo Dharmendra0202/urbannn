@@ -2,7 +2,7 @@
 import { Stack } from "expo-router";
 import React from "react";
 import "react-native-reanimated";
-import { ThemeProvider } from "./context/ThemeContext"; // ✅ fixed path
+import { ThemeProvider } from "../context/ThemeContext"; // ✅ fixed path
 
 /**
  * RootLayout - Main app navigation container.

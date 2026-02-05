@@ -1,22 +1,22 @@
 // app/(tabs)/profile.tsx
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
+import { MotiView } from "moti";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
+  Alert,
+  Image,
+  Modal,
+  ScrollView,
   StyleSheet,
   Switch,
-  TouchableOpacity,
-  Image,
-  ScrollView,
+  Text,
   TextInput,
-  Modal,
-  Alert,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "../context/ThemeContext";
-import { MotiView } from "moti";
-import { useNavigation } from "@react-navigation/native";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function ProfileScreen() {
   const { theme, toggleTheme } = useTheme();
