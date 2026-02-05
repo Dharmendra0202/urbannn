@@ -19,6 +19,9 @@ import { MotiView } from "moti";
 import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 import { Easing } from "react-native-reanimated";
+import HorizontalCard from "@/components/HorizontalCard";
+
+
 
 // const router = useRouter();
 
@@ -511,24 +514,24 @@ const recommendedServices = [
 
 
 
-const HorizontalCard: React.FC<{ item: HorizontalItem }> = ({ item }) => (
-  <TouchableOpacity activeOpacity={0.8} style={styles.horizontalCard}>
-    <Image
-      source={{ uri: item.image }}
-      style={styles.cardImage}
-      resizeMode="cover"
-      onError={(e) => console.log("Image failed to load:", e.nativeEvent.error)}
-    />
-    <Text style={styles.cardTitle}>{item.name}</Text>
-    <View style={styles.priceRow}>
-      <Text style={styles.priceText}>₹{item.price}</Text>
-      <View style={styles.ratingBox}>
-        <Ionicons name="star" size={12} color="#FFD700" />
-        <Text style={styles.ratingText}>{item.rating}</Text>
-      </View>
-    </View>
-  </TouchableOpacity>
-);
+// const HorizontalCard: React.FC<{ item: HorizontalItem }> = ({ item }) => (
+//   <TouchableOpacity activeOpacity={0.8} style={styles.horizontalCard}>
+//     <Image
+//       source={{ uri: item.image }}
+//       style={styles.cardImage}
+//       resizeMode="cover"
+//       onError={(e) => console.log("Image failed to load:", e.nativeEvent.error)}
+//     />
+//     <Text style={styles.cardTitle}>{item.name}</Text>
+//     <View style={styles.priceRow}>
+//       <Text style={styles.priceText}>₹{item.price}</Text>
+//       <View style={styles.ratingBox}>
+//         <Ionicons name="star" size={12} color="#FFD700" />
+//         <Text style={styles.ratingText}>{item.rating}</Text>
+//       </View>
+//     </View>
+//   </TouchableOpacity>
+// );
 // ✅ Compact Mini Service Card Component
 const MiniServiceCard: React.FC<{ item: HorizontalItem }> = ({ item }) => (
   <TouchableOpacity activeOpacity={0.8} style={styles.miniCard}>
@@ -791,8 +794,8 @@ const HomeScreen: React.FC = () => {
                   router.push(
                     `/services/${service.name.replace(
                       /[^\w]/g,
-                      ""
-                    )}Screen` as any
+                      "",
+                    )}Screen` as any,
                   )
                 }
               >
@@ -841,14 +844,23 @@ const HomeScreen: React.FC = () => {
             No offers found
           </Text>
         ) : (
-          <FlatList
-            horizontal
-            data={filteredOffers} // ✅ connected to your search bar
-            renderItem={({ item }) => <HorizontalCard item={item} />}
-            keyExtractor={(item) => item.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingVertical: 4 }} // boxes height
-          />
+         <FlatList
+  horizontal
+  data={filteredOffers}
+  renderItem={({ item }) => (
+    <HorizontalCard
+      item={item}
+      onPress={() => {
+        if (item.name === "Salon at Home (Women)") {
+          router.push("/offers/womens-salon" as any);
+        }
+      }}
+    />
+  )}
+  keyExtractor={(item) => item.id}
+  showsHorizontalScrollIndicator={false}
+/>
+
         )}
 
         {/* Cleaning Essentials */}
