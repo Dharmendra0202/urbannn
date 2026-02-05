@@ -530,7 +530,7 @@ const HorizontalCard: React.FC<{ item: HorizontalItem }> = ({ item }) => (
   </TouchableOpacity>
 );
 // ✅ Compact Mini Service Card Component
-const MiniServiceCard: React.FC<{ item: any }> = ({ item }) => (
+const MiniServiceCard: React.FC<{ item: HorizontalItem }> = ({ item }) => (
   <TouchableOpacity activeOpacity={0.8} style={styles.miniCard}>
     <Image
       source={{ uri: item.image }}
