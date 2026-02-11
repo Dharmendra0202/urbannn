@@ -858,6 +858,11 @@ const HomeScreen: React.FC = () => {
                   if (item.name === "Men’s Haircut + Beard Combo") {
                     router.push("/offers/mens-haircut" as any);
                   }
+
+                  if (item.name === "Full Body Massage at Home") {
+                    router.push("/offers/full-body-massage" as any);
+                  }
+
                 }}
               />
             )}

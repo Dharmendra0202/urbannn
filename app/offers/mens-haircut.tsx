@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+
 
 const { width } = Dimensions.get("window");
 
@@ -110,6 +112,8 @@ const professionals = [
 ================================ */
 
 export default function MensHaircutScreen() {
+    const router = useRouter();
+
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
@@ -177,8 +181,11 @@ export default function MensHaircutScreen() {
                 <Text style={{ marginLeft: 4 }}>{p.rating}</Text>
               </View>
             </View>
-            <TouchableOpacity style={styles.bookBtn}>
-              <Text style={{ color: "#fff", fontWeight: "600" }}>Book</Text>
+            <TouchableOpacity
+              style={styles.bottomBtn}
+              onPress={() => router.push("/offers/mens-booking" as any)}
+            >
+              <Text style={{ color: "#fff", fontWeight: "700" }}>Book Now</Text>
             </TouchableOpacity>
           </View>
         ))}
@@ -214,7 +221,10 @@ export default function MensHaircutScreen() {
           <Text style={{ fontWeight: "700" }}>Haircut + Beard</Text>
           <Text style={{ color: "#7C3AED" }}>₹499</Text>
         </View>
-        <TouchableOpacity style={styles.bottomBtn}>
+        <TouchableOpacity
+          style={styles.bottomBtn}
+          onPress={() => router.push("/offers/mens-booking" as any)}
+        >
           <Text style={{ color: "#fff", fontWeight: "700" }}>Book Now</Text>
         </TouchableOpacity>
       </View>
@@ -238,7 +248,8 @@ const styles = StyleSheet.create({
     width: 150,
     borderRadius: 16,
     backgroundColor: "#fff",
-    marginLeft: 16,
+    marginRight: 14,
+    marginVertical: 4, // ✅ vertical padding applied
     elevation: 3,
     overflow: "hidden",
   },
@@ -254,7 +265,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
     marginHorizontal: 16,
-    marginBottom: 12,
+    paddingLeft: 12,
+    marginVertical: 4, // ✅ vertical padding added here also
     padding: 12,
     borderRadius: 14,
     elevation: 2,
