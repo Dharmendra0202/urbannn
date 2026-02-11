@@ -887,6 +887,41 @@ const HomeScreen: React.FC = () => {
                     router.push("/offers/laundry-service" as any);
                   }
 
+                  if (item.name === "Carpet Shampoo Cleaning") {
+                    router.push("/offers/carpet-cleaning" as any);
+                  }
+
+                  if (item.name === "Kitchen Cleaning Package") {
+                    router.push("/offers/kitchen-cleaning" as any);
+                  }
+
+                  if (item.name === "Bathroom Cleaning Service") {
+                    router.push("/offers/bathroom-cleaning" as any);
+                  }
+
+                  if (item.name === "Wall Mounting & Drilling") {
+                    router.push("/offers/wall-mounting" as any);
+                  }
+
+                  if (item.name === "Electrician") {
+                    router.push("/offers/electrician-services" as any);
+                  }
+
+                  if (item.name === "Plumbing") {
+                    router.push("/offers/plumbing-services" as any);
+                  }
+
+                  if (item.name === "AC Service & Cleaning") {
+                    router.push("/offers/ac-repair" as any);
+                  }
+
+
+
+
+
+
+
+
 
 
 
