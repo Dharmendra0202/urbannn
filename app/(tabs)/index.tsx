@@ -863,6 +863,36 @@ const HomeScreen: React.FC = () => {
                     router.push("/offers/full-body-massage" as any);
                   }
 
+                  if (item.name === "AC Service & Cleaning") {
+                    router.push("/offers/ac-service" as any);
+                  }
+
+                  if (item.name === "Refrigerator Repair") {
+                    router.push("/offers/refrigerator-repair" as any);
+                  }
+
+                  if (item.name === "Home Deep Cleaning") {
+                    router.push("/offers/home-deep-cleaning" as any);
+                  }
+
+                  if (item.name === "Pest Control Special") {
+                    router.push("/offers/pest-control" as any);
+                  }
+
+                  if (item.name === "Home Painting Offer") {
+                    router.push("/offers/painting-service" as any);
+                  }
+
+                  if (item.name === "Laundry & Ironing Combo") {
+                    router.push("/offers/laundry-service" as any);
+                  }
+
+
+
+
+
+
+
                 }}
               />
             )}
