@@ -844,23 +844,26 @@ const HomeScreen: React.FC = () => {
             No offers found
           </Text>
         ) : (
-         <FlatList
-  horizontal
-  data={filteredOffers}
-  renderItem={({ item }) => (
-    <HorizontalCard
-      item={item}
-      onPress={() => {
-        if (item.name === "Salon at Home (Women)") {
-          router.push("/offers/womens-salon" as any);
-        }
-      }}
-    />
-  )}
-  keyExtractor={(item) => item.id}
-  showsHorizontalScrollIndicator={false}
-/>
+          <FlatList
+            horizontal
+            data={filteredOffers}
+            renderItem={({ item }) => (
+              <HorizontalCard
+                item={item}
+                onPress={() => {
+                  if (item.name === "Salon at Home (Women)") {
+                    router.push("/offers/womens-salon" as any);
+                  }
 
+                  if (item.name === "Men’s Haircut + Beard Combo") {
+                    router.push("/offers/mens-haircut" as any);
+                  }
+                }}
+              />
+            )}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+          />
         )}
 
         {/* Cleaning Essentials */}
