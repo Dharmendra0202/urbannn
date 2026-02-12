@@ -949,6 +949,7 @@ const HomeScreen: React.FC = () => {
             )}
             keyExtractor={(item) => item.id}
             showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingVertical: 4 }}
           />
         )}
 
