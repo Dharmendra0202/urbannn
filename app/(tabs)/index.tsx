@@ -20,6 +20,8 @@ import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 import { Easing } from "react-native-reanimated";
 import HorizontalCard from "@/components/HorizontalCard";
+import { Stack } from "expo-router";
+
 
 
 
@@ -547,6 +549,12 @@ const MiniServiceCard: React.FC<{ item: HorizontalItem }> = ({ item }) => (
   </TouchableOpacity>
 );
 
+// const routeMap: any = {
+//   "Home Deep Cleaning": "/categories/home-cleaning",
+//   "Kitchen Cleaning": "/categories/kitchen-cleaning",
+//   "Bathroom Cleaning": "/categories/bathroom-cleaning",
+// };
+
 
 const HomeScreen: React.FC = () => {
   const [search, setSearch] = useState("");
@@ -814,6 +822,7 @@ const HomeScreen: React.FC = () => {
         </View>
 
         {/* Specialists Section */}
+
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionHeading}>We Are Specialists In</Text>
           <TouchableOpacity onPress={() => router.push("/categories")}>
@@ -823,7 +832,24 @@ const HomeScreen: React.FC = () => {
         <FlatList
           horizontal
           data={filteredSpecialists} // ✅ now shows only searched items
-          renderItem={({ item }) => <HorizontalCard item={item} />}
+          renderItem={({ item }) => (
+            <HorizontalCard
+              item={item}
+              onPress={() => {
+                if (item.name === "Home Deep Cleaning") {
+                  router.push("/categories/home-cleaning" as any);
+                }
+
+                if (item.name === "Kitchen Cleaning") {
+                  router.push("/categories/kitchen-cleaning" as any);
+                }
+
+                if (item.name === "Bathroom Cleaning") {
+                  router.push("/categories/bathroom-cleaning" as any);
+                }
+              }}
+            />
+          )}
           keyExtractor={(item) => item.id}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingVertical: 4 }} // // boxes height
@@ -891,6 +917,10 @@ const HomeScreen: React.FC = () => {
                     router.push("/offers/carpet-cleaning" as any);
                   }
 
+                  if (item.name === "Home Deep Cleaning") {
+                    router.push("/categories/home-cleaning" as any);
+                  }
+
                   if (item.name === "Kitchen Cleaning Package") {
                     router.push("/offers/kitchen-cleaning" as any);
                   }
@@ -914,20 +944,6 @@ const HomeScreen: React.FC = () => {
                   if (item.name === "AC Service & Cleaning") {
                     router.push("/offers/ac-repair" as any);
                   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 }}
               />
             )}
