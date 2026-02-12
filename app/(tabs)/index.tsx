@@ -275,141 +275,70 @@ const offers: HorizontalItem[] = [
 const cleaningEssentials: HorizontalItem[] = [
   {
     id: "1",
-    name: "Vacuum Cleaner",
+    name: "Intense Bathroom Cleaning",
     price: 2499,
     rating: 4.5,
     image:
-      "https://images.pexels.com/photos/4107281/pexels-photo-4107281.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/4108711/pexels-photo-4108711.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     id: "2",
-    name: "Floor Mop Set",
-    price: 499,
+    name: "Pest Control Service",
+    price: 999,
     rating: 4.4,
     image:
-      "https://images.pexels.com/photos/5217884/pexels-photo-5217884.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/6197120/pexels-photo-6197120.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     id: "3",
-    name: "Cleaning Spray Kit",
-    price: 299,
+    name: "Apartment Pest Control",
+    price: 1549,
     rating: 4.3,
     image:
-      "https://images.pexels.com/photos/4239144/pexels-photo-4239144.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/6197119/pexels-photo-6197119.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     id: "4",
-    name: "Bathroom Cleaner Pack",
+    name: "Bathroom Deep Cleaning",
     price: 399,
     rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/5649814/pexels-photo-5649814.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "5",
-    name: "Glass Cleaning Solution",
-    price: 349,
-    rating: 4.5,
-    image:
-      "https://images.pexels.com/photos/6195127/pexels-photo-6195127.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "6",
-    name: "Kitchen Degreaser Spray",
-    price: 449,
-    rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/4239142/pexels-photo-4239142.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "7",
-    name: "Microfiber Cloth Pack",
-    price: 199,
-    rating: 4.7,
-    image:
-      "https://images.pexels.com/photos/4239140/pexels-photo-4239140.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "8",
-    name: "Dishwashing Liquid",
-    price: 249,
-    rating: 4.4,
-    image:
-      "https://images.pexels.com/photos/7504847/pexels-photo-7504847.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "9",
-    name: "Sofa Cleaning Foam",
-    price: 699,
-    rating: 4.5,
-    image:
-      "https://images.pexels.com/photos/4107282/pexels-photo-4107282.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "10",
-    name: "Carpet Shampoo Bottle",
-    price: 799,
-    rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/4107120/pexels-photo-4107120.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "11",
-    name: "Air Freshener Refill",
-    price: 349,
-    rating: 4.4,
-    image:
-      "https://images.pexels.com/photos/7282454/pexels-photo-7282454.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "12",
-    name: "Toilet Cleaner Gel",
-    price: 299,
-    rating: 4.7,
     image:
       "https://images.pexels.com/photos/5649812/pexels-photo-5649812.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
-    id: "13",
-    name: "Laundry Detergent Powder",
-    price: 499,
-    rating: 4.8,
-    image:
-      "https://images.pexels.com/photos/3951628/pexels-photo-3951628.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "14",
-    name: "Dustbin Bags Roll",
-    price: 199,
-    rating: 4.3,
-    image:
-      "https://images.pexels.com/photos/7262894/pexels-photo-7262894.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "15",
-    name: "Steam Mop Cleaner",
-    price: 1899,
-    rating: 4.7,
+    id: "5",
+    name: "Mattress Cleaning",
+    price: 399,
+    rating: 4.5,
     image:
       "https://images.pexels.com/photos/4107284/pexels-photo-4107284.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
-    id: "16",
-    name: "Surface Disinfectant Spray",
-    price: 299,
-    rating: 4.5,
-    image:
-      "https://images.pexels.com/photos/4239143/pexels-photo-4239143.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "17",
-    name: "Fabric Softener Liquid",
+    id: "6",
+    name: "Fridge Cleaning",
     price: 399,
     rating: 4.6,
     image:
-      "https://images.pexels.com/photos/5854186/pexels-photo-5854186.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/5824884/pexels-photo-5824884.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "7",
+    name: "Carpet Cleaning",
+    price: 399,
+    rating: 4.7,
+    image:
+      "https://images.pexels.com/photos/4107282/pexels-photo-4107282.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: "8",
+    name: "Laundry & Ironing",
+    price: 249,
+    rating: 4.4,
+    image:
+      "https://images.pexels.com/photos/3951628/pexels-photo-3951628.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
 ];
+
 
 const homeRepair: HorizontalItem[] = [
   {
