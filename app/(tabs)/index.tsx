@@ -962,7 +962,40 @@ const HomeScreen: React.FC = () => {
           <FlatList
             horizontal
             data={filteredRepair} // ✅ filters repair list
-            renderItem={({ item }) => <HorizontalCard item={item} />}
+            renderItem={({ item }) => (
+              <HorizontalCard
+                item={item}
+                onPress={() => {
+                  if (item.name === "Carpentry Work") {
+                    router.push("/repair/carpentry" as any);
+                  }
+
+                  if (item.name === "Plumbing Fix") {
+                    router.push("/repair/plumbing" as any);
+                  }
+
+                  if (item.name === "Painting Service") {
+                    router.push("/repair/painting" as any);
+                  }
+
+                  if (item.name === "Wall Mounting & Drilling") {
+                    router.push("/repair/wall-mounting" as any);
+                  }
+
+                  if (item.name === "Electrical Installation") {
+                    router.push("/repair/electrical-installation" as any);
+                  }
+
+                  if (item.name === "Curtain & Rod Setup") {
+                    router.push("/repair/curtain-setup" as any);
+                  }
+
+                  if (item.name === "Door Lock Repair") {
+                    router.push("/repair/door-lock" as any);
+                  }
+                }}
+              />
+            )}
             keyExtractor={(item) => item.id}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingVertical: 4 }} // ✅ adds space top & bottom
