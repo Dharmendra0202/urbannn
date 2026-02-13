@@ -24,6 +24,7 @@ import {
   getRecommendedRoute,
   recommendedServices,
 } from "@/constants/recommended-services";
+import { getRepairRoute, repairServices } from "@/constants/repair-services";
 
 
 
@@ -343,65 +344,6 @@ const cleaningEssentials: HorizontalItem[] = [
 ];
 
 
-const homeRepair: HorizontalItem[] = [
-  {
-    id: "1",
-    name: "Carpentry Work",
-    price: 799,
-    rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/4505170/pexels-photo-4505170.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "2",
-    name: "Plumbing Fix",
-    price: 599,
-    rating: 4.7,
-    image:
-      "https://images.pexels.com/photos/5854186/pexels-photo-5854186.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "3",
-    name: "Painting Service",
-    price: 1999,
-    rating: 4.9,
-    image:
-      "https://images.pexels.com/photos/3865792/pexels-photo-3865792.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "4",
-    name: "Wall Mounting & Drilling",
-    price: 499,
-    rating: 4.5,
-    image:
-      "https://images.pexels.com/photos/4792479/pexels-photo-4792479.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "5",
-    name: "Electrical Installation",
-    price: 699,
-    rating: 4.8,
-    image:
-      "https://images.pexels.com/photos/3825582/pexels-photo-3825582.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "6",
-    name: "Curtain & Rod Setup",
-    price: 899,
-    rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/6207825/pexels-photo-6207825.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "7",
-    name: "Door Lock Repair",
-    price: 499,
-    rating: 4.4,
-    image:
-      "https://images.pexels.com/photos/4792485/pexels-photo-4792485.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-];
-
 // const HorizontalCard: React.FC<{ item: HorizontalItem }> = ({ item }) => (
 //   <TouchableOpacity activeOpacity={0.8} style={styles.horizontalCard}>
 //     <Image
@@ -462,7 +404,7 @@ const HomeScreen: React.FC = () => {
     item.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const filteredRepair = homeRepair.filter((item) =>
+  const filteredRepair = repairServices.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -925,35 +867,7 @@ const HomeScreen: React.FC = () => {
             renderItem={({ item }) => (
               <HorizontalCard
                 item={item}
-                onPress={() => {
-                  if (item.name === "Carpentry Work") {
-                    router.push("/repair/carpentry" as any);
-                  }
-
-                  if (item.name === "Plumbing Fix") {
-                    router.push("/repair/plumbing" as any);
-                  }
-
-                  if (item.name === "Painting Service") {
-                    router.push("/repair/painting" as any);
-                  }
-
-                  if (item.name === "Wall Mounting & Drilling") {
-                    router.push("/repair/wall-mounting" as any);
-                  }
-
-                  if (item.name === "Electrical Installation") {
-                    router.push("/repair/electrical-installation" as any);
-                  }
-
-                  if (item.name === "Curtain & Rod Setup") {
-                    router.push("/repair/curtain-setup" as any);
-                  }
-
-                  if (item.name === "Door Lock Repair") {
-                    router.push("/repair/door-lock" as any);
-                  }
-                }}
+                onPress={() => router.push(getRepairRoute(item.id) as any)}
               />
             )}
             keyExtractor={(item) => item.id}
