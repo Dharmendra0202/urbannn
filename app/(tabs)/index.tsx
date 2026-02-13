@@ -900,7 +900,44 @@ const HomeScreen: React.FC = () => {
           <FlatList
             horizontal
             data={filteredEssentials} // ✅ filters cleaning essentials
-            renderItem={({ item }) => <HorizontalCard item={item} />}
+            renderItem={({ item }) => (
+              <HorizontalCard
+                item={item}
+                onPress={() => {
+                  if (item.name === "Intense Bathroom Cleaning") {
+                    router.push("/cleaning/intense-bathroom");
+                  }
+
+                  if (item.name === "Pest Control Service") {
+                    router.push("/cleaning/pest-control");
+                  }
+
+                  if (item.name === "Apartment Pest Control") {
+                    router.push("/cleaning/apartment-pest");
+                  }
+
+                  if (item.name === "Bathroom Deep Cleaning") {
+                    router.push("/cleaning/bathroom-deep");
+                  }
+
+                  if (item.name === "Mattress Cleaning") {
+                    router.push("/cleaning/mattress-cleaning");
+                  }
+
+                  if (item.name === "Fridge Cleaning") {
+                    router.push("/cleaning/fridge-cleaning");
+                  }
+
+                  if (item.name === "Carpet Cleaning") {
+                    router.push("/cleaning/carpet-cleaning");
+                  }
+
+                  if (item.name === "Laundry & Ironing") {
+                    router.push("/cleaning/laundry");
+                  }
+                }}
+              />
+            )}
             keyExtractor={(item) => item.id}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingVertical: 4 }} // boxes height
