@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Alert,
+  BackHandler,
+  Linking,
   View,
   Text,
   ScrollView,
@@ -9,6 +12,8 @@ import {
   Dimensions,
   Image,
   FlatList,
+  Keyboard,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -17,6 +22,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Carousel from "react-native-reanimated-carousel";
 import { MotiView } from "moti";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import * as Location from "expo-location";
 import { Easing } from "react-native-reanimated";
 import HorizontalCard from "@/components/HorizontalCard";
@@ -59,6 +65,78 @@ interface HorizontalItem {
   rating: number;
   image: string;
 }
+
+interface SearchResultItem {
+  id: string;
+  name: string;
+  section: string;
+  route: string;
+}
+
+type BrowserSpeechRecognition = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onstart: (() => void) | null;
+  onend: (() => void) | null;
+  onerror: ((event: { error?: string }) => void) | null;
+  onresult: ((event: any) => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+type LocationPermissionState = "unknown" | "granted" | "denied" | "blocked";
+
+const normalizeSearchText = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^\w\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const matchesSearch = (name: string, query: string) => {
+  const normalizedName = normalizeSearchText(name);
+  const normalizedQuery = normalizeSearchText(query);
+
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  const queryTokens = normalizedQuery.split(" ");
+  return queryTokens.every((token) => normalizedName.includes(token));
+};
+
+const specialistRouteMap: Record<string, string> = {
+  "Home Deep Cleaning": "/categories/home-cleaning",
+  "Kitchen Cleaning": "/categories/kitchen-cleaning",
+  "Bathroom Cleaning": "/categories/bathroom-cleaning",
+};
+
+const offerRouteMap: Record<string, string> = {
+  "Salon at Home (Women)": "/offers/womens-salon",
+  "Men’s Haircut + Beard Combo": "/offers/mens-haircut",
+  "Full Body Massage at Home": "/offers/full-body-massage",
+  "AC Service & Cleaning": "/offers/ac-service",
+  "Refrigerator Repair": "/offers/refrigerator-repair",
+  "Home Deep Cleaning": "/offers/home-deep-cleaning",
+  "Pest Control Special": "/offers/pest-control",
+  "Home Painting Offer": "/offers/painting-service",
+  "Laundry & Ironing Combo": "/offers/laundry-service",
+  "Carpet Shampoo Cleaning": "/offers/carpet-cleaning",
+  "Kitchen Cleaning Package": "/offers/kitchen-cleaning",
+  "Bathroom Cleaning Service": "/offers/bathroom-cleaning",
+};
+
+const cleaningRouteMap: Record<string, string> = {
+  "Intense Bathroom Cleaning": "/cleaning/intense-bathroom",
+  "Pest Control Service": "/cleaning/pest-control",
+  "Apartment Pest Control": "/cleaning/apartment-pest",
+  "Bathroom Deep Cleaning": "/cleaning/bathroom-deep",
+  "Mattress Cleaning": "/cleaning/mattress-cleaning",
+  "Fridge Cleaning": "/cleaning/fridge-cleaning",
+  "Carpet Cleaning": "/cleaning/carpet-cleaning",
+  "Laundry & Ironing": "/cleaning/laundry",
+};
 
 // ✅ Fallback Gradient
 // ✅ Carousel Data
@@ -390,60 +468,245 @@ const MiniServiceCard: React.FC<{ item: HorizontalItem; onPress?: () => void }> 
 const HomeScreen: React.FC = () => {
   const [search, setSearch] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceFallbackShown, setVoiceFallbackShown] = useState(false);
+  const searchInputRef = useRef<TextInput>(null);
+  const speechRecognitionRef = useRef<BrowserSpeechRecognition | null>(null);
   const router = useRouter();
+  const normalizedSearch = normalizeSearchText(search);
   // ✅ Derived filtered lists based on search
   const filteredSpecialists = specialists.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
+    matchesSearch(item.name, normalizedSearch)
   );
 
   const filteredOffers = offers.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
+    matchesSearch(item.name, normalizedSearch)
   );
 
   const filteredEssentials = cleaningEssentials.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
+    matchesSearch(item.name, normalizedSearch)
   );
 
   const filteredRepair = repairServices.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
+    matchesSearch(item.name, normalizedSearch)
   );
 
   const filteredRecommended = recommendedServices.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
+    matchesSearch(item.name, normalizedSearch)
   );
+  const filteredServices = services.filter((item) =>
+    matchesSearch(item.name, normalizedSearch)
+  );
+  const hasSearchQuery = normalizedSearch.length > 0;
+  const hasAnySearchResult =
+    filteredSpecialists.length > 0 ||
+    filteredOffers.length > 0 ||
+    filteredEssentials.length > 0 ||
+    filteredRepair.length > 0 ||
+    filteredRecommended.length > 0 ||
+    filteredServices.length > 0;
+
+  const topSearchResults = useMemo(() => {
+    if (!hasSearchQuery) {
+      return [];
+    }
+
+    const results: SearchResultItem[] = [];
+    const seen = new Set<string>();
+
+    const addResult = (item: SearchResultItem) => {
+      const normalizedName = normalizeSearchText(item.name);
+      if (seen.has(normalizedName)) {
+        return;
+      }
+
+      seen.add(normalizedName);
+      results.push(item);
+    };
+
+    filteredServices.forEach((item) => {
+      addResult({
+        id: `service-${item.id}`,
+        name: item.name,
+        section: "Service",
+        route: `/services/${item.name.replace(/[^\w]/g, "")}Screen`,
+      });
+    });
+
+    filteredSpecialists.forEach((item) => {
+      const route = specialistRouteMap[item.name];
+      if (!route) {
+        return;
+      }
+
+      addResult({
+        id: `specialist-${item.id}`,
+        name: item.name,
+        section: "Specialist",
+        route,
+      });
+    });
+
+    filteredEssentials.forEach((item) => {
+      const route = cleaningRouteMap[item.name];
+      if (!route) {
+        return;
+      }
+
+      addResult({
+        id: `cleaning-${item.id}`,
+        name: item.name,
+        section: "Cleaning",
+        route,
+      });
+    });
+
+    filteredRepair.forEach((item) => {
+      addResult({
+        id: `repair-${item.id}`,
+        name: item.name,
+        section: "Repair",
+        route: getRepairRoute(item.id),
+      });
+    });
+
+    filteredRecommended.forEach((item) => {
+      addResult({
+        id: `recommended-${item.id}`,
+        name: item.name,
+        section: "Recommended",
+        route: getRecommendedRoute(item.id),
+      });
+    });
+
+    filteredOffers.forEach((item) => {
+      const route = offerRouteMap[item.name];
+      if (!route) {
+        return;
+      }
+
+      addResult({
+        id: `offer-${item.id}`,
+        name: item.name,
+        section: "Offer",
+        route,
+      });
+    });
+
+    return results.slice(0, 8);
+  }, [
+    hasSearchQuery,
+    filteredServices,
+    filteredSpecialists,
+    filteredEssentials,
+    filteredRepair,
+    filteredRecommended,
+    filteredOffers,
+  ]);
 
   // ✅ Location state
   const [location, setLocation] = useState<string>("Tap to enable location");
   const [loadingLocation, setLoadingLocation] = useState<boolean>(false);
+  const [locationPermissionState, setLocationPermissionState] =
+    useState<LocationPermissionState>("unknown");
+
+  const updateLocationPermissionState = (
+    status: Location.PermissionStatus,
+    canAskAgain: boolean
+  ) => {
+    if (status === "granted") {
+      setLocationPermissionState("granted");
+      return;
+    }
+
+    setLocationPermissionState(canAskAgain ? "denied" : "blocked");
+  };
+
+  const openLocationSettings = async () => {
+    if (Platform.OS === "web") {
+      Alert.alert(
+        "Enable browser location",
+        "Please allow location access in your browser site settings."
+      );
+      return;
+    }
+
+    try {
+      await Linking.openSettings();
+    } catch (error) {
+      console.log("Open settings error:", error);
+    }
+  };
+
+  const fetchCurrentLocation = async () => {
+    const loc = await Location.getCurrentPositionAsync({});
+    const reverse = await Location.reverseGeocodeAsync({
+      latitude: loc.coords.latitude,
+      longitude: loc.coords.longitude,
+    });
+
+    if (reverse.length > 0) {
+      const { city, region } = reverse[0];
+      setLocation(`${city ?? "Unknown"}, ${region ?? ""}`);
+      return;
+    }
+
+    setLocation(
+      `Lat: ${loc.coords.latitude.toFixed(2)}, Lon: ${loc.coords.longitude.toFixed(2)}`
+    );
+  };
+
+  const syncLocationPermission = useCallback(async () => {
+    try {
+      const permission = await Location.getForegroundPermissionsAsync();
+      updateLocationPermissionState(permission.status, permission.canAskAgain);
+    } catch (error) {
+      console.log("Permission check error:", error);
+    }
+  }, []);
 
   // ✅ Function to fetch location (can be triggered manually)
   const handleLocationFetch = async () => {
     try {
       setLoadingLocation(true);
 
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setLocation("Permission denied");
-        setLoadingLocation(false);
+      const currentPermission = await Location.getForegroundPermissionsAsync();
+      updateLocationPermissionState(
+        currentPermission.status,
+        currentPermission.canAskAgain
+      );
+
+      if (currentPermission.status === "granted") {
+        await fetchCurrentLocation();
         return;
       }
 
-      const loc = await Location.getCurrentPositionAsync({});
-      const reverse = await Location.reverseGeocodeAsync({
-        latitude: loc.coords.latitude,
-        longitude: loc.coords.longitude,
-      });
+      const requestedPermission = await Location.requestForegroundPermissionsAsync();
+      updateLocationPermissionState(
+        requestedPermission.status,
+        requestedPermission.canAskAgain
+      );
 
-      if (reverse.length > 0) {
-        const { city, region } = reverse[0];
-        setLocation(`${city ?? "Unknown"}, ${region ?? ""}`);
-      } else {
-        setLocation(
-          `Lat: ${loc.coords.latitude.toFixed(
-            2
-          )}, Lon: ${loc.coords.longitude.toFixed(2)}`
-        );
+      if (requestedPermission.status === "granted") {
+        await fetchCurrentLocation();
+        return;
       }
+
+      if (!requestedPermission.canAskAgain) {
+        setLocation("Location blocked. Open settings to enable.");
+        Alert.alert(
+          "Enable location",
+          "Location access is blocked. Open app settings and allow location permission.",
+          [
+            { text: "Not now", style: "cancel" },
+            { text: "Open settings", onPress: openLocationSettings },
+          ]
+        );
+        return;
+      }
+
+      setLocation("Permission denied. Tap again to enable location.");
     } catch (error) {
       console.log("Location error:", error);
       setLocation("Unable to fetch");
@@ -463,6 +726,137 @@ const HomeScreen: React.FC = () => {
       "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200",
   };
 
+  useEffect(() => {
+    return () => {
+      speechRecognitionRef.current?.stop();
+      speechRecognitionRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    syncLocationPermission();
+  }, [syncLocationPermission]);
+
+  useFocusEffect(
+    useCallback(() => {
+      syncLocationPermission();
+
+      if (Platform.OS !== "android") {
+        return undefined;
+      }
+
+      const onBackPress = () => {
+        BackHandler.exitApp();
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress
+      );
+
+      return () => {
+        subscription.remove();
+      };
+    }, [syncLocationPermission])
+  );
+
+  const handleSearchSubmit = () => {
+    Keyboard.dismiss();
+
+    if (hasSearchQuery && !hasAnySearchResult) {
+      Alert.alert(
+        "No services found",
+        "Try another keyword like cleaning, repair, salon, or AC service."
+      );
+    }
+  };
+
+  const startWebVoiceSearch = () => {
+    const browserGlobal = globalThis as any;
+    const SpeechRecognitionCtor =
+      browserGlobal?.SpeechRecognition || browserGlobal?.webkitSpeechRecognition;
+
+    if (!SpeechRecognitionCtor) {
+      Alert.alert(
+        "Voice search unavailable",
+        "Your browser does not support speech recognition."
+      );
+      return;
+    }
+
+    const recognition: BrowserSpeechRecognition = new SpeechRecognitionCtor();
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      speechRecognitionRef.current = null;
+    };
+
+    recognition.onerror = (event) => {
+      setIsListening(false);
+      Alert.alert(
+        "Voice search error",
+        event?.error
+          ? `Could not capture voice (${event.error}). Try again.`
+          : "Could not capture voice. Try again."
+      );
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event?.results?.[0]?.[0]?.transcript?.trim?.() ?? "";
+      if (transcript.length > 0) {
+        setSearch(transcript);
+      }
+    };
+
+    speechRecognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  const handleMicPress = () => {
+    if (Platform.OS === "web") {
+      if (isListening) {
+        speechRecognitionRef.current?.stop();
+        setIsListening(false);
+        return;
+      }
+
+      startWebVoiceSearch();
+      return;
+    }
+
+    if (!voiceFallbackShown) {
+      Alert.alert(
+        "Voice search setup needed",
+        "Full voice-to-text on Android/iOS needs a speech-recognition package. I have enabled it for web and kept quick search fallback for mobile."
+      );
+      setVoiceFallbackShown(true);
+    }
+
+    if (!hasSearchQuery) {
+      setSearch("cleaning");
+    }
+    searchInputRef.current?.focus();
+    handleSearchSubmit();
+  };
+
+  const handleNotificationPress = () => {
+    router.push("/notifications");
+  };
+
+  const handleTopSearchPress = (item: SearchResultItem) => {
+    setSearch(item.name);
+    Keyboard.dismiss();
+    router.push(item.route as any);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar backgroundColor="#fff" style="dark" />
@@ -480,29 +874,95 @@ const HomeScreen: React.FC = () => {
                 {loadingLocation ? "Detecting..." : location}{" "}
                 <Text style={{ color: "#A855F7" }}>▼</Text>
               </Text>
+              {locationPermissionState !== "granted" ? (
+                <Text style={styles.locationHintText}>
+                  {locationPermissionState === "blocked"
+                    ? "Tap to open settings and enable location"
+                    : "Tap to enable location"}
+                </Text>
+              ) : null}
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleNotificationPress}>
             <Ionicons name="notifications-outline" size={24} color="#111" />
             <View style={styles.notificationDot} />
           </TouchableOpacity>
         </View>
 
         {/* Search */}
-        <View style={styles.searchContainer}>
-          <Ionicons name="search-outline" size={20} color="#999" />
-          <TextInput
-            placeholder="Search for services..."
-            placeholderTextColor="#999"
-            style={styles.searchInput}
-            value={search}
-            onChangeText={setSearch}
-          />
-          <TouchableOpacity style={styles.micButton}>
-            <Ionicons name="mic-outline" size={20} color="#fff" />
-          </TouchableOpacity>
-        </View>
+        <MotiView
+          from={{ translateY: 0, scale: 1 }}
+          animate={{
+            translateY: isSearchFocused ? -2 : 0,
+            scale: isSearchFocused ? 1.01 : 1,
+          }}
+          transition={{ type: "timing", duration: 220 }}
+          style={[
+            styles.search3DWrapper,
+            (isSearchFocused || isListening) && styles.search3DWrapperFocused,
+          ]}
+        >
+          <View
+            style={[
+              styles.searchContainer,
+              isSearchFocused && styles.searchContainerFocused,
+            ]}
+          >
+            <TouchableOpacity onPress={handleSearchSubmit} style={styles.searchIconBtn}>
+              <Ionicons name="search-outline" size={18} color="#6B7280" />
+            </TouchableOpacity>
+            <TextInput
+              ref={searchInputRef}
+              placeholder="Search for services..."
+              placeholderTextColor="#9CA3AF"
+              style={styles.searchInput}
+              value={search}
+              onChangeText={setSearch}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setIsSearchFocused(false)}
+              onSubmitEditing={handleSearchSubmit}
+              returnKeyType="search"
+            />
+            <TouchableOpacity
+              style={[styles.micButton, isListening && styles.micButtonActive]}
+              onPress={handleMicPress}
+            >
+              <Ionicons
+                name={isListening ? "stop-circle-outline" : "mic-outline"}
+                size={19}
+                color="#fff"
+              />
+            </TouchableOpacity>
+          </View>
+        </MotiView>
+        {hasSearchQuery && topSearchResults.length > 0 ? (
+          <View style={styles.searchResultsContainer}>
+            <Text style={styles.searchResultsTitle}>Top Search Results</Text>
+            {topSearchResults.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.searchResultItem}
+                onPress={() => handleTopSearchPress(item)}
+                activeOpacity={0.85}
+              >
+                <View style={styles.searchResultLeft}>
+                  <Ionicons name="search-outline" size={16} color="#6B7280" />
+                  <View>
+                    <Text style={styles.searchResultName}>{item.name}</Text>
+                    <Text style={styles.searchResultType}>{item.section}</Text>
+                  </View>
+                </View>
+                <Ionicons name="arrow-forward" size={16} color="#7C3AED" />
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : null}
+        {hasSearchQuery && !hasAnySearchResult ? (
+          <Text style={styles.searchHintText}>
+            No matching services right now. Try another keyword.
+          </Text>
+        ) : null}
 
         {/* Offers Carousel */}
         <View style={styles.carouselWrapper}>
@@ -511,11 +971,23 @@ const HomeScreen: React.FC = () => {
             width={width - 32}
             height={180}
             autoPlay
-            autoPlayInterval={3500}
+            autoPlayInterval={3200}
             data={carouselData}
-            scrollAnimationDuration={800}
+            scrollAnimationDuration={700}
+            pagingEnabled
+            snapEnabled
             onSnapToItem={(index: number) => {
               setCurrentIndex(index);
+            }}
+            onProgressChange={(_, absoluteProgress) => {
+              const nextIndex =
+                ((Math.round(absoluteProgress) % carouselData.length) +
+                  carouselData.length) %
+                carouselData.length;
+
+              if (nextIndex !== currentIndex) {
+                setCurrentIndex(nextIndex);
+              }
             }}
             renderItem={({ item }: { item: CarouselItem }) => (
               <LinearGradient
@@ -561,16 +1033,16 @@ const HomeScreen: React.FC = () => {
               return (
                 <MotiView
                   key={index}
+                  style={{ marginHorizontal: 3 }}
                   animate={{
-                    width: isActive ? 30 : 10, // 🔥 stretched active dot
-                    height: 10,
-                    borderRadius: 5,
+                    width: isActive ? 24 : 8,
+                    height: 8,
+                    borderRadius: 4,
                     backgroundColor: isActive ? "#7C3AED" : "#D1D5DB",
-                    marginHorizontal: isActive ? 2 : 5, // closer spacing for connected feel
                   }}
                   transition={{
                     type: "timing",
-                    duration: 500,
+                    duration: 220,
                     easing: Easing.out(Easing.cubic),
                   }}
                 />
@@ -1003,6 +1475,12 @@ const styles = StyleSheet.create({
   locationWrapper: { flexDirection: "row", alignItems: "center" },
   deliverLabel: { fontSize: 12, color: "#6B7280" },
   locationText: { fontSize: 16, fontWeight: "600", color: "#111827" },
+  locationHintText: {
+    marginTop: 2,
+    fontSize: 11,
+    color: "#7C3AED",
+    fontWeight: "600",
+  },
   notificationDot: {
     position: "absolute",
     right: -2,
@@ -1012,17 +1490,111 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "#EF4444",
   },
+  search3DWrapper: {
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    shadowColor: "#6D28D9",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 6,
+    marginBottom: 10,
+  },
+  search3DWrapperFocused: {
+    borderColor: "#C4B5FD",
+    shadowColor: "#7C3AED",
+    shadowOpacity: 0.22,
+    shadowRadius: 18,
+    elevation: 10,
+  },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F3F4F6",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginBottom: 20,
+    backgroundColor: "#F8FAFC",
+    borderRadius: 15,
+    borderWidth: 1.5,
+    borderColor: "#EEF2FF",
+    paddingHorizontal: 8,
+    paddingVertical: 7,
   },
-  searchInput: { flex: 1, fontSize: 14, color: "#111" },
-  micButton: { backgroundColor: "#7C3AED", padding: 8, borderRadius: 8 },
+  searchContainerFocused: {
+    borderWidth: 1,
+    borderColor: "#7C3AED",
+    backgroundColor: "#FFFFFF",
+  },
+  searchIconBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#EDE9FE",
+    marginRight: 8,
+  },
+  searchInput: { flex: 1, fontSize: 14, fontWeight: "500", color: "#111827" },
+  searchHintText: {
+    marginTop: 2,
+    marginBottom: 14,
+    color: "#EF4444",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  searchResultsContainer: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginTop: 2,
+    marginBottom: 14,
+  },
+  searchResultsTitle: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#6B7280",
+    marginBottom: 6,
+  },
+  searchResultItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 9,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  searchResultLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flex: 1,
+  },
+  searchResultName: {
+    fontSize: 14,
+    color: "#111827",
+    fontWeight: "600",
+  },
+  searchResultType: {
+    fontSize: 11,
+    color: "#9CA3AF",
+    marginTop: 1,
+  },
+  micButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#7C3AED",
+    shadowColor: "#4C1D95",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  micButtonActive: { backgroundColor: "#DC2626" },
   carouselWrapper: { alignItems: "center", marginBottom: 25 },
   gradientCard: {
     width: width - 32,
@@ -1061,17 +1633,28 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     flexDirection: "row",
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 22,
-    marginBottom: 12,
+    marginTop: 18,
+    marginBottom: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#334155",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 5,
+    elevation: 2,
   },
   sectionHeading: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 12,
-    color: "#111827",
+    fontSize: 17,
+    fontWeight: "800",
+    marginBottom: 0,
+    color: "#0F172A",
+    letterSpacing: 0.2,
   },
   grid: {
     flexDirection: "row",
@@ -1152,7 +1735,16 @@ const styles = StyleSheet.create({
   priceText: { fontSize: 13, color: "#7C3AED", fontWeight: "600" },
   ratingBox: { flexDirection: "row", alignItems: "center" },
   ratingText: { fontSize: 12, color: "#111" },
-  seeAll: { color: "#7C3AED", fontWeight: "500" },
+  seeAll: {
+    color: "#6D28D9",
+    fontWeight: "700",
+    fontSize: 12,
+    backgroundColor: "#F3E8FF",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    overflow: "hidden",
+  },
   bigBannerWrapper: {
     alignItems: "center",
     marginVertical: 20,

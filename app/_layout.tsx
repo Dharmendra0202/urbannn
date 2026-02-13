@@ -18,6 +18,7 @@ export default function RootLayout() {
 
         {/* Service screens (Cleaning, Electrician, etc.) */}
         <Stack.Screen name="services" />
+        <Stack.Screen name="notifications" />
       </Stack>
     </ThemeProvider>
   );
