@@ -1361,6 +1361,12 @@ const HomeScreen: React.FC = () => {
               style={styles.bigBannerImage}
               resizeMode="cover"
             />
+            <LinearGradient
+              colors={["rgba(0,0,0,0.2)", "rgba(0,0,0,0.55)"]}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={styles.bigBannerOverlay}
+            />
             <View style={styles.bigBannerTextBox}>
               <Text style={styles.bigBannerOffer}>{specialOffer.offer}</Text>
               <Text style={styles.bigBannerTitle}>{specialOffer.title}</Text>
@@ -1371,9 +1377,8 @@ const HomeScreen: React.FC = () => {
                 style={styles.bigBannerButton}
                 onPress={() => router.push("/special-offer")} // 👈 opens a new screen
               >
-                <Text style={{ color: "#000", fontWeight: "600" }}>
-                  Explore Now
-                </Text>
+                <Text style={styles.bigBannerButtonText}>Explore More</Text>
+                <Ionicons name="arrow-forward" size={16} color="#312E81" />
               </TouchableOpacity>
             </View>
           </LinearGradient>
@@ -1756,14 +1761,23 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     overflow: "hidden",
     justifyContent: "center",
+    shadowColor: "#312E81",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 5,
   },
   bigBannerImage: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.25,
+    opacity: 0.75,
     borderRadius: 18,
+  },
+  bigBannerOverlay: {
+    ...StyleSheet.absoluteFillObject,
   },
   bigBannerTextBox: {
     paddingHorizontal: 20,
+    zIndex: 2,
   },
   bigBannerOffer: {
     backgroundColor: "rgba(255,255,255,0.25)",
@@ -1788,11 +1802,21 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   bigBannerButton: {
-    backgroundColor: "#fff",
+    backgroundColor: "#EEF2FF",
+    borderWidth: 1,
+    borderColor: "#C7D2FE",
     paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 10,
+    paddingHorizontal: 14,
+    borderRadius: 999,
     alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  bigBannerButtonText: {
+    color: "#312E81",
+    fontWeight: "700",
+    fontSize: 13,
   },
   miniCard: {
     backgroundColor: "#fff",
