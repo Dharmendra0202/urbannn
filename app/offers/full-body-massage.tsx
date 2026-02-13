@@ -102,7 +102,18 @@ export default function MassageScreen() {
                 <Text style={{ marginLeft: 4 }}>{t.rating}</Text>
               </View>
             </View>
-            <TouchableOpacity style={styles.bookBtn}>
+            <TouchableOpacity
+              style={styles.bookBtn}
+              onPress={() =>
+                router.push({
+                  pathname: "/offers/mens-booking",
+                  params: {
+                    service: `${t.name} - Full Body Massage`,
+                    amount: "999",
+                  },
+                } as any)
+              }
+            >
               <Text style={{ color: "#fff", fontWeight: "600" }}>Book</Text>
             </TouchableOpacity>
           </View>
@@ -117,7 +128,12 @@ export default function MassageScreen() {
         </View>
         <TouchableOpacity
           style={styles.bottomBtn}
-          onPress={() => router.push("/offers/mens-booking" as any)}
+          onPress={() =>
+            router.push({
+              pathname: "/offers/mens-booking",
+              params: { service: "Full Body Massage", amount: "999" },
+            } as any)
+          }
         >
           <Text style={{ color: "#fff", fontWeight: "700" }}>Book Now</Text>
         </TouchableOpacity>

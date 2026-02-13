@@ -139,7 +139,15 @@ export default function PlumbingScreen() {
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.card}
-                  onPress={() => router.push("/services/booking" as any)}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/offers/mens-booking",
+                      params: {
+                        service: item.title,
+                        amount: "249",
+                      },
+                    } as any)
+                  }
                 >
                   <View
                     style={[
@@ -161,7 +169,15 @@ export default function PlumbingScreen() {
 
                   <TouchableOpacity
                     style={[styles.bookButton, { backgroundColor: item.color }]}
-                    onPress={() => router.push("/services/booking" as any)}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/offers/mens-booking",
+                        params: {
+                          service: item.title,
+                          amount: "249",
+                        },
+                      } as any)
+                    }
                   >
                     <Text style={styles.bookText}>Book</Text>
                   </TouchableOpacity>

@@ -139,7 +139,15 @@ export default function ApplianceRepairScreen() {
             </Text>
             <TouchableOpacity
               style={styles.featureBtn}
-              onPress={() => router.push("/booking" as any)}
+              onPress={() =>
+                router.push({
+                  pathname: "/offers/mens-booking",
+                  params: {
+                    service: "Premium Home AC Tune-Up",
+                    amount: "799",
+                  },
+                } as any)
+              }
             >
               <Text style={styles.featureBtnText}>Book Now</Text>
             </TouchableOpacity>
@@ -176,7 +184,15 @@ export default function ApplianceRepairScreen() {
                       styles.bookBtn,
                       { backgroundColor: appliance.color },
                     ]}
-                    onPress={() => router.push("/booking" as any)}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/offers/mens-booking",
+                        params: {
+                          service: appliance.name,
+                          amount: "499",
+                        },
+                      } as any)
+                    }
                   >
                     <Text style={styles.bookText}>Book Now</Text>
                   </TouchableOpacity>
@@ -216,7 +232,7 @@ export default function ApplianceRepairScreen() {
         <View style={styles.reviewSection}>
           <Text style={styles.reviewHeading}>Customer Love ❤️</Text>
           <Text style={styles.reviewQuote}>
-            "Quick, reliable, and affordable! My fridge works like new again."
+            Quick, reliable, and affordable! My fridge works like new again.
           </Text>
           <View style={styles.ratingRow}>
             {[1, 2, 3, 4, 5].map((i) => (

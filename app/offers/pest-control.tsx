@@ -69,7 +69,12 @@ export default function PestControlScreen() {
         </View>
         <TouchableOpacity
           style={styles.bottomBtn}
-          onPress={() => router.push("/offers/mens-booking" as any)}
+          onPress={() =>
+            router.push({
+              pathname: "/offers/mens-booking",
+              params: { service: "Pest Control Service", amount: "599" },
+            } as any)
+          }
         >
           <Text style={{ color: "#fff", fontWeight: "700" }}>Book Now</Text>
         </TouchableOpacity>

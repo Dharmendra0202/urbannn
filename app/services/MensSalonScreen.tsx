@@ -150,7 +150,15 @@ export default function MensSalonScreen() {
             <TouchableOpacity
               key={service.id}
               style={styles.serviceCard}
-              onPress={() => router.push("/services/booking" as any)}
+              onPress={() =>
+                router.push({
+                  pathname: "/offers/mens-booking",
+                  params: {
+                    service: service.title,
+                    amount: service.price.replace(/[^\d]/g, ""),
+                  },
+                } as any)
+              }
             >
               <Image
                 source={{ uri: service.image }}
@@ -161,7 +169,18 @@ export default function MensSalonScreen() {
                 <Text style={styles.serviceDesc}>{service.desc}</Text>
                 <View style={styles.priceRow}>
                   <Text style={styles.priceText}>{service.price}</Text>
-                  <TouchableOpacity style={styles.bookButton}>
+                  <TouchableOpacity
+                    style={styles.bookButton}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/offers/mens-booking",
+                        params: {
+                          service: service.title,
+                          amount: service.price.replace(/[^\d]/g, ""),
+                        },
+                      } as any)
+                    }
+                  >
                     <Text style={styles.bookText}>Book Now</Text>
                   </TouchableOpacity>
                 </View>

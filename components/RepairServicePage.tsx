@@ -193,7 +193,17 @@ export default function RepairServicePage({ service }: Props) {
         <TouchableOpacity
           style={styles.bookButton}
           activeOpacity={0.9}
-          onPress={() => router.push("/offers/mens-booking" as any)}
+          onPress={() =>
+            router.push({
+              pathname: "/offers/mens-booking",
+              params: {
+                service: service.title,
+                amount: String(
+                  service.packages[selectedPackage]?.price ?? service.startPrice,
+                ),
+              },
+            } as any)
+          }
         >
           <Text style={styles.bookButtonText}>Book Service</Text>
         </TouchableOpacity>

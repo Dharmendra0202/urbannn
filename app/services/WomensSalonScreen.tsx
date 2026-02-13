@@ -6,7 +6,6 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -124,7 +123,15 @@ export default function WomensSalonScreen() {
                   <Text style={styles.priceText}>{service.price}</Text>
                   <TouchableOpacity
                     style={styles.bookButton}
-                    onPress={() => router.push("/services/booking" as any)}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/offers/mens-booking",
+                        params: {
+                          service: service.title,
+                          amount: service.price.replace(/[^\d]/g, ""),
+                        },
+                      } as any)
+                    }
                   >
                     <Text style={styles.bookText}>Book Now</Text>
                   </TouchableOpacity>

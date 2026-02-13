@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
-  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -136,7 +135,15 @@ return (
               <TouchableOpacity
                 style={styles.card}
                 activeOpacity={0.8}
-                onPress={() => router.push("/services/booking" as any)}
+                onPress={() =>
+                  router.push({
+                    pathname: "/offers/mens-booking",
+                    params: {
+                      service: item.title,
+                      amount: "599",
+                    },
+                  } as any)
+                }
               >
                 <View
                   style={[

@@ -8,14 +8,17 @@ import {
   Text,
   TouchableOpacity,
   View,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import { CleaningServiceDetail } from "@/constants/cleaning-details";
+import { Ionicons } from "@expo/vector-icons";
+import { CategoryDetail } from "@/constants/category-details";
 
 const { width } = Dimensions.get("window");
+const slideWidth = width - 52;
 
 const headingFont = Platform.select({
   ios: "Georgia",
@@ -36,19 +39,41 @@ const uiFont = Platform.select({
 });
 
 type Props = {
-  service: CleaningServiceDetail;
+  service: CategoryDetail;
 };
 
-export default function CleaningServicePage({ service }: Props) {
+export default function CategoryDetailPage({ service }: Props) {
   const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState(0);
-  const [selectedPanel, setSelectedPanel] = useState(0);
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [activeSlide, setActiveSlide] = useState(0);
 
-  const activePanel = useMemo(
-    () => service.contentPanels[selectedPanel] ?? service.contentPanels[0],
-    [selectedPanel, service.contentPanels],
+  const packagePrice = service.packages[selectedPackage]?.price ?? service.startPrice;
+
+  const addOnTotal = useMemo(
+    () =>
+      (service.addOns ?? [])
+        .filter((item) => selectedAddOns.includes(item.id))
+        .reduce((sum, item) => sum + item.price, 0),
+    [selectedAddOns, service.addOns],
   );
+
+  const totalPrice = packagePrice + addOnTotal;
+
+  const toggleAddOn = (id: string) => {
+    setSelectedAddOns((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  };
+
+  const onSlideScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const index = Math.round(offsetX / slideWidth);
+    if (index >= 0 && index < service.gallery.length) {
+      setActiveSlide(index);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -85,23 +110,23 @@ export default function CleaningServicePage({ service }: Props) {
             <Text style={styles.metricText}>{service.rating}</Text>
           </View>
           <View style={styles.metricCard}>
-            <Ionicons name="home-outline" size={16} color="#0E7490" />
+            <Ionicons name="briefcase-outline" size={16} color="#15803D" />
             <Text style={styles.metricText}>{service.completedJobs}</Text>
           </View>
           <View style={styles.metricCard}>
-            <Ionicons name="time-outline" size={16} color="#C2410C" />
-            <Text style={styles.metricText}>{service.avgDuration}</Text>
+            <Ionicons name="time-outline" size={16} color="#2563EB" />
+            <Text style={styles.metricText}>{service.responseTime}</Text>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Service overview</Text>
+          <Text style={styles.sectionTitle}>About this service</Text>
           <Text style={styles.bodyText}>{service.overview}</Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>What gets covered</Text>
-          {service.workIncludes.map((item) => (
+          <Text style={styles.sectionTitle}>Checklist</Text>
+          {service.checklist.map((item) => (
             <View key={item} style={styles.row}>
               <Ionicons name="checkmark-circle" size={18} color="#0F766E" />
               <Text style={styles.rowText}>{item}</Text>
@@ -110,99 +135,55 @@ export default function CleaningServicePage({ service }: Props) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Products and tools used</Text>
-          <Text style={styles.hintText}>
-            We use service-safe materials and machine workflows based on your
-            surface type.
-          </Text>
+          <Text style={styles.sectionTitle}>Tools and chemicals used</Text>
           <View style={styles.toolWrap}>
-            {service.productHighlights.map((product) => (
-              <View key={product} style={styles.toolChip}>
-                <Ionicons name="flask-outline" size={14} color="#0E7490" />
-                <Text style={styles.toolText}>{product}</Text>
+            {service.productHighlights.map((item) => (
+              <View key={item} style={styles.toolChip}>
+                <Ionicons name="flask-outline" size={14} color="#0C4A6E" />
+                <Text style={styles.toolText}>{item}</Text>
               </View>
             ))}
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Service playbook</Text>
+          <Text style={styles.sectionTitle}>Service snapshots</Text>
           <Text style={styles.hintText}>
-            Use the vertical tabs on the left to quickly switch product and
-            process details.
+            Swipe to view live service moments and expected output quality.
           </Text>
 
-          <View style={styles.panelLayout}>
-            <ScrollView
-              style={styles.panelRail}
-              contentContainerStyle={styles.panelRailContent}
-              showsVerticalScrollIndicator={false}
-            >
-              {service.contentPanels.map((panel, index) => {
-                const isActive = selectedPanel === index;
-
-                return (
-                  <TouchableOpacity
-                    key={panel.id}
-                    style={[styles.panelTab, isActive && styles.panelTabActive]}
-                    activeOpacity={0.85}
-                    onPress={() => setSelectedPanel(index)}
-                  >
-                    <Text
-                      style={[
-                        styles.panelTabLabel,
-                        isActive && styles.panelTabLabelActive,
-                      ]}
-                    >
-                      {panel.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-
-            <View style={styles.panelCard}>
-              <Text style={styles.panelTitle}>{activePanel.title}</Text>
-              <Text style={styles.bodyText}>{activePanel.description}</Text>
-
-              <View style={styles.panelBulletWrap}>
-                {activePanel.bullets.map((bullet) => (
-                  <View key={bullet} style={styles.row}>
-                    <Ionicons
-                      name="ellipse"
-                      size={7}
-                      color="#0E7490"
-                      style={styles.dotIcon}
-                    />
-                    <Text style={styles.rowText}>{bullet}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent service snapshots</Text>
           <ScrollView
             horizontal
+            snapToInterval={slideWidth}
+            decelerationRate="fast"
+            disableIntervalMomentum
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.galleryContainer}
+            onMomentumScrollEnd={onSlideScrollEnd}
+            contentContainerStyle={styles.sliderTrack}
           >
             {service.gallery.map((item) => (
-              <View key={item.id} style={styles.galleryCard}>
-                <Image source={{ uri: item.image }} style={styles.galleryImage} />
-                <View style={styles.galleryBody}>
-                  <Text style={styles.galleryTitle}>{item.title}</Text>
-                  <Text style={styles.gallerySubtitle}>{item.subtitle}</Text>
+              <View key={item.id} style={styles.slideCard}>
+                <Image source={{ uri: item.image }} style={styles.slideImage} />
+                <View style={styles.slideBody}>
+                  <Text style={styles.slideTitle}>{item.title}</Text>
+                  <Text style={styles.slideSubtitle}>{item.subtitle}</Text>
                 </View>
               </View>
             ))}
           </ScrollView>
+
+          <View style={styles.dotRow}>
+            {service.gallery.map((item, index) => (
+              <View
+                key={item.id}
+                style={[styles.dot, activeSlide === index && styles.dotActive]}
+              />
+            ))}
+          </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>How the service runs</Text>
+          <Text style={styles.sectionTitle}>How we execute</Text>
           {service.processSteps.map((step, index) => (
             <View key={step} style={styles.processRow}>
               <View style={styles.stepDot}>
@@ -213,8 +194,36 @@ export default function CleaningServicePage({ service }: Props) {
           ))}
         </View>
 
+        {service.addOns?.length ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Add-ons</Text>
+            {service.addOns.map((item) => {
+              const active = selectedAddOns.includes(item.id);
+
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[styles.addOnRow, active && styles.addOnRowActive]}
+                  onPress={() => toggleAddOn(item.id)}
+                  activeOpacity={0.85}
+                >
+                  <View style={styles.addOnContent}>
+                    <Text style={styles.addOnTitle}>{item.label}</Text>
+                    <Text style={styles.addOnPrice}>+₹{item.price}</Text>
+                  </View>
+                  <Ionicons
+                    name={active ? "checkbox" : "square-outline"}
+                    size={22}
+                    color={active ? "#0F766E" : "#64748B"}
+                  />
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        ) : null}
+
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Choose your package</Text>
+          <Text style={styles.sectionTitle}>Choose package</Text>
           {service.packages.map((pkg, index) => {
             const isActive = selectedPackage === index;
 
@@ -241,8 +250,8 @@ export default function CleaningServicePage({ service }: Props) {
           })}
         </View>
 
-        <LinearGradient colors={["#0B3B4A", "#0F766E"]} style={styles.noteBanner}>
-          <Text style={styles.noteTitle}>Clean Home Promise</Text>
+        <LinearGradient colors={["#1E293B", "#0F172A"]} style={styles.noteBanner}>
+          <Text style={styles.noteTitle}>Service assurance</Text>
           <Text style={styles.noteText}>{service.serviceNote}</Text>
         </LinearGradient>
 
@@ -263,7 +272,7 @@ export default function CleaningServicePage({ service }: Props) {
                   <Ionicons
                     name={expanded ? "chevron-up-outline" : "chevron-down-outline"}
                     size={18}
-                    color="#5F6E7B"
+                    color="#64748B"
                   />
                 </View>
                 {expanded ? <Text style={styles.faqAnswer}>{faq.answer}</Text> : null}
@@ -275,10 +284,8 @@ export default function CleaningServicePage({ service }: Props) {
 
       <View style={styles.bottomBar}>
         <View>
-          <Text style={styles.bottomLabel}>Starting from</Text>
-          <Text style={styles.bottomPrice}>
-            ₹{service.packages[selectedPackage]?.price ?? service.startPrice}
-          </Text>
+          <Text style={styles.bottomLabel}>Total payable</Text>
+          <Text style={styles.bottomPrice}>₹{totalPrice}</Text>
         </View>
         <TouchableOpacity
           style={styles.bookButton}
@@ -288,14 +295,12 @@ export default function CleaningServicePage({ service }: Props) {
               pathname: "/offers/mens-booking",
               params: {
                 service: service.title,
-                amount: String(
-                  service.packages[selectedPackage]?.price ?? service.startPrice,
-                ),
+                amount: String(totalPrice),
               },
             } as any)
           }
         >
-          <Text style={styles.bookButtonText}>Book Cleaning</Text>
+          <Text style={styles.bookButtonText}>Book Now</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -303,10 +308,10 @@ export default function CleaningServicePage({ service }: Props) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F5FBFA" },
+  safeArea: { flex: 1, backgroundColor: "#F8FAFC" },
   scrollContent: { paddingBottom: 120 },
   hero: {
-    height: 285,
+    height: 280,
     margin: 14,
     borderRadius: 24,
     overflow: "hidden",
@@ -316,7 +321,7 @@ const styles = StyleSheet.create({
   heroImage: { ...StyleSheet.absoluteFillObject },
   heroOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(10, 18, 32, 0.42)",
+    backgroundColor: "rgba(2, 6, 23, 0.38)",
   },
   backButton: {
     position: "absolute",
@@ -333,30 +338,29 @@ const styles = StyleSheet.create({
   heroBody: { zIndex: 2 },
   badge: {
     alignSelf: "flex-start",
-    backgroundColor: "rgba(255,255,255,0.96)",
+    backgroundColor: "rgba(255,255,255,0.95)",
     borderRadius: 999,
-    paddingHorizontal: 11,
+    paddingHorizontal: 10,
     paddingVertical: 5,
     marginBottom: 8,
   },
   badgeText: {
-    color: "#0B3B4A",
+    color: "#111827",
     fontSize: 11,
     fontFamily: uiFont,
-    letterSpacing: 0.3,
   },
   heroTitle: {
     color: "#FFFFFF",
-    fontSize: 29,
-    fontFamily: headingFont,
+    fontSize: 30,
     lineHeight: 35,
+    fontFamily: headingFont,
   },
   heroSubtitle: {
     color: "#E2E8F0",
-    marginTop: 7,
+    marginTop: 6,
     fontSize: 14,
     maxWidth: "88%",
-    lineHeight: 19,
+    lineHeight: 20,
     fontFamily: bodyFont,
   },
   metricRow: {
@@ -369,7 +373,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#D9E8E6",
+    borderColor: "#DCE4EE",
     backgroundColor: "#FFFFFF",
     paddingVertical: 10,
     alignItems: "center",
@@ -387,14 +391,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 14,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "#D9E8E6",
+    borderColor: "#DCE4EE",
     backgroundColor: "#FFFFFF",
     padding: 14,
   },
   sectionTitle: {
     color: "#0F172A",
-    fontSize: 22,
-    lineHeight: 27,
+    fontSize: 20,
+    lineHeight: 25,
     fontFamily: headingFont,
     marginBottom: 8,
   },
@@ -417,13 +421,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontFamily: bodyFont,
   },
-  hintText: {
-    color: "#64748B",
-    fontSize: 13,
-    marginBottom: 10,
-    lineHeight: 18,
-    fontFamily: bodyFont,
-  },
   toolWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -438,90 +435,66 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#BAE6FD",
-    backgroundColor: "#ECFEFF",
+    backgroundColor: "#F0F9FF",
   },
   toolText: {
-    color: "#0E7490",
+    color: "#0C4A6E",
     fontSize: 12,
     fontFamily: uiFont,
   },
-  panelLayout: {
-    flexDirection: "row",
-    alignItems: "stretch",
-    gap: 10,
+  hintText: {
+    color: "#64748B",
+    fontSize: 13,
+    marginBottom: 10,
+    fontFamily: bodyFont,
   },
-  panelRail: {
-    width: 102,
-    maxHeight: 212,
+  sliderTrack: {
+    paddingRight: 8,
   },
-  panelRailContent: {
-    gap: 8,
-    paddingBottom: 2,
-  },
-  panelTab: {
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#D9E8E6",
-    backgroundColor: "#F8FAFC",
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-  },
-  panelTabActive: {
-    borderColor: "#0E7490",
-    backgroundColor: "#CCFBF1",
-  },
-  panelTabLabel: {
-    color: "#475569",
-    fontSize: 12,
-    textAlign: "center",
-    fontFamily: uiFont,
-  },
-  panelTabLabelActive: {
-    color: "#0F766E",
-  },
-  panelCard: {
-    flex: 1,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#D9E8E6",
-    backgroundColor: "#F8FAFC",
-    padding: 12,
-  },
-  panelTitle: {
-    color: "#0F172A",
-    fontSize: 18,
-    lineHeight: 23,
-    fontFamily: headingFont,
-    marginBottom: 6,
-  },
-  panelBulletWrap: {
-    marginTop: 10,
-  },
-  dotIcon: {
-    marginTop: 6,
-  },
-  galleryContainer: { paddingVertical: 4, paddingRight: 8 },
-  galleryCard: {
-    width: width * 0.7,
+  slideCard: {
+    width: slideWidth,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#D9E8E6",
+    borderColor: "#DCE4EE",
     overflow: "hidden",
-    backgroundColor: "#F0FDFA",
-    marginRight: 12,
+    backgroundColor: "#F8FAFC",
+    marginRight: 10,
   },
-  galleryImage: { width: "100%", height: 158 },
-  galleryBody: { padding: 10 },
-  galleryTitle: {
+  slideImage: {
+    width: "100%",
+    height: 170,
+  },
+  slideBody: {
+    padding: 10,
+  },
+  slideTitle: {
     color: "#0F172A",
     fontSize: 15,
     fontFamily: uiFont,
   },
-  gallerySubtitle: {
+  slideSubtitle: {
     color: "#475569",
+    marginTop: 3,
     fontSize: 12,
-    marginTop: 2,
+    lineHeight: 17,
     fontFamily: bodyFont,
+  },
+  dotRow: {
+    marginTop: 10,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 6,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 999,
+    backgroundColor: "#CBD5E1",
+  },
+  dotActive: {
+    width: 18,
+    backgroundColor: "#0F766E",
   },
   processRow: {
     flexDirection: "row",
@@ -530,21 +503,47 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   stepDot: {
-    width: 25,
-    height: 25,
-    borderRadius: 12.5,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#0E7490",
+    backgroundColor: "#1D4ED8",
   },
   stepText: {
     color: "#FFFFFF",
     fontSize: 12,
     fontFamily: uiFont,
   },
+  addOnRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E2E8F0",
+  },
+  addOnRowActive: {
+    backgroundColor: "#F0FDFA",
+  },
+  addOnContent: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  addOnTitle: {
+    color: "#0F172A",
+    fontSize: 14,
+    fontFamily: uiFont,
+  },
+  addOnPrice: {
+    color: "#0F766E",
+    marginTop: 2,
+    fontSize: 13,
+    fontFamily: bodyFont,
+  },
   packageCard: {
     borderWidth: 1,
-    borderColor: "#D9E8E6",
+    borderColor: "#DCE4EE",
     borderRadius: 14,
     padding: 12,
     marginBottom: 10,
@@ -605,13 +604,13 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   noteTitle: {
-    color: "#ECFEFF",
-    fontSize: 21,
-    lineHeight: 26,
+    color: "#E2E8F0",
+    fontSize: 20,
+    lineHeight: 25,
     fontFamily: headingFont,
   },
   noteText: {
-    color: "#D1FAE5",
+    color: "#CBD5E1",
     marginTop: 6,
     fontSize: 13,
     lineHeight: 18,
@@ -619,7 +618,7 @@ const styles = StyleSheet.create({
   },
   faqCard: {
     borderWidth: 1,
-    borderColor: "#D9E8E6",
+    borderColor: "#DCE4EE",
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
@@ -650,7 +649,7 @@ const styles = StyleSheet.create({
     right: 12,
     bottom: 10,
     borderRadius: 16,
-    backgroundColor: "#082F49",
+    backgroundColor: "#0F172A",
     paddingHorizontal: 14,
     paddingVertical: 12,
     flexDirection: "row",
@@ -658,13 +657,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   bottomLabel: {
-    color: "#7DD3FC",
+    color: "#94A3B8",
     fontSize: 12,
     fontFamily: bodyFont,
   },
   bottomPrice: {
-    color: "#E0F2FE",
-    fontSize: 21,
+    color: "#F8FAFC",
+    fontSize: 20,
     fontFamily: uiFont,
   },
   bookButton: {

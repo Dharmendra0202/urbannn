@@ -7,14 +7,10 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
-  Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-
-
-const { width } = Dimensions.get("window");
 
 /* ===============================
    DATA
@@ -183,7 +179,15 @@ export default function MensHaircutScreen() {
             </View>
             <TouchableOpacity
               style={styles.bottomBtn}
-              onPress={() => router.push("/offers/mens-booking" as any)}
+              onPress={() =>
+                router.push({
+                  pathname: "/offers/mens-booking",
+                  params: {
+                    service: `${p.name} - Haircut + Beard`,
+                    amount: "499",
+                  },
+                } as any)
+              }
             >
               <Text style={{ color: "#fff", fontWeight: "700" }}>Book Now</Text>
             </TouchableOpacity>
@@ -223,7 +227,12 @@ export default function MensHaircutScreen() {
         </View>
         <TouchableOpacity
           style={styles.bottomBtn}
-          onPress={() => router.push("/offers/mens-booking" as any)}
+          onPress={() =>
+            router.push({
+              pathname: "/offers/mens-booking",
+              params: { service: "Haircut + Beard Combo", amount: "499" },
+            } as any)
+          }
         >
           <Text style={{ color: "#fff", fontWeight: "700" }}>Book Now</Text>
         </TouchableOpacity>

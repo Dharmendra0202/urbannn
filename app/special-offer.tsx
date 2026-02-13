@@ -124,7 +124,18 @@ onPress={() => router.push("../special-offer")}
                   <Ionicons name="star" size={14} color="#FFD700" />
                   <Text style={styles.rating}>{item.rating}</Text>
                 </View>
-                <TouchableOpacity style={styles.bookButton}>
+                <TouchableOpacity
+                  style={styles.bookButton}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/offers/mens-booking",
+                      params: {
+                        service: item.title,
+                        amount: String(item.price),
+                      },
+                    } as any)
+                  }
+                >
                   <Text style={styles.bookText}>Book Now</Text>
                 </TouchableOpacity>
               </View>

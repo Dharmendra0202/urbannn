@@ -228,7 +228,15 @@ export default function RecommendedServicePage({ service }: Props) {
         <TouchableOpacity
           activeOpacity={0.9}
           style={styles.bottomButton}
-          onPress={() => router.push("/offers/mens-booking" as any)}
+          onPress={() =>
+            router.push({
+              pathname: "/offers/mens-booking",
+              params: {
+                service: service.title,
+                amount: String(selectedPackage?.price ?? service.startingPrice),
+              },
+            } as any)
+          }
         >
           <Text style={styles.bottomButtonText}>Book Now</Text>
         </TouchableOpacity>

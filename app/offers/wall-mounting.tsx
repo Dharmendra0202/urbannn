@@ -74,7 +74,12 @@ export default function WallMountingScreen() {
         </View>
         <TouchableOpacity
           style={styles.bottomBtn}
-          onPress={() => router.push("/offers/mens-booking" as any)}
+          onPress={() =>
+            router.push({
+              pathname: "/offers/mens-booking",
+              params: { service: "Wall Mounting & Drilling", amount: "499" },
+            } as any)
+          }
         >
           <Text style={{ color: "#fff", fontWeight: "700" }}>Book Now</Text>
         </TouchableOpacity>

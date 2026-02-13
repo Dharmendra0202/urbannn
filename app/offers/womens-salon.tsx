@@ -8,8 +8,11 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 export default function WomensSalonScreen() {
+  const router = useRouter();
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -53,7 +56,15 @@ export default function WomensSalonScreen() {
       </View>
 
       {/* Book Button */}
-      <TouchableOpacity style={styles.bookBtn}>
+      <TouchableOpacity
+        style={styles.bookBtn}
+        onPress={() =>
+          router.push({
+            pathname: "/offers/mens-booking",
+            params: { service: "Salon at Home for Women", amount: "499" },
+          } as any)
+        }
+      >
         <Text style={styles.bookText}>Book Now 💕</Text>
       </TouchableOpacity>
     </ScrollView>

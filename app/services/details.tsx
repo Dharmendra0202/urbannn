@@ -40,7 +40,15 @@ export default function ServiceDetails() {
             styles.bookButton,
             { backgroundColor: (color as string) || "#6366F1" },
           ]}
-          onPress={() => router.push("/services/booking" as any)}
+          onPress={() =>
+            router.push({
+              pathname: "/offers/mens-booking",
+              params: {
+                service: String(title ?? "Home Service"),
+                amount: "499",
+              },
+            } as any)
+          }
         >
           <Text style={styles.bookText}>Book Now</Text>
         </TouchableOpacity>

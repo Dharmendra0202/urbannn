@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { MotiView, MotiText } from "moti";
+import { MotiView } from "moti";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { Easing } from "react-native-reanimated";
@@ -351,7 +351,15 @@ export default function CategoriesScreen() {
       {/* 🚀 Call To Action */}
       <LinearGradient colors={gradients.blue} style={styles.ctaCard}>
         <Text style={styles.ctaText}>Ready to book your next service?</Text>
-        <TouchableOpacity style={styles.ctaButton}>
+        <TouchableOpacity
+          style={styles.ctaButton}
+          onPress={() =>
+            router.push({
+              pathname: "/offers/mens-booking",
+              params: { service: "General Home Service", amount: "499" },
+            } as any)
+          }
+        >
           <Text style={styles.ctaButtonText}>Book Now</Text>
         </TouchableOpacity>
       </LinearGradient>

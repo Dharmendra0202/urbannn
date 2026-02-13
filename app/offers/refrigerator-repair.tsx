@@ -89,7 +89,18 @@ export default function RefrigeratorRepairScreen() {
               <Text style={{ fontWeight: "700" }}>{t.name}</Text>
               <Text>⭐ {t.rating}</Text>
             </View>
-            <TouchableOpacity style={styles.bookBtn}>
+            <TouchableOpacity
+              style={styles.bookBtn}
+              onPress={() =>
+                router.push({
+                  pathname: "/offers/mens-booking",
+                  params: {
+                    service: `${t.name} - Refrigerator Repair`,
+                    amount: "699",
+                  },
+                } as any)
+              }
+            >
               <Text style={{ color: "#fff", fontWeight: "600" }}>Book</Text>
             </TouchableOpacity>
           </View>
@@ -104,7 +115,12 @@ export default function RefrigeratorRepairScreen() {
         </View>
         <TouchableOpacity
           style={styles.bottomBtn}
-          onPress={() => router.push("/offers/mens-booking" as any)}
+          onPress={() =>
+            router.push({
+              pathname: "/offers/mens-booking",
+              params: { service: "Refrigerator Repair", amount: "699" },
+            } as any)
+          }
         >
           <Text style={{ color: "#fff", fontWeight: "700" }}>Book Now</Text>
         </TouchableOpacity>
