@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -20,7 +20,10 @@ import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 import { Easing } from "react-native-reanimated";
 import HorizontalCard from "@/components/HorizontalCard";
-import { Stack } from "expo-router";
+import {
+  getRecommendedRoute,
+  recommendedServices,
+} from "@/constants/recommended-services";
 
 
 
@@ -399,52 +402,6 @@ const homeRepair: HorizontalItem[] = [
   },
 ];
 
-// ✅ Recommended Services Data
-const recommendedServices = [
-  {
-    id: "r1",
-    name: "Sofa Cleaning",
-    price: 499,
-    rating: 4.8,
-    image:
-      "https://images.pexels.com/photos/4107281/pexels-photo-4107281.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "r2",
-    name: "Bathroom Cleaning",
-    price: 699,
-    rating: 4.7,
-    image:
-      "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "r3",
-    name: "Pest Control",
-    price: 599,
-    rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/6197120/pexels-photo-6197120.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "r4",
-    name: "Wall Painting",
-    price: 1599,
-    rating: 4.9,
-    image:
-      "https://images.pexels.com/photos/3865795/pexels-photo-3865795.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "r5",
-    name: "AC Service",
-    price: 899,
-    rating: 4.7,
-    image:
-      "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-];
-
-
-
 // const HorizontalCard: React.FC<{ item: HorizontalItem }> = ({ item }) => (
 //   <TouchableOpacity activeOpacity={0.8} style={styles.horizontalCard}>
 //     <Image
@@ -464,8 +421,11 @@ const recommendedServices = [
 //   </TouchableOpacity>
 // );
 // ✅ Compact Mini Service Card Component
-const MiniServiceCard: React.FC<{ item: HorizontalItem }> = ({ item }) => (
-  <TouchableOpacity activeOpacity={0.8} style={styles.miniCard}>
+const MiniServiceCard: React.FC<{ item: HorizontalItem; onPress?: () => void }> = ({
+  item,
+  onPress,
+}) => (
+  <TouchableOpacity activeOpacity={0.8} style={styles.miniCard} onPress={onPress}>
     <Image
       source={{ uri: item.image }}
       style={styles.miniCardImage}
@@ -1051,7 +1011,12 @@ const HomeScreen: React.FC = () => {
           <FlatList
             horizontal
             data={filteredRecommended} // ✅ filters recommended section
-            renderItem={({ item }) => <MiniServiceCard item={item} />}
+            renderItem={({ item }) => (
+              <MiniServiceCard
+                item={item}
+                onPress={() => router.push(getRecommendedRoute(item.id) as any)}
+              />
+            )}
             keyExtractor={(item) => item.id}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingVertical: 6 }}
