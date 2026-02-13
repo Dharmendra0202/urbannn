@@ -1,11 +1,6 @@
 import CleaningServicePage from "@/components/CleaningServicePage";
+import { cleaningServiceDetails } from "@/constants/cleaning-details";
 
 export default function Page() {
-  return (
-    <CleaningServicePage
-      title="Bathroom Deep Cleaning"
-      price={399}
-      image="https://images.pexels.com/photos/5649812/pexels-photo-5649812.jpeg"
-    />
-  );
+  return <CleaningServicePage service={cleaningServiceDetails["bathroom-deep"]} />;
 }
