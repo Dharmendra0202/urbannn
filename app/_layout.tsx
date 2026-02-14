@@ -2,6 +2,7 @@
 import { Stack } from "expo-router";
 import React from "react";
 import "react-native-reanimated";
+import { BookingsProvider } from "../context/BookingsContext";
 import { ThemeProvider } from "../context/ThemeContext"; // ✅ fixed path
 
 /**
@@ -12,14 +13,16 @@ export default function RootLayout() {
   return (
     // ✅ Wrap everything inside ThemeProvider for global dark/light theme
     <ThemeProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        {/* Bottom tab navigation (Home, Explore, etc.) */}
-        <Stack.Screen name="(tabs)" />
+      <BookingsProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          {/* Bottom tab navigation (Home, Explore, etc.) */}
+          <Stack.Screen name="(tabs)" />
 
-        {/* Service screens (Cleaning, Electrician, etc.) */}
-        <Stack.Screen name="services" />
-        <Stack.Screen name="notifications" />
-      </Stack>
+          {/* Service screens (Cleaning, Electrician, etc.) */}
+          <Stack.Screen name="services" />
+          <Stack.Screen name="notifications" />
+        </Stack>
+      </BookingsProvider>
     </ThemeProvider>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { useBookings } from "../../context/BookingsContext";
 
 const professionalOptions = [
   { id: "pro-1", name: "Auto Assign Team", rating: "4.8" },
@@ -27,7 +28,21 @@ const paymentOptions = [
   { id: "pay-3", label: "Card", icon: "card-outline" },
 ];
 
-const getDateOptions = () => {
+type DateOption = {
+  id: string;
+  value: string;
+  isToday: boolean;
+  isoDate: string;
+};
+
+const toIsoLocalDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const getDateOptions = (): DateOption[] => {
   const today = new Date();
 
   return Array.from({ length: 6 }).map((_, index) => {
@@ -42,6 +57,7 @@ const getDateOptions = () => {
       id: `date-${index}`,
       value: `${weekday}, ${day} ${month}`,
       isToday: index === 0,
+      isoDate: toIsoLocalDate(date),
     };
   });
 };
@@ -65,9 +81,40 @@ const getStringParam = (
   return value ?? fallback;
 };
 
+const to24Hour = (timeLabel: string) => {
+  const [time, meridiem] = timeLabel.trim().split(" ");
+  const [hourValue, minuteValue] = time.split(":");
+
+  let hours = Number(hourValue);
+  const minutes = Number(minuteValue);
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return { hours: 9, minutes: 0 };
+  }
+
+  if (meridiem === "PM" && hours < 12) {
+    hours += 12;
+  }
+  if (meridiem === "AM" && hours === 12) {
+    hours = 0;
+  }
+
+  return { hours, minutes };
+};
+
+const buildScheduledAt = (isoDate: string, slot: string) => {
+  const slotStart = slot.split("-")[0]?.trim() ?? "09:00 AM";
+  const { hours, minutes } = to24Hour(slotStart);
+  const scheduledDate = new Date(`${isoDate}T00:00:00`);
+  scheduledDate.setHours(hours, minutes, 0, 0);
+  return scheduledDate.toISOString();
+};
+
 export default function MensBookingScreen() {
   const router = useRouter();
+  const { addBooking } = useBookings();
   const params = useLocalSearchParams<{ service?: string | string[]; amount?: string | string[] }>();
+  const dateOptions = useMemo(() => getDateOptions(), []);
 
   const bookingService = getStringParam(params.service, "Home Service Booking");
   const rawAmount = Number(getStringParam(params.amount, "499"));
@@ -87,7 +134,8 @@ export default function MensBookingScreen() {
   const selectedProfessional = professionalOptions.find(
     (item) => item.id === selectedProfessionalId,
   );
-  const selectedDate = getDateOptions().find((item) => item.id === selectedDateId);
+  const selectedDate = dateOptions.find((item) => item.id === selectedDateId);
+  const selectedPayment = paymentOptions.find((item) => item.id === selectedPaymentId);
 
   const convenienceFee = 49;
   const totalAmount = serviceAmount + convenienceFee;
@@ -105,7 +153,38 @@ export default function MensBookingScreen() {
       return;
     }
 
-    router.push("/services/booking-success" as any);
+    if (!selectedDate) {
+      Alert.alert("Missing date", "Please select a valid service date.");
+      return;
+    }
+
+    const scheduledAt = buildScheduledAt(selectedDate.isoDate, selectedSlot);
+
+    addBooking({
+      serviceName: bookingService,
+      scheduledAt,
+      dateLabel: selectedDate.value,
+      slot: selectedSlot,
+      customerName: fullName.trim(),
+      phone: phone.trim(),
+      address: address.trim(),
+      landmark: landmark.trim() || undefined,
+      notes: notes.trim() || undefined,
+      professionalName: selectedProfessional?.name ?? "Auto Assign Team",
+      paymentLabel: selectedPayment?.label ?? "Pay after service",
+      amount: serviceAmount,
+      convenienceFee,
+      totalAmount,
+    });
+
+    router.push({
+      pathname: "/services/booking-success",
+      params: {
+        service: bookingService,
+        date: selectedDate.value,
+        slot: selectedSlot,
+      },
+    } as any);
   };
 
   return (
@@ -215,7 +294,7 @@ export default function MensBookingScreen() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.chipRow}
             >
-              {getDateOptions().map((item) => {
+              {dateOptions.map((item) => {
                 const active = selectedDateId === item.id;
 
                 return (

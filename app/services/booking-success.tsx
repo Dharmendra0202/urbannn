@@ -3,11 +3,20 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function BookingSuccessScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{
+    service?: string | string[];
+    date?: string | string[];
+    slot?: string | string[];
+  }>();
+
+  const serviceLabel = Array.isArray(params.service) ? params.service[0] : params.service;
+  const dateLabel = Array.isArray(params.date) ? params.date[0] : params.date;
+  const slotLabel = Array.isArray(params.slot) ? params.slot[0] : params.slot;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -33,14 +42,39 @@ export default function BookingSuccessScreen() {
           }}
           style={styles.image}
         />
+        {!!serviceLabel && (
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryTitle}>{serviceLabel}</Text>
+            <Text style={styles.summaryMeta}>
+              {dateLabel ?? "Date selected"} • {slotLabel ?? "Time selected"}
+            </Text>
+          </View>
+        )}
         <Text style={styles.message}>
           Sit back and relax — our team will arrive on time to provide your
           selected service 🧹⚡💆‍♂️
         </Text>
 
         <TouchableOpacity
-          onPress={() => router.push("/")}
+          onPress={() => router.replace("/bookings")}
           style={styles.buttonContainer}
+        >
+          <LinearGradient
+            {...({
+              colors: ["#0F172A", "#334155"],
+              start: { x: 0, y: 0 },
+              end: { x: 1, y: 1 },
+              style: styles.buttonGradient,
+            } as any)}
+          >
+            <Ionicons name="calendar-outline" size={20} color="#fff" />
+            <Text style={styles.buttonText}>View My Bookings</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => router.replace("/")}
+          style={styles.buttonContainerSecondary}
         >
           <LinearGradient
             {...({
@@ -91,16 +125,42 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
   },
+  summaryCard: {
+    width: "100%",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    backgroundColor: "#FFFFFF",
+    padding: 12,
+    marginBottom: 14,
+  },
+  summaryTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: "#0F172A",
+  },
+  summaryMeta: {
+    marginTop: 5,
+    fontSize: 13,
+    color: "#475569",
+    fontWeight: "600",
+  },
   message: {
     fontSize: 15,
     color: "#374151",
     textAlign: "center",
-    marginBottom: 30,
+    marginBottom: 18,
   },
   buttonContainer: {
     width: "70%",
     borderRadius: 12,
     overflow: "hidden",
+  },
+  buttonContainerSecondary: {
+    width: "70%",
+    borderRadius: 12,
+    overflow: "hidden",
+    marginTop: 10,
   },
   buttonGradient: {
     flexDirection: "row",
