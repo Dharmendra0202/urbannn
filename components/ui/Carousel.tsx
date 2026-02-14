@@ -1,4 +1,4 @@
-import { Button } from "@/app/components/ui/Button";
+import { Button } from "@/components/ui/Button";
 import React, { useState } from "react";
 import { Dimensions, Image, StyleSheet, View } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
