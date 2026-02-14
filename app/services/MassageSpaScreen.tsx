@@ -1,9 +1,7 @@
-import { View, Text } from "react-native";
+import React from "react";
+import { ServiceHubScreen } from "@/components/ServiceHubScreen";
+import { SERVICE_HUB_CONFIGS } from "@/constants/service-hub-config";
 
 export default function MassageSpaScreen() {
-  return (
-    <View>
-      <Text>Massage & Spa</Text>
-    </View>
-  );
+  return <ServiceHubScreen config={SERVICE_HUB_CONFIGS.massageSpa} />;
 }

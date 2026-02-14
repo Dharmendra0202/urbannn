@@ -23,10 +23,10 @@ export default function ServicesLayout() {
       <Stack.Screen name="ElectricianScreen" />
       <Stack.Screen name="PlumbingScreen" />
       <Stack.Screen name="ACRepairScreen" />
-      <Stack.Screen name="WomenSalonScreen" />
-      <Stack.Screen name="MenSalonScreen" />
-      <Stack.Screen name="PaintingScreen" />
-      <Stack.Screen name="MassageScreen" />
+      <Stack.Screen name="MensSalonScreen" />
+      <Stack.Screen name="WomensSalonScreen" />
+      <Stack.Screen name="MassageSpaScreen" />
+      <Stack.Screen name="ApplianceRepairScreen" />
     </Stack>
   );
 }

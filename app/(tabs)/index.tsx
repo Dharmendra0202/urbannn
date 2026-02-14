@@ -56,6 +56,7 @@ interface ServiceItem {
   name: string;
   icon: keyof typeof Ionicons.glyphMap;
   color: string;
+  route: string;
 }
 
 interface HorizontalItem {
@@ -217,14 +218,62 @@ const carouselData: CarouselItem[] = [
 
 // ✅ Services
 const services: ServiceItem[] = [
-  { id: 1, name: "Cleaning", icon: "sparkles-outline", color: "#8B5CF6" },
-  { id: 2, name: "Electrician", icon: "flash-outline", color: "#F59E0B" },
-  { id: 3, name: "Plumbing", icon: "water-outline", color: "#3B82F6" },
-  { id: 4, name: "AC Repair", icon: "snow-outline", color: "#06B6D4" },
-  { id: 5, name: "Men’s Salon", icon: "cut-outline", color: "#22C55E" },
-  { id: 6, name: "Women’s Salon", icon: "woman-outline", color: "#EC4899" },
-  { id: 7, name: "Massage & Spa", icon: "heart-outline", color: "#EF4444" },
-  { id: 8, name: "Appliance Repair", icon: "tv-outline", color: "#6366F1" },
+  {
+    id: 1,
+    name: "Cleaning",
+    icon: "sparkles-outline",
+    color: "#8B5CF6",
+    route: "/services/CleaningScreen",
+  },
+  {
+    id: 2,
+    name: "Electrician",
+    icon: "flash-outline",
+    color: "#F59E0B",
+    route: "/services/ElectricianScreen",
+  },
+  {
+    id: 3,
+    name: "Plumbing",
+    icon: "water-outline",
+    color: "#3B82F6",
+    route: "/services/PlumbingScreen",
+  },
+  {
+    id: 4,
+    name: "AC Repair",
+    icon: "snow-outline",
+    color: "#06B6D4",
+    route: "/services/ACRepairScreen",
+  },
+  {
+    id: 5,
+    name: "Men’s Salon",
+    icon: "cut-outline",
+    color: "#22C55E",
+    route: "/services/MensSalonScreen",
+  },
+  {
+    id: 6,
+    name: "Women’s Salon",
+    icon: "woman-outline",
+    color: "#EC4899",
+    route: "/services/WomensSalonScreen",
+  },
+  {
+    id: 7,
+    name: "Massage & Spa",
+    icon: "heart-outline",
+    color: "#EF4444",
+    route: "/services/MassageSpaScreen",
+  },
+  {
+    id: 8,
+    name: "Appliance Repair",
+    icon: "tv-outline",
+    color: "#6366F1",
+    route: "/services/ApplianceRepairScreen",
+  },
 ];
 
 // ✅ Offers / Essentials / Repair sections (horizontal lists)
@@ -530,7 +579,7 @@ const HomeScreen: React.FC = () => {
         id: `service-${item.id}`,
         name: item.name,
         section: "Service",
-        route: `/services/${item.name.replace(/[^\w]/g, "")}Screen`,
+        route: item.route,
       });
     });
 
@@ -1101,14 +1150,7 @@ const HomeScreen: React.FC = () => {
               <TouchableOpacity
                 activeOpacity={0.85}
                 style={styles.serviceCard}
-                onPress={() =>
-                  router.push(
-                    `/services/${service.name.replace(
-                      /[^\w]/g,
-                      "",
-                    )}Screen` as any,
-                  )
-                }
+                onPress={() => router.push(service.route as any)}
               >
                 <View
                   style={[
@@ -1432,11 +1474,7 @@ const HomeScreen: React.FC = () => {
             <TouchableOpacity
               style={[styles.miniCard, { width: 100 }]}
               onPress={() => {
-                const routePath = `/services/${item.name.replace(
-                  /[^\w]/g,
-                  ""
-                )}`;
-                router.push(routePath as any);
+                router.push(item.route as any);
               }}
             >
               <View
