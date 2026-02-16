@@ -54,6 +54,17 @@ interface HorizontalItem {
   image: string;
 }
 
+interface OfferItem {
+  id: string;
+  name: string;
+  price: number;
+  rating: number;
+  image: string;
+  discount: string;
+  eta: string;
+  tint: [string, string];
+}
+
 interface SearchResultItem {
   id: string;
   name: string;
@@ -162,6 +173,36 @@ const cleaningRouteMap: Record<string, string> = {
   "Laundry & Ironing": "/cleaning/laundry",
 };
 
+const getOfferImageUri = (assetModule: number, fallback: string) =>
+  Image.resolveAssetSource(assetModule)?.uri ?? fallback;
+
+const offerImageAssets = {
+  womenSalon: getOfferImageUri(
+    require("../../assets/images/offers-sm/salon-at-home-women.png"),
+    "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=800"
+  ),
+  menSalon: getOfferImageUri(
+    require("../../assets/images/offers-sm/mens-salon.png"),
+    "https://images.pexels.com/photos/3998393/pexels-photo-3998393.jpeg?auto=compress&cs=tinysrgb&w=800"
+  ),
+  fullBodyMassage: getOfferImageUri(
+    require("../../assets/images/offers-sm/full-body-massage.png"),
+    "https://images.pexels.com/photos/3865792/pexels-photo-3865792.jpeg?auto=compress&cs=tinysrgb&w=800"
+  ),
+  acService: getOfferImageUri(
+    require("../../assets/images/offers-sm/ac-service-cleaning.png"),
+    "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=800"
+  ),
+  refrigerator: getOfferImageUri(
+    require("../../assets/images/offers-sm/refrigerator-repair.png"),
+    "https://images.pexels.com/photos/9462630/pexels-photo-9462630.jpeg?auto=compress&cs=tinysrgb&w=800"
+  ),
+  homeService: getOfferImageUri(
+    require("../../assets/images/offers-sm/home-service.png"),
+    "https://images.pexels.com/photos/4107120/pexels-photo-4107120.jpeg?auto=compress&cs=tinysrgb&w=800"
+  ),
+} as const;
+
 // ✅ Services
 const services: ServiceItem[] = [
   {
@@ -250,102 +291,96 @@ const specialists: HorizontalItem[] = [
   },
 ];
 
-const offers: HorizontalItem[] = [
+const offers: OfferItem[] = [
   {
     id: "1",
     name: "Salon at Home (Women)",
     price: 1499,
     rating: 4.9,
-    image:
-      "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: offerImageAssets.womenSalon,
+    discount: "35% OFF",
+    eta: "45 min",
+    tint: ["rgba(244,63,94,0.05)", "rgba(30,41,59,0.42)"],
   },
   {
     id: "2",
     name: "Men’s Haircut + Beard Combo",
     price: 499,
     rating: 4.8,
-    image:
-      "https://images.pexels.com/photos/3998393/pexels-photo-3998393.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: offerImageAssets.menSalon,
+    discount: "28% OFF",
+    eta: "30 min",
+    tint: ["rgba(14,165,233,0.05)", "rgba(15,23,42,0.42)"],
   },
   {
     id: "3",
     name: "Full Body Massage at Home",
     price: 1299,
     rating: 4.7,
-    image:
-      "https://images.pexels.com/photos/3865792/pexels-photo-3865792.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: offerImageAssets.fullBodyMassage,
+    discount: "30% OFF",
+    eta: "60 min",
+    tint: ["rgba(6,182,212,0.04)", "rgba(15,23,42,0.44)"],
   },
   {
     id: "4",
     name: "AC Service & Cleaning",
     price: 899,
     rating: 4.8,
-    image:
-      "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: offerImageAssets.acService,
+    discount: "26% OFF",
+    eta: "50 min",
+    tint: ["rgba(56,189,248,0.06)", "rgba(15,23,42,0.42)"],
   },
   {
     id: "5",
     name: "Refrigerator Repair",
     price: 999,
     rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/9462630/pexels-photo-9462630.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "6",
-    name: "Home Deep Cleaning",
-    price: 1099,
-    rating: 4.8,
-    image:
-      "https://images.pexels.com/photos/4107120/pexels-photo-4107120.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "7",
-    name: "Bathroom Cleaning Service",
-    price: 699,
-    rating: 4.7,
-    image:
-      "https://images.pexels.com/photos/4239144/pexels-photo-4239144.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "8",
-    name: "Kitchen Cleaning Package",
-    price: 799,
-    rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/5217884/pexels-photo-5217884.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: offerImageAssets.refrigerator,
+    discount: "22% OFF",
+    eta: "55 min",
+    tint: ["rgba(14,116,144,0.05)", "rgba(15,23,42,0.44)"],
   },
   {
     id: "9",
     name: "Home Painting Offer",
     price: 1899,
     rating: 4.9,
-    image:
-      "https://images.pexels.com/photos/3865795/pexels-photo-3865795.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: offerImageAssets.homeService,
+    discount: "32% OFF",
+    eta: "120 min",
+    tint: ["rgba(190,24,93,0.06)", "rgba(15,23,42,0.45)"],
   },
   {
     id: "10",
     name: "Pest Control Special",
     price: 599,
     rating: 4.5,
-    image:
-      "https://images.pexels.com/photos/5854186/pexels-photo-5854186.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: offerImageAssets.homeService,
+    discount: "18% OFF",
+    eta: "35 min",
+    tint: ["rgba(22,163,74,0.05)", "rgba(15,23,42,0.44)"],
   },
   {
     id: "11",
     name: "Laundry & Ironing Combo",
     price: 399,
     rating: 4.4,
-    image:
-      "https://images.pexels.com/photos/3951628/pexels-photo-3951628.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: offerImageAssets.homeService,
+    discount: "15% OFF",
+    eta: "25 min",
+    tint: ["rgba(14,165,233,0.04)", "rgba(15,23,42,0.45)"],
   },
   {
     id: "12",
     name: "Carpet Shampoo Cleaning",
     price: 1199,
     rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/4107281/pexels-photo-4107281.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: offerImageAssets.homeService,
+    discount: "23% OFF",
+    eta: "65 min",
+    tint: ["rgba(79,70,229,0.05)", "rgba(15,23,42,0.44)"],
   },
 ];
 
@@ -600,6 +635,18 @@ const HomeScreen: React.FC = () => {
   const searchInputRef = useRef<TextInput>(null);
   const speechRecognitionRef = useRef<BrowserSpeechRecognition | null>(null);
   const router = useRouter();
+
+  const handleOfferPress = useCallback(
+    (offerName: string) => {
+      const route = offerRouteMap[offerName];
+      if (!route) {
+        return;
+      }
+      router.push(route as any);
+    },
+    [router]
+  );
+
   const normalizedSearch = normalizeSearchText(search);
   // ✅ Derived filtered lists based on search
   const filteredSpecialists = specialists.filter((item) =>
@@ -1257,83 +1304,64 @@ const HomeScreen: React.FC = () => {
           <FlatList
             horizontal
             data={filteredOffers}
-            renderItem={({ item }) => (
-              <HorizontalCard
-                item={item}
-                onPress={() => {
-                  if (item.name === "Salon at Home (Women)") {
-                    router.push("/offers/womens-salon" as any);
-                  }
+            renderItem={({ item, index }) => (
+              <MotiView
+                from={{ opacity: 0, translateY: 12 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ delay: index * 45, type: "timing", duration: 320 }}
+                style={styles.offerCardWrap}
+              >
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  style={styles.offerCardPremium}
+                  onPress={() => handleOfferPress(item.name)}
+                >
+                  <Image
+                    source={{ uri: item.image }}
+                    style={styles.offerCardPremiumImage}
+                    resizeMode="cover"
+                  />
+                  <LinearGradient
+                    colors={["rgba(2,6,23,0.0)", "rgba(2,6,23,0.34)"]}
+                    style={styles.offerCardPremiumOverlay}
+                  />
 
-                  if (item.name === "Men’s Haircut + Beard Combo") {
-                    router.push("/offers/mens-haircut" as any);
-                  }
+                  <View style={styles.offerCardPremiumTop}>
+                    <View style={styles.offerDiscountPill}>
+                      <Ionicons name="pricetag" size={12} color="#082F49" />
+                      <Text style={styles.offerDiscountText}>{item.discount}</Text>
+                    </View>
+                    <View style={styles.offerEtaPill}>
+                      <Ionicons name="flash" size={11} color="#FFFFFF" />
+                      <Text style={styles.offerEtaText}>{item.eta}</Text>
+                    </View>
+                  </View>
 
-                  if (item.name === "Full Body Massage at Home") {
-                    router.push("/offers/full-body-massage" as any);
-                  }
+                  <View style={styles.offerCardPremiumBottom}>
+                    <Text numberOfLines={2} style={styles.offerCardPremiumTitle}>
+                      {item.name}
+                    </Text>
 
-                  if (item.name === "AC Service & Cleaning") {
-                    router.push("/offers/ac-service" as any);
-                  }
+                    <View style={styles.offerMetaRow}>
+                      <View style={styles.offerRatingPill}>
+                        <Ionicons name="star" size={12} color="#FCD34D" />
+                        <Text style={styles.offerRatingPillText}>{item.rating.toFixed(1)}</Text>
+                      </View>
+                      <Text style={styles.offerFromText}>from</Text>
+                      <Text style={styles.offerCardPremiumPrice}>₹{item.price}</Text>
+                    </View>
 
-                  if (item.name === "Refrigerator Repair") {
-                    router.push("/offers/refrigerator-repair" as any);
-                  }
-
-                  if (item.name === "Home Deep Cleaning") {
-                    router.push("/offers/home-deep-cleaning" as any);
-                  }
-
-                  if (item.name === "Pest Control Special") {
-                    router.push("/offers/pest-control" as any);
-                  }
-
-                  if (item.name === "Home Painting Offer") {
-                    router.push("/offers/painting-service" as any);
-                  }
-
-                  if (item.name === "Laundry & Ironing Combo") {
-                    router.push("/offers/laundry-service" as any);
-                  }
-
-                  if (item.name === "Carpet Shampoo Cleaning") {
-                    router.push("/offers/carpet-cleaning" as any);
-                  }
-
-                  if (item.name === "Home Deep Cleaning") {
-                    router.push("/categories/home-cleaning" as any);
-                  }
-
-                  if (item.name === "Kitchen Cleaning Package") {
-                    router.push("/offers/kitchen-cleaning" as any);
-                  }
-
-                  if (item.name === "Bathroom Cleaning Service") {
-                    router.push("/offers/bathroom-cleaning" as any);
-                  }
-
-                  if (item.name === "Wall Mounting & Drilling") {
-                    router.push("/offers/wall-mounting" as any);
-                  }
-
-                  if (item.name === "Electrician") {
-                    router.push("/offers/electrician-services" as any);
-                  }
-
-                  if (item.name === "Plumbing") {
-                    router.push("/offers/plumbing-services" as any);
-                  }
-
-                  if (item.name === "AC Service & Cleaning") {
-                    router.push("/offers/ac-repair" as any);
-                  }
-                }}
-              />
+                    <View style={styles.offerCtaRow}>
+                      <Text style={styles.offerCtaText}>Book now</Text>
+                      <Ionicons name="arrow-forward" size={14} color="#0F172A" />
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              </MotiView>
             )}
             keyExtractor={(item) => item.id}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingVertical: 4 }}
+            contentContainerStyle={styles.offersListContent}
           />
         )}
 
@@ -2101,9 +2129,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   iconContainer: {
-    width: 58,
-    height: 58,
-    borderRadius: 16,
+    width: 62,
+    height: 62,
+    borderRadius: 31,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 9,
@@ -2174,6 +2202,136 @@ const styles = StyleSheet.create({
   priceText: { fontSize: 13, color: "#7C3AED", fontWeight: "600" },
   ratingBox: { flexDirection: "row", alignItems: "center" },
   ratingText: { fontSize: 12, color: "#111" },
+  offersListContent: {
+    paddingVertical: 2,
+    paddingRight: 4,
+  },
+  offerCardWrap: {
+    marginRight: 12,
+  },
+  offerCardPremium: {
+    width: 220,
+    height: 236,
+    borderRadius: 20,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#DBEAFE",
+    backgroundColor: "#0F172A",
+    shadowColor: "#0F172A",
+    shadowOffset: { width: 0, height: 7 },
+    shadowOpacity: 0.16,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  offerCardPremiumImage: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  offerCardPremiumOverlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  offerCardPremiumTop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingTop: 10,
+  },
+  offerDiscountPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.93)",
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+  },
+  offerDiscountText: {
+    color: "#082F49",
+    fontSize: 11,
+    fontWeight: "800",
+  },
+  offerEtaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(15,23,42,0.72)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.26)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  offerEtaText: {
+    color: "#E2E8F0",
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  offerCardPremiumBottom: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 12,
+    paddingBottom: 12,
+  },
+  offerCardPremiumTitle: {
+    color: "#F8FAFC",
+    fontSize: 15,
+    lineHeight: 21,
+    fontWeight: "800",
+    marginBottom: 8,
+  },
+  offerMetaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  offerRatingPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(15,23,42,0.45)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  offerRatingPillText: {
+    color: "#F8FAFC",
+    fontSize: 11,
+    fontWeight: "700",
+  },
+  offerFromText: {
+    marginLeft: 8,
+    color: "#CBD5E1",
+    fontSize: 11,
+    fontWeight: "600",
+  },
+  offerCardPremiumPrice: {
+    marginLeft: 4,
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  offerCtaRow: {
+    borderRadius: 12,
+    backgroundColor: "rgba(241,245,249,0.95)",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 9,
+  },
+  offerCtaText: {
+    color: "#0F172A",
+    fontSize: 12,
+    fontWeight: "800",
+  },
   seeAll: {
     color: "#6D28D9",
     fontWeight: "700",
