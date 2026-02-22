@@ -1,4 +1,4 @@
-import { ImageSourcePropType } from "react-native";
+import { Image } from "react-native";
 
 export type OfferTheme = {
   heroOverlay: [string, string];
@@ -26,7 +26,7 @@ type OfferCombo = {
   price: number;
   badge: string;
   duration: string;
-  image: ImageSourcePropType;
+  image: string;
 };
 
 type OfferProfessional = {
@@ -35,7 +35,7 @@ type OfferProfessional = {
   specialty: string;
   exp: string;
   rating: number;
-  image: ImageSourcePropType;
+  image: string;
 };
 
 type OfferFeedback = {
@@ -49,7 +49,7 @@ export type OfferShowcaseConfig = {
   heroTitle: string;
   heroSubtitle: string;
   heroBadge: string;
-  heroImage: ImageSourcePropType;
+  heroImage: string;
   stats: OfferStat[];
   comboTitle?: string;
   combos: OfferCombo[];
@@ -66,13 +66,15 @@ export type OfferShowcaseConfig = {
   theme: OfferTheme;
 };
 
+const resolveAssetUri = (assetModule: number) => Image.resolveAssetSource(assetModule)?.uri ?? "";
+
 const images = {
-  women: require("../assets/images/offers-sm/salon-at-home-women.png"),
-  men: require("../assets/images/offers-sm/mens-salon.png"),
-  spa: require("../assets/images/offers-sm/full-body-massage.png"),
-  tech: require("../assets/images/offers-sm/ac-service-cleaning.png"),
-  appliance: require("../assets/images/offers-sm/refrigerator-repair.png"),
-  home: require("../assets/images/offers-sm/home-service.png"),
+  women: resolveAssetUri(require("../assets/images/salon-at-home-women.jpg")),
+  men: resolveAssetUri(require("../assets/images/mens-salon.jpg")),
+  spa: resolveAssetUri(require("../assets/images/full body massage.jpg")),
+  tech: resolveAssetUri(require("../assets/images/AC service & cleaning.png")),
+  appliance: resolveAssetUri(require("../assets/images/refrigerator-repair.png")),
+  home: resolveAssetUri(require("../assets/images/home-service.jpg")),
 } as const;
 
 const salonRose: OfferTheme = {
@@ -153,7 +155,7 @@ const homeWarm: OfferTheme = {
   pickButtonText: "#FFFFFF",
 };
 
-const standardCombos = (titlePrefix: string, image: ImageSourcePropType): OfferCombo[] => [
+const standardCombos = (titlePrefix: string, image: string): OfferCombo[] => [
   {
     id: `${titlePrefix}-1`,
     title: `${titlePrefix} Core Combo`,
@@ -183,7 +185,7 @@ const standardCombos = (titlePrefix: string, image: ImageSourcePropType): OfferC
   },
 ];
 
-const standardPros = (role: string, image: ImageSourcePropType): OfferProfessional[] => [
+const standardPros = (role: string, image: string): OfferProfessional[] => [
   {
     id: `${role}-1`,
     name: "Rahul Sharma",

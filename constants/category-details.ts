@@ -1,9 +1,18 @@
+import { Image } from "react-native";
+
+const resolveAssetUri = (assetModule: number) => Image.resolveAssetSource(assetModule)?.uri ?? "";
+
 export type CategoryGallerySlide = {
   id: string;
   image: string;
   title: string;
   subtitle: string;
 };
+
+type CategoryGallerySeed = Omit<CategoryGallerySlide, "image">;
+
+const withImage = (image: string, items: CategoryGallerySeed[]): CategoryGallerySlide[] =>
+  items.map((item) => ({ ...item, image }));
 
 export type CategoryPackage = {
   id: string;
@@ -52,12 +61,17 @@ export type CategorySlug =
   | "kitchen-cleaning"
   | "bathroom-cleaning";
 
+const categoryImages = {
+  homeCleaning: resolveAssetUri(require("../assets/images/home-deeep-cleaning.jpg")),
+  kitchenCleaning: resolveAssetUri(require("../assets/images/kitchen-cleaning.jpg")),
+  bathroomCleaning: resolveAssetUri(require("../assets/images/bathroom-cleaning.jpg")),
+} as const;
+
 export const categoryDetails: Record<CategorySlug, CategoryDetail> = {
   "home-cleaning": {
     title: "Full Home Cleaning",
     subtitle: "Deep hygiene service for living areas, bedrooms, and utility zones",
-    heroImage:
-      "https://images.pexels.com/photos/4107120/pexels-photo-4107120.jpeg",
+    heroImage: categoryImages.homeCleaning,
     heroGradient: ["#14532D", "#0E7490"],
     offerLabel: "Whole Home Coverage",
     rating: "4.8",
@@ -80,29 +94,23 @@ export const categoryDetails: Record<CategorySlug, CategoryDetail> = {
       "Anti-bacterial touch-surface spray",
       "Corner detailing brush kit",
     ],
-    gallery: [
+    gallery: withImage(categoryImages.homeCleaning, [
       {
         id: "hc-g1",
-        image:
-          "https://images.pexels.com/photos/4239148/pexels-photo-4239148.jpeg",
         title: "Living Area Reset",
         subtitle: "Floor and furniture edge detailing",
       },
       {
         id: "hc-g2",
-        image:
-          "https://images.pexels.com/photos/4108711/pexels-photo-4108711.jpeg",
         title: "Wet Zone Hygiene",
         subtitle: "Bathroom and wash area refresh",
       },
       {
         id: "hc-g3",
-        image:
-          "https://images.pexels.com/photos/4107281/pexels-photo-4107281.jpeg",
         title: "Bedroom Dust Control",
         subtitle: "Corner and under-bed cleaning",
       },
-    ],
+    ]),
     processSteps: [
       "Room-wise inspection and plan setup",
       "Dry dust and high-touch cleaning",
@@ -150,8 +158,7 @@ export const categoryDetails: Record<CategorySlug, CategoryDetail> = {
   "kitchen-cleaning": {
     title: "Kitchen Deep Cleaning",
     subtitle: "Degreasing, scrub treatment, and hygiene restoration for cooking areas",
-    heroImage:
-      "https://images.pexels.com/photos/5824872/pexels-photo-5824872.jpeg",
+    heroImage: categoryImages.kitchenCleaning,
     heroGradient: ["#9A3412", "#EA580C"],
     offerLabel: "Oil and Grime Removal",
     rating: "4.7",
@@ -174,29 +181,23 @@ export const categoryDetails: Record<CategorySlug, CategoryDetail> = {
       "Stainless steel polish wipe",
       "Odor reset spray",
     ],
-    gallery: [
+    gallery: withImage(categoryImages.kitchenCleaning, [
       {
         id: "kc-g1",
-        image:
-          "https://images.pexels.com/photos/4108717/pexels-photo-4108717.jpeg",
         title: "Counter Degreasing",
         subtitle: "Oil film reduction from prep surfaces",
       },
       {
         id: "kc-g2",
-        image:
-          "https://images.pexels.com/photos/5824884/pexels-photo-5824884.jpeg",
         title: "Appliance Exterior Care",
         subtitle: "Fridge and microwave outer detailing",
       },
       {
         id: "kc-g3",
-        image:
-          "https://images.pexels.com/photos/5824873/pexels-photo-5824873.jpeg",
         title: "Sink and Tile Refresh",
         subtitle: "Backsplash and wet-zone cleaning",
       },
-    ],
+    ]),
     processSteps: [
       "Oil concentration check and prep",
       "Degreasing cycle and scrub pass",
@@ -245,8 +246,7 @@ export const categoryDetails: Record<CategorySlug, CategoryDetail> = {
   "bathroom-cleaning": {
     title: "Bathroom Cleaning",
     subtitle: "Tile, fixture, and commode cleaning with quick disinfect finish",
-    heroImage:
-      "https://images.pexels.com/photos/5649812/pexels-photo-5649812.jpeg",
+    heroImage: categoryImages.bathroomCleaning,
     heroGradient: ["#1D4ED8", "#06B6D4"],
     offerLabel: "Quick Hygiene Package",
     rating: "4.6",
@@ -269,29 +269,23 @@ export const categoryDetails: Record<CategorySlug, CategoryDetail> = {
       "Disinfectant spray finish",
       "Drainline detailing brush",
     ],
-    gallery: [
+    gallery: withImage(categoryImages.bathroomCleaning, [
       {
         id: "bc-g1",
-        image:
-          "https://images.pexels.com/photos/4108716/pexels-photo-4108716.jpeg",
         title: "Tile Recovery",
         subtitle: "Scale and stain reduction on wall/floor",
       },
       {
         id: "bc-g2",
-        image:
-          "https://images.pexels.com/photos/5649827/pexels-photo-5649827.jpeg",
         title: "Fixture Shine",
         subtitle: "Basin and tap detailing finish",
       },
       {
         id: "bc-g3",
-        image:
-          "https://images.pexels.com/photos/4108709/pexels-photo-4108709.jpeg",
         title: "Disinfect Pass",
         subtitle: "Final hygiene spray across touch points",
       },
-    ],
+    ]),
     processSteps: [
       "Stain check and descaling prep",
       "Surface scrub and fixture polish",

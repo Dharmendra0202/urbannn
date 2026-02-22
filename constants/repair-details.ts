@@ -1,9 +1,28 @@
+import { Image } from "react-native";
+
+const resolveAssetUri = (assetModule: number) => Image.resolveAssetSource(assetModule)?.uri ?? "";
+
+const repairImages = {
+  carpentry: resolveAssetUri(require("../assets/images/carpentry-work.jpg")),
+  plumbing: resolveAssetUri(require("../assets/images/plumbing-fix.jpg")),
+  painting: resolveAssetUri(require("../assets/images/wall-painting.jpg")),
+  wallMounting: resolveAssetUri(require("../assets/images/wall-drilling.jpg")),
+  electrical: resolveAssetUri(require("../assets/images/ac-service-cleaning.jpg")),
+  curtain: resolveAssetUri(require("../assets/images/home-service.jpg")),
+  doorLock: resolveAssetUri(require("../assets/images/door-lock-repair.jpg")),
+} as const;
+
 export type RepairGalleryItem = {
   id: string;
   title: string;
   subtitle: string;
   image: string;
 };
+
+type RepairGallerySeed = Omit<RepairGalleryItem, "image">;
+
+const withImage = (image: string, items: RepairGallerySeed[]): RepairGalleryItem[] =>
+  items.map((item) => ({ ...item, image }));
 
 export type RepairPackage = {
   id: string;
@@ -53,8 +72,7 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
   carpentry: {
     title: "Carpentry Work",
     subtitle: "Accurate fitting, repair, and installation for wooden fixtures",
-    heroImage:
-      "https://images.pexels.com/photos/4505170/pexels-photo-4505170.jpeg",
+    heroImage: repairImages.carpentry,
     heroGradient: ["#7C2D12", "#B45309"],
     offerLabel: "Expert Carpenter Slot",
     rating: "4.8",
@@ -77,29 +95,23 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
       "Measuring tape",
       "Spirit level",
     ],
-    gallery: [
+    gallery: withImage(repairImages.carpentry, [
       {
         id: "cp-1",
         title: "Cabinet Hinge Repair",
         subtitle: "Smooth closing and alignment correction",
-        image:
-          "https://images.pexels.com/photos/5691612/pexels-photo-5691612.jpeg",
       },
       {
         id: "cp-2",
         title: "Wall Shelf Setup",
         subtitle: "Secure installation with proper anchors",
-        image:
-          "https://images.pexels.com/photos/5691512/pexels-photo-5691512.jpeg",
       },
       {
         id: "cp-3",
         title: "Drawer Channel Fitting",
         subtitle: "Noise-free slide movement",
-        image:
-          "https://images.pexels.com/photos/4246282/pexels-photo-4246282.jpeg",
       },
-    ],
+    ]),
     processSteps: [
       "Issue assessment and measurements",
       "Tool and material prep",
@@ -142,8 +154,7 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
   plumbing: {
     title: "Plumbing Fix",
     subtitle: "Leak control, fixture installation, and flow correction",
-    heroImage:
-      "https://images.pexels.com/photos/5854186/pexels-photo-5854186.jpeg",
+    heroImage: repairImages.plumbing,
     heroGradient: ["#1D4ED8", "#0EA5E9"],
     offerLabel: "Same Day Plumbing",
     rating: "4.7",
@@ -165,29 +176,23 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
       "Sealant and washers",
       "Replacement tap/spare parts",
     ],
-    gallery: [
+    gallery: withImage(repairImages.plumbing, [
       {
         id: "pl-1",
         title: "Leak Rectification",
         subtitle: "Joint sealing and pressure test",
-        image:
-          "https://images.pexels.com/photos/8486972/pexels-photo-8486972.jpeg",
       },
       {
         id: "pl-2",
         title: "Tap Installation",
         subtitle: "New fixture fit with no seepage",
-        image:
-          "https://images.pexels.com/photos/8293725/pexels-photo-8293725.jpeg",
       },
       {
         id: "pl-3",
         title: "Drainline Cleanup",
         subtitle: "Flow restoration and trap cleanup",
-        image:
-          "https://images.pexels.com/photos/8486974/pexels-photo-8486974.jpeg",
       },
-    ],
+    ]),
     processSteps: [
       "Site inspection and fault detection",
       "Part/tool matching and setup",
@@ -230,8 +235,7 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
   painting: {
     title: "Painting Service",
     subtitle: "Interior wall repainting, touch-ups, and texture finishes",
-    heroImage:
-      "https://images.pexels.com/photos/3865792/pexels-photo-3865792.jpeg",
+    heroImage: repairImages.painting,
     heroGradient: ["#DB2777", "#EF4444"],
     offerLabel: "Color Refresh Deal",
     rating: "4.8",
@@ -253,29 +257,23 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
       "Roller/brush setup",
       "Protective floor sheets",
     ],
-    gallery: [
+    gallery: withImage(repairImages.painting, [
       {
         id: "pt-1",
         title: "Room Repaint",
         subtitle: "Two-coat smooth finish",
-        image:
-          "https://images.pexels.com/photos/1571461/pexels-photo-1571461.jpeg",
       },
       {
         id: "pt-2",
         title: "Accent Wall Theme",
         subtitle: "Designer highlight wall",
-        image:
-          "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
       },
       {
         id: "pt-3",
         title: "Patch + Blend Repair",
         subtitle: "Spot repaint for damaged areas",
-        image:
-          "https://images.pexels.com/photos/5691621/pexels-photo-5691621.jpeg",
       },
-    ],
+    ]),
     processSteps: [
       "Surface assessment and color confirmation",
       "Masking and prep",
@@ -318,8 +316,7 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
   "wall-mounting": {
     title: "Wall Mounting & Drilling",
     subtitle: "Secure mounting for TV units, mirrors, and shelves",
-    heroImage:
-      "https://images.pexels.com/photos/4792479/pexels-photo-4792479.jpeg",
+    heroImage: repairImages.wallMounting,
     heroGradient: ["#0F172A", "#334155"],
     offerLabel: "Precision Mounting",
     rating: "4.6",
@@ -342,29 +339,23 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
       "Spirit level",
       "Cable clips (if needed)",
     ],
-    gallery: [
+    gallery: withImage(repairImages.wallMounting, [
       {
         id: "wm-1",
         title: "TV Unit Mounting",
         subtitle: "Level setup with load checks",
-        image:
-          "https://images.pexels.com/photos/6970069/pexels-photo-6970069.jpeg",
       },
       {
         id: "wm-2",
         title: "Mirror Installation",
         subtitle: "Neat and secure positioning",
-        image:
-          "https://images.pexels.com/photos/6795095/pexels-photo-6795095.jpeg",
       },
       {
         id: "wm-3",
         title: "Shelf Bracket Fit",
         subtitle: "Strong hold with hidden screws",
-        image:
-          "https://images.pexels.com/photos/5691512/pexels-photo-5691512.jpeg",
       },
-    ],
+    ]),
     processSteps: [
       "Measure and mark mounting points",
       "Drill and anchor insertion",
@@ -407,8 +398,7 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
   "electrical-installation": {
     title: "Electrical Installation",
     subtitle: "Safe setup for lights, fans, switches, and fittings",
-    heroImage:
-      "https://images.pexels.com/photos/3825582/pexels-photo-3825582.jpeg",
+    heroImage: repairImages.electrical,
     heroGradient: ["#F59E0B", "#EA580C"],
     offerLabel: "Certified Electricians",
     rating: "4.8",
@@ -431,29 +421,23 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
       "Voltage tester access",
       "Ladder access for ceiling points",
     ],
-    gallery: [
+    gallery: withImage(repairImages.electrical, [
       {
         id: "el-1",
         title: "Switchboard Replacement",
         subtitle: "Neat modular board install",
-        image:
-          "https://images.pexels.com/photos/257736/pexels-photo-257736.jpeg",
       },
       {
         id: "el-2",
         title: "Ceiling Fan Installation",
         subtitle: "Balanced fit and wiring checks",
-        image:
-          "https://images.pexels.com/photos/2577368/pexels-photo-2577368.jpeg",
       },
       {
         id: "el-3",
         title: "Light Fixture Setup",
         subtitle: "Secure mount and circuit test",
-        image:
-          "https://images.pexels.com/photos/112811/pexels-photo-112811.jpeg",
       },
-    ],
+    ]),
     processSteps: [
       "Power isolation and safety checks",
       "Wiring and mounting setup",
@@ -496,8 +480,7 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
   "curtain-setup": {
     title: "Curtain & Rod Setup",
     subtitle: "Rod alignment, drilling, and clean curtain installation",
-    heroImage:
-      "https://images.pexels.com/photos/6207825/pexels-photo-6207825.jpeg",
+    heroImage: repairImages.curtain,
     heroGradient: ["#7C3AED", "#A855F7"],
     offerLabel: "Home Decor Assist",
     rating: "4.6",
@@ -519,29 +502,23 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
       "Curtain rings/hooks",
       "Step ladder access",
     ],
-    gallery: [
+    gallery: withImage(repairImages.curtain, [
       {
         id: "ct-1",
         title: "Window Rod Install",
         subtitle: "Balanced center alignment",
-        image:
-          "https://images.pexels.com/photos/1643389/pexels-photo-1643389.jpeg",
       },
       {
         id: "ct-2",
         title: "Double Layer Curtain Setup",
         subtitle: "Sheer + blackout combination",
-        image:
-          "https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg",
       },
       {
         id: "ct-3",
         title: "Corner Curtain Fit",
         subtitle: "Smooth corner rod transitions",
-        image:
-          "https://images.pexels.com/photos/6207815/pexels-photo-6207815.jpeg",
       },
-    ],
+    ]),
     processSteps: [
       "Window/door measurement",
       "Bracket point marking",
@@ -584,8 +561,7 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
   "door-lock": {
     title: "Door Lock Repair",
     subtitle: "Latch repair, lock replacement, and alignment correction",
-    heroImage:
-      "https://images.pexels.com/photos/4792485/pexels-photo-4792485.jpeg",
+    heroImage: repairImages.doorLock,
     heroGradient: ["#334155", "#0F172A"],
     offerLabel: "Secure Home Support",
     rating: "4.7",
@@ -607,29 +583,23 @@ export const repairServiceDetails: Record<RepairServiceSlug, RepairServiceDetail
       "Lubricant spray",
       "Key duplication reference",
     ],
-    gallery: [
+    gallery: withImage(repairImages.doorLock, [
       {
         id: "dl-1",
         title: "Main Door Lock Repair",
         subtitle: "Latch + key turn issue resolution",
-        image:
-          "https://images.pexels.com/photos/2079249/pexels-photo-2079249.jpeg",
       },
       {
         id: "dl-2",
         title: "Handle and Bolt Service",
         subtitle: "Tightening and re-alignment",
-        image:
-          "https://images.pexels.com/photos/271743/pexels-photo-271743.jpeg",
       },
       {
         id: "dl-3",
         title: "Lock Replacement Fit",
         subtitle: "New hardware with smooth operation",
-        image:
-          "https://images.pexels.com/photos/280232/pexels-photo-280232.jpeg",
       },
-    ],
+    ]),
     processSteps: [
       "Lock and latch diagnosis",
       "Component repair/replacement",

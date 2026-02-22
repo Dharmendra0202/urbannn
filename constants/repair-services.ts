@@ -1,59 +1,56 @@
+import { Image } from "react-native";
+
+const resolveAssetUri = (assetModule: number) => Image.resolveAssetSource(assetModule)?.uri ?? "";
+
 export const repairServices = [
   {
     id: "rp1",
     name: "Carpentry Work",
     price: 799,
     rating: 4.8,
-    image:
-      "https://images.pexels.com/photos/4505170/pexels-photo-4505170.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: resolveAssetUri(require("../assets/images/carpentry-work.jpg")),
   },
   {
     id: "rp2",
     name: "Plumbing Fix",
     price: 599,
     rating: 4.7,
-    image:
-      "https://images.pexels.com/photos/5854186/pexels-photo-5854186.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: resolveAssetUri(require("../assets/images/plumbing-fix.jpg")),
   },
   {
     id: "rp3",
     name: "Painting Service",
     price: 1999,
     rating: 4.8,
-    image:
-      "https://images.pexels.com/photos/3865792/pexels-photo-3865792.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: resolveAssetUri(require("../assets/images/wall-painting.jpg")),
   },
   {
     id: "rp4",
     name: "Wall Mounting & Drilling",
     price: 499,
     rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/4792479/pexels-photo-4792479.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: resolveAssetUri(require("../assets/images/wall-drilling.jpg")),
   },
   {
     id: "rp5",
     name: "Electrical Installation",
     price: 699,
     rating: 4.8,
-    image:
-      "https://images.pexels.com/photos/3825582/pexels-photo-3825582.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: resolveAssetUri(require("../assets/images/ac-service-cleaning.jpg")),
   },
   {
     id: "rp6",
     name: "Curtain & Rod Setup",
     price: 899,
     rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/6207825/pexels-photo-6207825.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: resolveAssetUri(require("../assets/images/home-service.jpg")),
   },
   {
     id: "rp7",
     name: "Door Lock Repair",
     price: 499,
     rating: 4.7,
-    image:
-      "https://images.pexels.com/photos/4792485/pexels-photo-4792485.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: resolveAssetUri(require("../assets/images/door-lock-repair.jpg")),
   },
 ];
 

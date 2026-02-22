@@ -24,7 +24,7 @@ export default function OfferShowcaseScreen({ config }: OfferShowcaseScreenProps
     <SafeAreaView style={styles.screen}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
-          <Image source={config.heroImage} style={styles.heroImage} resizeMode="cover" />
+          <Image source={{ uri: config.heroImage }} style={styles.heroImage} resizeMode="cover" />
           <LinearGradient colors={config.theme.heroOverlay} style={styles.heroOverlay} />
           <View style={[styles.heroBadge, { backgroundColor: config.theme.heroBadgeBg }]}>
             <Ionicons name="sparkles" size={13} color={config.theme.heroBadgeText} />
@@ -58,7 +58,7 @@ export default function OfferShowcaseScreen({ config }: OfferShowcaseScreenProps
                 style={[styles.comboCard, { borderColor: config.theme.border }]}
                 onPress={() => handleBook(combo.title, combo.price)}
               >
-                <Image source={combo.image} style={styles.comboImage} resizeMode="cover" />
+                <Image source={{ uri: combo.image }} style={styles.comboImage} resizeMode="cover" />
                 <LinearGradient colors={["rgba(2,6,23,0.05)", "rgba(2,6,23,0.68)"]} style={styles.comboOverlay} />
                 <View style={styles.comboTop}>
                   <View style={styles.offPill}>
@@ -88,7 +88,7 @@ export default function OfferShowcaseScreen({ config }: OfferShowcaseScreenProps
                   key={pro.id}
                   style={[styles.proCard, { backgroundColor: config.theme.professionalBg }]}
                 >
-                  <Image source={pro.image} style={styles.proImage} resizeMode="cover" />
+                  <Image source={{ uri: pro.image }} style={styles.proImage} resizeMode="cover" />
                   <View style={styles.proInfo}>
                     <Text style={styles.proName}>{pro.name}</Text>
                     <Text style={styles.proSpecialty}>{pro.specialty}</Text>

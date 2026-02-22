@@ -177,30 +177,14 @@ const getOfferImageUri = (assetModule: number, fallback: string) =>
   Image.resolveAssetSource(assetModule)?.uri ?? fallback;
 
 const offerImageAssets = {
-  womenSalon: getOfferImageUri(
-    require("../../assets/images/offers-sm/salon-at-home-women.png"),
-    "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=800"
-  ),
-  menSalon: getOfferImageUri(
-    require("../../assets/images/offers-sm/mens-salon.png"),
-    "https://images.pexels.com/photos/3998393/pexels-photo-3998393.jpeg?auto=compress&cs=tinysrgb&w=800"
-  ),
-  fullBodyMassage: getOfferImageUri(
-    require("../../assets/images/offers-sm/full-body-massage.png"),
-    "https://images.pexels.com/photos/3865792/pexels-photo-3865792.jpeg?auto=compress&cs=tinysrgb&w=800"
-  ),
-  acService: getOfferImageUri(
-    require("../../assets/images/offers-sm/ac-service-cleaning.png"),
-    "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=800"
-  ),
-  refrigerator: getOfferImageUri(
-    require("../../assets/images/offers-sm/refrigerator-repair.png"),
-    "https://images.pexels.com/photos/9462630/pexels-photo-9462630.jpeg?auto=compress&cs=tinysrgb&w=800"
-  ),
-  homeService: getOfferImageUri(
-    require("../../assets/images/offers-sm/home-service.png"),
-    "https://images.pexels.com/photos/4107120/pexels-photo-4107120.jpeg?auto=compress&cs=tinysrgb&w=800"
-  ),
+  womenSalon: getOfferImageUri(require("../../assets/images/salon-at-home-women.jpg"), ""),
+  menSalon: getOfferImageUri(require("../../assets/images/mens-salon.jpg"), ""),
+  fullBodyMassage: getOfferImageUri(require("../../assets/images/full body massage.jpg"), ""),
+  acService: getOfferImageUri(require("../../assets/images/AC service & cleaning.png"), ""),
+  refrigerator: getOfferImageUri(require("../../assets/images/refrigerator-repair.png"), ""),
+  homeService: getOfferImageUri(require("../../assets/images/home-service.jpg"), ""),
+  laundry: getOfferImageUri(require("../../assets/images/Laundry.jpg"), ""),
+  carpet: getOfferImageUri(require("../../assets/images/carpet-cleaning.jpg"), ""),
 } as const;
 
 // ✅ Services
@@ -270,24 +254,30 @@ const specialists: HorizontalItem[] = [
     name: "Home Deep Cleaning",
     price: 999,
     rating: 4.8,
-    image:
-      "https://images.pexels.com/photos/4239148/pexels-photo-4239148.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: getOfferImageUri(
+      require("../../assets/images/home-deeep-cleaning.jpg"),
+      "",
+    ),
   },
   {
     id: "2",
     name: "Kitchen Cleaning",
     price: 799,
     rating: 4.7,
-    image:
-      "https://images.pexels.com/photos/5854186/pexels-photo-5854186.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: getOfferImageUri(
+      require("../../assets/images/kitchen-cleaning.jpg"),
+      "",
+    ),
   },
   {
     id: "3",
     name: "Bathroom Cleaning",
     price: 699,
     rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: getOfferImageUri(
+      require("../../assets/images/bathroom-cleaning.jpg"),
+      "",
+    ),
   },
 ];
 
@@ -367,7 +357,7 @@ const offers: OfferItem[] = [
     name: "Laundry & Ironing Combo",
     price: 399,
     rating: 4.4,
-    image: offerImageAssets.homeService,
+    image: offerImageAssets.laundry,
     discount: "15% OFF",
     eta: "25 min",
     tint: ["rgba(14,165,233,0.04)", "rgba(15,23,42,0.45)"],
@@ -377,7 +367,7 @@ const offers: OfferItem[] = [
     name: "Carpet Shampoo Cleaning",
     price: 1199,
     rating: 4.6,
-    image: offerImageAssets.homeService,
+    image: offerImageAssets.carpet,
     discount: "23% OFF",
     eta: "65 min",
     tint: ["rgba(79,70,229,0.05)", "rgba(15,23,42,0.44)"],
@@ -430,24 +420,27 @@ const cleaningEssentials: HorizontalItem[] = [
     name: "Fridge Cleaning",
     price: 399,
     rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/5824884/pexels-photo-5824884.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: getOfferImageUri(
+      require("../../assets/images/kitchen-cleaning.jpg"),
+      "",
+    ),
   },
   {
     id: "7",
     name: "Carpet Cleaning",
     price: 399,
     rating: 4.7,
-    image:
-      "https://images.pexels.com/photos/4107282/pexels-photo-4107282.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: getOfferImageUri(
+      require("../../assets/images/carpet-cleaning.jpg"),
+      "",
+    ),
   },
   {
     id: "8",
     name: "Laundry & Ironing",
     price: 249,
     rating: 4.4,
-    image:
-      "https://images.pexels.com/photos/3951628/pexels-photo-3951628.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: getOfferImageUri(require("../../assets/images/Laundry.jpg"), ""),
   },
 ];
 
@@ -544,8 +537,7 @@ const rebookItems: RebookItem[] = [
     name: "Home Deep Cleaning",
     lastBooked: "Booked 12 days ago",
     price: 1099,
-    image:
-      "https://images.pexels.com/photos/4239148/pexels-photo-4239148.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: getOfferImageUri(require("../../assets/images/home-deeep-cleaning.jpg"), ""),
     route: "/services/CleaningScreen",
   },
   {
