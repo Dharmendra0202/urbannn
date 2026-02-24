@@ -1,4 +1,4 @@
-import { Image } from "react-native";
+import { imageAssets } from "./image-assets";
 
 export type OfferTheme = {
   heroOverlay: [string, string];
@@ -66,16 +66,17 @@ export type OfferShowcaseConfig = {
   theme: OfferTheme;
 };
 
-const resolveAssetUri = (assetModule: number) => Image.resolveAssetSource(assetModule)?.uri ?? "";
-
 const images = {
-  women: resolveAssetUri(require("../assets/images/salon-at-home-women.jpg")),
-  men: resolveAssetUri(require("../assets/images/mens-salon.jpg")),
-  spa: resolveAssetUri(require("../assets/images/full body massage.jpg")),
-  tech: resolveAssetUri(require("../assets/images/AC service & cleaning.png")),
-  appliance: resolveAssetUri(require("../assets/images/refrigerator-repair.png")),
-  home: resolveAssetUri(require("../assets/images/home-service.jpg")),
+  women: imageAssets.salonAtHomeWomen,
+  men: imageAssets.mensSalon,
+  spa: imageAssets.fullBodyMassage,
+  tech: imageAssets.acServiceCleaningPng,
+  appliance: imageAssets.refrigeratorRepair,
+  home: imageAssets.homeService,
 } as const;
+
+const pestControlImage =
+  "https://images.pexels.com/photos/6197120/pexels-photo-6197120.jpeg?auto=compress&cs=tinysrgb&w=600";
 
 const salonRose: OfferTheme = {
   heroOverlay: ["rgba(251,113,133,0.18)", "rgba(15,23,42,0.78)"],
@@ -552,15 +553,15 @@ export const offerShowcases: Record<string, OfferShowcaseConfig> = {
     heroTitle: "Home Painting Studio",
     heroSubtitle: "Professional wall finishing with clean and safe execution.",
     heroBadge: "Color Upgrade",
-    heroImage: images.home,
+    heroImage: imageAssets.wallPainting,
     stats: [
       { id: "s1", value: "4.8", label: "Rating" },
       { id: "s2", value: "1 day", label: "Small Job ETA" },
       { id: "s3", value: "2k+", label: "Monthly Projects" },
     ],
-    combos: standardCombos("Painting", images.home),
+    combos: standardCombos("Painting", imageAssets.wallPainting),
     professionalTitle: "Select Painting Pro",
-    professionals: standardPros("Painter", images.home),
+    professionals: standardPros("Painter", imageAssets.wallPainting),
     feedbacks: standardFeedback,
     feedbackCta: "Share Painting Feedback",
     bottomLabel: "Starts from",
@@ -574,15 +575,15 @@ export const offerShowcases: Record<string, OfferShowcaseConfig> = {
     heroTitle: "Pest Control Shield",
     heroSubtitle: "Targeted treatment with safe, family-friendly control solutions.",
     heroBadge: "Protection Plan",
-    heroImage: images.home,
+    heroImage: pestControlImage,
     stats: [
       { id: "s1", value: "4.5", label: "Rating" },
       { id: "s2", value: "50m", label: "Visit Time" },
       { id: "s3", value: "3k+", label: "Monthly Visits" },
     ],
-    combos: standardCombos("Pest Control", images.home),
+    combos: standardCombos("Pest Control", pestControlImage),
     professionalTitle: "Select Pest Specialist",
-    professionals: standardPros("Pest Specialist", images.home),
+    professionals: standardPros("Pest Specialist", pestControlImage),
     feedbacks: standardFeedback,
     feedbackCta: "Share Service Feedback",
     bottomLabel: "Starts from",

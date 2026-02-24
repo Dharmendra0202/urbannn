@@ -2,6 +2,7 @@
 import { Stack } from "expo-router";
 import React from "react";
 import "react-native-reanimated";
+import { StatusBar } from "expo-status-bar";
 import { BookingsProvider } from "../context/BookingsContext";
 import { ThemeProvider } from "../context/ThemeContext"; // ✅ fixed path
 
@@ -14,6 +15,7 @@ export default function RootLayout() {
     // ✅ Wrap everything inside ThemeProvider for global dark/light theme
     <ThemeProvider>
       <BookingsProvider>
+        <StatusBar style="dark" backgroundColor="#ffffff" hidden={false} />
         <Stack screenOptions={{ headerShown: false }}>
           {/* Bottom tab navigation (Home, Explore, etc.) */}
           <Stack.Screen name="(tabs)" />

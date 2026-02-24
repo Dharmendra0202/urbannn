@@ -16,97 +16,40 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { MotiView } from "moti";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import * as Location from "expo-location";
-import HorizontalCard from "@/components/HorizontalCard";
+import HorizontalCardList from "@/components/HorizontalCardList";
+import SectionHeader from "@/components/SectionHeader";
+import {
+  cleaningEssentials,
+  customerReviews,
+  footerCompanyLinks,
+  footerSocials,
+  footerSupportLinks,
+  footerTopCities,
+  homeImagePrefetchUrls,
+  offers,
+  rebookItems,
+  seasonalBundles,
+  services,
+  specialOffer,
+  specialists,
+  whyChooseItems,
+} from "@/constants/home-data";
 import {
   getRecommendedRoute,
   recommendedServices,
 } from "@/constants/recommended-services";
 import { getRepairRoute, repairServices } from "@/constants/repair-services";
+import type { HorizontalItem, SearchResultItem } from "@/types/home";
 
-
-
-
-// const router = useRouter();
 
 const { width } = Dimensions.get("window");
 const cardWidth = (width - 80) / 4;
-
-interface ServiceItem {
-  id: number;
-  name: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  color: string;
-  route: string;
-}
-
-interface HorizontalItem {
-  id: string;
-  name: string;
-  price: number;
-  rating: number;
-  image: string;
-}
-
-interface OfferItem {
-  id: string;
-  name: string;
-  price: number;
-  rating: number;
-  image: string;
-  discount: string;
-  eta: string;
-  tint: [string, string];
-}
-
-interface SearchResultItem {
-  id: string;
-  name: string;
-  section: string;
-  route: string;
-}
-
-interface SeasonalBundleItem {
-  id: string;
-  title: string;
-  subtitle: string;
-  price: number;
-  save: string;
-  image: string;
-  gradient: [string, string];
-}
-
-interface CustomerReviewItem {
-  id: string;
-  name: string;
-  service: string;
-  rating: number;
-  comment: string;
-  avatar: string;
-}
-
-interface WhyChooseItem {
-  id: string;
-  title: string;
-  subtitle: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  color: string;
-}
-
-interface RebookItem {
-  id: string;
-  name: string;
-  lastBooked: string;
-  price: number;
-  image: string;
-  route: string;
-}
 
 type BrowserSpeechRecognition = {
   lang: string;
@@ -141,459 +84,9 @@ const matchesSearch = (name: string, query: string) => {
   return queryTokens.every((token) => normalizedName.includes(token));
 };
 
-const specialistRouteMap: Record<string, string> = {
-  "Home Deep Cleaning": "/categories/home-cleaning",
-  "Kitchen Cleaning": "/categories/kitchen-cleaning",
-  "Bathroom Cleaning": "/categories/bathroom-cleaning",
-};
+const filterBySearch = <T extends { name: string }>(items: T[], query: string) =>
+  items.filter((item) => matchesSearch(item.name, query));
 
-const offerRouteMap: Record<string, string> = {
-  "Salon at Home (Women)": "/offers/womens-salon",
-  "Men’s Haircut + Beard Combo": "/offers/mens-haircut",
-  "Full Body Massage at Home": "/offers/full-body-massage",
-  "AC Service & Cleaning": "/offers/ac-service",
-  "Refrigerator Repair": "/offers/refrigerator-repair",
-  "Home Deep Cleaning": "/offers/home-deep-cleaning",
-  "Pest Control Special": "/offers/pest-control",
-  "Home Painting Offer": "/offers/painting-service",
-  "Laundry & Ironing Combo": "/offers/laundry-service",
-  "Carpet Shampoo Cleaning": "/offers/carpet-cleaning",
-  "Kitchen Cleaning Package": "/offers/kitchen-cleaning",
-  "Bathroom Cleaning Service": "/offers/bathroom-cleaning",
-};
-
-const cleaningRouteMap: Record<string, string> = {
-  "Intense Bathroom Cleaning": "/cleaning/intense-bathroom",
-  "Pest Control Service": "/cleaning/pest-control",
-  "Apartment Pest Control": "/cleaning/apartment-pest",
-  "Bathroom Deep Cleaning": "/cleaning/bathroom-deep",
-  "Mattress Cleaning": "/cleaning/mattress-cleaning",
-  "Fridge Cleaning": "/cleaning/fridge-cleaning",
-  "Carpet Cleaning": "/cleaning/carpet-cleaning",
-  "Laundry & Ironing": "/cleaning/laundry",
-};
-
-const getOfferImageUri = (assetModule: number, fallback: string) =>
-  Image.resolveAssetSource(assetModule)?.uri ?? fallback;
-
-const offerImageAssets = {
-  womenSalon: getOfferImageUri(require("../../assets/images/salon-at-home-women.jpg"), ""),
-  menSalon: getOfferImageUri(require("../../assets/images/mens-salon.jpg"), ""),
-  fullBodyMassage: getOfferImageUri(require("../../assets/images/full body massage.jpg"), ""),
-  acService: getOfferImageUri(require("../../assets/images/AC service & cleaning.png"), ""),
-  refrigerator: getOfferImageUri(require("../../assets/images/refrigerator-repair.png"), ""),
-  homeService: getOfferImageUri(require("../../assets/images/home-service.jpg"), ""),
-  laundry: getOfferImageUri(require("../../assets/images/Laundry.jpg"), ""),
-  carpet: getOfferImageUri(require("../../assets/images/carpet-cleaning.jpg"), ""),
-} as const;
-
-// ✅ Services
-const services: ServiceItem[] = [
-  {
-    id: 1,
-    name: "Cleaning",
-    icon: "sparkles-outline",
-    color: "#8B5CF6",
-    route: "/services/CleaningScreen",
-  },
-  {
-    id: 2,
-    name: "Electrician",
-    icon: "flash-outline",
-    color: "#F59E0B",
-    route: "/services/ElectricianScreen",
-  },
-  {
-    id: 3,
-    name: "Plumbing",
-    icon: "water-outline",
-    color: "#3B82F6",
-    route: "/services/PlumbingScreen",
-  },
-  {
-    id: 4,
-    name: "AC Repair",
-    icon: "snow-outline",
-    color: "#06B6D4",
-    route: "/services/ACRepairScreen",
-  },
-  {
-    id: 5,
-    name: "Men’s Salon",
-    icon: "cut-outline",
-    color: "#22C55E",
-    route: "/services/MensSalonScreen",
-  },
-  {
-    id: 6,
-    name: "Women’s Salon",
-    icon: "woman-outline",
-    color: "#EC4899",
-    route: "/services/WomensSalonScreen",
-  },
-  {
-    id: 7,
-    name: "Massage & Spa",
-    icon: "heart-outline",
-    color: "#EF4444",
-    route: "/services/MassageSpaScreen",
-  },
-  {
-    id: 8,
-    name: "Appliance Repair",
-    icon: "tv-outline",
-    color: "#6366F1",
-    route: "/services/ApplianceRepairScreen",
-  },
-];
-
-// ✅ Offers / Essentials / Repair sections (horizontal lists)
-const specialists: HorizontalItem[] = [
-  {
-    id: "1",
-    name: "Home Deep Cleaning",
-    price: 999,
-    rating: 4.8,
-    image: getOfferImageUri(
-      require("../../assets/images/home-deeep-cleaning.jpg"),
-      "",
-    ),
-  },
-  {
-    id: "2",
-    name: "Kitchen Cleaning",
-    price: 799,
-    rating: 4.7,
-    image: getOfferImageUri(
-      require("../../assets/images/kitchen-cleaning.jpg"),
-      "",
-    ),
-  },
-  {
-    id: "3",
-    name: "Bathroom Cleaning",
-    price: 699,
-    rating: 4.6,
-    image: getOfferImageUri(
-      require("../../assets/images/bathroom-cleaning.jpg"),
-      "",
-    ),
-  },
-];
-
-const offers: OfferItem[] = [
-  {
-    id: "1",
-    name: "Salon at Home (Women)",
-    price: 1499,
-    rating: 4.9,
-    image: offerImageAssets.womenSalon,
-    discount: "35% OFF",
-    eta: "45 min",
-    tint: ["rgba(244,63,94,0.05)", "rgba(30,41,59,0.42)"],
-  },
-  {
-    id: "2",
-    name: "Men’s Haircut + Beard Combo",
-    price: 499,
-    rating: 4.8,
-    image: offerImageAssets.menSalon,
-    discount: "28% OFF",
-    eta: "30 min",
-    tint: ["rgba(14,165,233,0.05)", "rgba(15,23,42,0.42)"],
-  },
-  {
-    id: "3",
-    name: "Full Body Massage at Home",
-    price: 1299,
-    rating: 4.7,
-    image: offerImageAssets.fullBodyMassage,
-    discount: "30% OFF",
-    eta: "60 min",
-    tint: ["rgba(6,182,212,0.04)", "rgba(15,23,42,0.44)"],
-  },
-  {
-    id: "4",
-    name: "AC Service & Cleaning",
-    price: 899,
-    rating: 4.8,
-    image: offerImageAssets.acService,
-    discount: "26% OFF",
-    eta: "50 min",
-    tint: ["rgba(56,189,248,0.06)", "rgba(15,23,42,0.42)"],
-  },
-  {
-    id: "5",
-    name: "Refrigerator Repair",
-    price: 999,
-    rating: 4.6,
-    image: offerImageAssets.refrigerator,
-    discount: "22% OFF",
-    eta: "55 min",
-    tint: ["rgba(14,116,144,0.05)", "rgba(15,23,42,0.44)"],
-  },
-  {
-    id: "9",
-    name: "Home Painting Offer",
-    price: 1899,
-    rating: 4.9,
-    image: offerImageAssets.homeService,
-    discount: "32% OFF",
-    eta: "120 min",
-    tint: ["rgba(190,24,93,0.06)", "rgba(15,23,42,0.45)"],
-  },
-  {
-    id: "10",
-    name: "Pest Control Special",
-    price: 599,
-    rating: 4.5,
-    image: offerImageAssets.homeService,
-    discount: "18% OFF",
-    eta: "35 min",
-    tint: ["rgba(22,163,74,0.05)", "rgba(15,23,42,0.44)"],
-  },
-  {
-    id: "11",
-    name: "Laundry & Ironing Combo",
-    price: 399,
-    rating: 4.4,
-    image: offerImageAssets.laundry,
-    discount: "15% OFF",
-    eta: "25 min",
-    tint: ["rgba(14,165,233,0.04)", "rgba(15,23,42,0.45)"],
-  },
-  {
-    id: "12",
-    name: "Carpet Shampoo Cleaning",
-    price: 1199,
-    rating: 4.6,
-    image: offerImageAssets.carpet,
-    discount: "23% OFF",
-    eta: "65 min",
-    tint: ["rgba(79,70,229,0.05)", "rgba(15,23,42,0.44)"],
-  },
-];
-
-const cleaningEssentials: HorizontalItem[] = [
-  {
-    id: "1",
-    name: "Intense Bathroom Cleaning",
-    price: 2499,
-    rating: 4.5,
-    image:
-      "https://images.pexels.com/photos/4108711/pexels-photo-4108711.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "2",
-    name: "Pest Control Service",
-    price: 999,
-    rating: 4.4,
-    image:
-      "https://images.pexels.com/photos/6197120/pexels-photo-6197120.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "3",
-    name: "Apartment Pest Control",
-    price: 1549,
-    rating: 4.3,
-    image:
-      "https://images.pexels.com/photos/6197119/pexels-photo-6197119.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "4",
-    name: "Bathroom Deep Cleaning",
-    price: 399,
-    rating: 4.6,
-    image:
-      "https://images.pexels.com/photos/5649812/pexels-photo-5649812.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "5",
-    name: "Mattress Cleaning",
-    price: 399,
-    rating: 4.5,
-    image:
-      "https://images.pexels.com/photos/4107284/pexels-photo-4107284.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    id: "6",
-    name: "Fridge Cleaning",
-    price: 399,
-    rating: 4.6,
-    image: getOfferImageUri(
-      require("../../assets/images/kitchen-cleaning.jpg"),
-      "",
-    ),
-  },
-  {
-    id: "7",
-    name: "Carpet Cleaning",
-    price: 399,
-    rating: 4.7,
-    image: getOfferImageUri(
-      require("../../assets/images/carpet-cleaning.jpg"),
-      "",
-    ),
-  },
-  {
-    id: "8",
-    name: "Laundry & Ironing",
-    price: 249,
-    rating: 4.4,
-    image: getOfferImageUri(require("../../assets/images/Laundry.jpg"), ""),
-  },
-];
-
-const seasonalBundles: SeasonalBundleItem[] = [
-  {
-    id: "bundle-1",
-    title: "Summer AC + Deep Clean",
-    subtitle: "AC service + full home cleaning",
-    price: 1699,
-    save: "Save 24%",
-    image:
-      "https://images.pexels.com/photos/4099098/pexels-photo-4099098.jpeg?auto=compress&cs=tinysrgb&w=900",
-    gradient: ["#0EA5E9", "#1D4ED8"],
-  },
-  {
-    id: "bundle-2",
-    title: "Salon + Spa Retreat",
-    subtitle: "Women salon with body spa",
-    price: 1999,
-    save: "Save 18%",
-    image:
-      "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=900",
-    gradient: ["#EC4899", "#8B5CF6"],
-  },
-  {
-    id: "bundle-3",
-    title: "Pest Control Combo",
-    subtitle: "Kitchen + bathroom + balcony",
-    price: 1399,
-    save: "Save 22%",
-    image:
-      "https://images.pexels.com/photos/6197120/pexels-photo-6197120.jpeg?auto=compress&cs=tinysrgb&w=900",
-    gradient: ["#F97316", "#EA580C"],
-  },
-];
-
-const customerReviews: CustomerReviewItem[] = [
-  {
-    id: "review-1",
-    name: "Ritika S.",
-    service: "Deep Cleaning",
-    rating: 4.9,
-    comment: "Team arrived on time, very professional and quick.",
-    avatar:
-      "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=200",
-  },
-  {
-    id: "review-2",
-    name: "Ankit R.",
-    service: "AC Repair",
-    rating: 4.8,
-    comment: "Issue fixed in one visit. Transparent pricing.",
-    avatar:
-      "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=200",
-  },
-  {
-    id: "review-3",
-    name: "Neha P.",
-    service: "Salon at Home",
-    rating: 5.0,
-    comment: "Excellent service quality and neat setup at home.",
-    avatar:
-      "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200",
-  },
-];
-
-const whyChooseItems: WhyChooseItem[] = [
-  {
-    id: "trust-1",
-    title: "Verified Professionals",
-    subtitle: "Background checked experts",
-    icon: "shield-checkmark-outline",
-    color: "#0EA5E9",
-  },
-  {
-    id: "trust-2",
-    title: "On-Time Arrival",
-    subtitle: "Tracked slots, reliable timing",
-    icon: "time-outline",
-    color: "#4F46E5",
-  },
-  {
-    id: "trust-3",
-    title: "Upfront Pricing",
-    subtitle: "No hidden charges at checkout",
-    icon: "wallet-outline",
-    color: "#059669",
-  },
-];
-
-const rebookItems: RebookItem[] = [
-  {
-    id: "rebook-1",
-    name: "Home Deep Cleaning",
-    lastBooked: "Booked 12 days ago",
-    price: 1099,
-    image: getOfferImageUri(require("../../assets/images/home-deeep-cleaning.jpg"), ""),
-    route: "/services/CleaningScreen",
-  },
-  {
-    id: "rebook-2",
-    name: "AC Repair Visit",
-    lastBooked: "Booked 25 days ago",
-    price: 899,
-    image:
-      "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=600",
-    route: "/services/ACRepairScreen",
-  },
-  {
-    id: "rebook-3",
-    name: "Men's Haircut Combo",
-    lastBooked: "Booked 8 days ago",
-    price: 499,
-    image:
-      "https://images.pexels.com/photos/3998393/pexels-photo-3998393.jpeg?auto=compress&cs=tinysrgb&w=600",
-    route: "/offers/mens-haircut",
-  },
-];
-
-const footerCompanyLinks = ["About Us", "Careers", "Blog", "Partner With Us"] as const;
-const footerSupportLinks = [
-  "Help Center",
-  "Cancellation Policy",
-  "Terms",
-  "Privacy",
-  "Contact Us",
-] as const;
-const footerTopCities = ["Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Pune"] as const;
-const footerSocials = [
-  { id: "insta", icon: "logo-instagram", url: "https://www.instagram.com" },
-  { id: "facebook", icon: "logo-facebook", url: "https://www.facebook.com" },
-  { id: "x", icon: "logo-twitter", url: "https://x.com" },
-] as const;
-
-
-// const HorizontalCard: React.FC<{ item: HorizontalItem }> = ({ item }) => (
-//   <TouchableOpacity activeOpacity={0.8} style={styles.horizontalCard}>
-//     <Image
-//       source={{ uri: item.image }}
-//       style={styles.cardImage}
-//       resizeMode="cover"
-//       onError={(e) => console.log("Image failed to load:", e.nativeEvent.error)}
-//     />
-//     <Text style={styles.cardTitle}>{item.name}</Text>
-//     <View style={styles.priceRow}>
-//       <Text style={styles.priceText}>₹{item.price}</Text>
-//       <View style={styles.ratingBox}>
-//         <Ionicons name="star" size={12} color="#FFD700" />
-//         <Text style={styles.ratingText}>{item.rating}</Text>
-//       </View>
-//     </View>
-//   </TouchableOpacity>
-// );
 // ✅ Compact Mini Service Card Component
 const MiniServiceCard: React.FC<{ item: HorizontalItem; onPress?: () => void }> = ({
   item,
@@ -612,11 +105,6 @@ const MiniServiceCard: React.FC<{ item: HorizontalItem; onPress?: () => void }> 
   </TouchableOpacity>
 );
 
-// const routeMap: any = {
-//   "Home Deep Cleaning": "/categories/home-cleaning",
-//   "Kitchen Cleaning": "/categories/kitchen-cleaning",
-//   "Bathroom Cleaning": "/categories/bathroom-cleaning",
-// };
 
 
 const HomeScreen: React.FC = () => {
@@ -628,41 +116,14 @@ const HomeScreen: React.FC = () => {
   const speechRecognitionRef = useRef<BrowserSpeechRecognition | null>(null);
   const router = useRouter();
 
-  const handleOfferPress = useCallback(
-    (offerName: string) => {
-      const route = offerRouteMap[offerName];
-      if (!route) {
-        return;
-      }
-      router.push(route as any);
-    },
-    [router]
-  );
-
   const normalizedSearch = normalizeSearchText(search);
   // ✅ Derived filtered lists based on search
-  const filteredSpecialists = specialists.filter((item) =>
-    matchesSearch(item.name, normalizedSearch)
-  );
-
-  const filteredOffers = offers.filter((item) =>
-    matchesSearch(item.name, normalizedSearch)
-  );
-
-  const filteredEssentials = cleaningEssentials.filter((item) =>
-    matchesSearch(item.name, normalizedSearch)
-  );
-
-  const filteredRepair = repairServices.filter((item) =>
-    matchesSearch(item.name, normalizedSearch)
-  );
-
-  const filteredRecommended = recommendedServices.filter((item) =>
-    matchesSearch(item.name, normalizedSearch)
-  );
-  const filteredServices = services.filter((item) =>
-    matchesSearch(item.name, normalizedSearch)
-  );
+  const filteredSpecialists = filterBySearch(specialists, normalizedSearch);
+  const filteredOffers = filterBySearch(offers, normalizedSearch);
+  const filteredEssentials = filterBySearch(cleaningEssentials, normalizedSearch);
+  const filteredRepair = filterBySearch(repairServices, normalizedSearch);
+  const filteredRecommended = filterBySearch(recommendedServices, normalizedSearch);
+  const filteredServices = filterBySearch(services, normalizedSearch);
   const hasSearchQuery = normalizedSearch.length > 0;
   const hasAnySearchResult =
     filteredSpecialists.length > 0 ||
@@ -700,8 +161,7 @@ const HomeScreen: React.FC = () => {
     });
 
     filteredSpecialists.forEach((item) => {
-      const route = specialistRouteMap[item.name];
-      if (!route) {
+      if (!item.route) {
         return;
       }
 
@@ -709,13 +169,12 @@ const HomeScreen: React.FC = () => {
         id: `specialist-${item.id}`,
         name: item.name,
         section: "Specialist",
-        route,
+        route: item.route,
       });
     });
 
     filteredEssentials.forEach((item) => {
-      const route = cleaningRouteMap[item.name];
-      if (!route) {
+      if (!item.route) {
         return;
       }
 
@@ -723,7 +182,7 @@ const HomeScreen: React.FC = () => {
         id: `cleaning-${item.id}`,
         name: item.name,
         section: "Cleaning",
-        route,
+        route: item.route,
       });
     });
 
@@ -746,8 +205,7 @@ const HomeScreen: React.FC = () => {
     });
 
     filteredOffers.forEach((item) => {
-      const route = offerRouteMap[item.name];
-      if (!route) {
+      if (!item.route) {
         return;
       }
 
@@ -755,7 +213,7 @@ const HomeScreen: React.FC = () => {
         id: `offer-${item.id}`,
         name: item.name,
         section: "Offer",
-        route,
+        route: item.route,
       });
     });
 
@@ -881,17 +339,18 @@ const HomeScreen: React.FC = () => {
   };
   // ✅ this closes the effect correctly
 
-  const specialOffer = {
-    id: "special1",
-    title: "Premium Home Makeover",
-    subtitle: "Uplift your space with our expert renovation team",
-    offer: "Up to 25% OFF",
-    gradient: ["#8B5CF6", "#EC4899"],
-    image:
-      "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200",
-  };
-
   useEffect(() => {
+    const remoteUrls = [
+      ...homeImagePrefetchUrls,
+      ...recommendedServices
+        .map((item) => item.image)
+        .filter((url) => url.startsWith("http")),
+    ];
+    const uniqueUrls = Array.from(new Set(remoteUrls));
+    uniqueUrls.forEach((url) => {
+      Image.prefetch(url);
+    });
+
     return () => {
       speechRecognitionRef.current?.stop();
       speechRecognitionRef.current = null;
@@ -1072,7 +531,6 @@ const HomeScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor="#fff" style="dark" />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <LinearGradient
           colors={["#1E3A8A", "#1D4ED8", "#0EA5E9"]}
@@ -1246,45 +704,33 @@ const HomeScreen: React.FC = () => {
 
         {/* Specialists Section */}
 
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionHeading}>We Are Specialists In</Text>
-          <TouchableOpacity onPress={() => router.push("/categories")}>
-            <Text style={styles.seeAll}>See more</Text>
-          </TouchableOpacity>
-        </View>
-        <FlatList
-          horizontal
-          data={filteredSpecialists} // ✅ now shows only searched items
-          renderItem={({ item }) => (
-            <HorizontalCard
-              item={item}
-              onPress={() => {
-                if (item.name === "Home Deep Cleaning") {
-                  router.push("/categories/home-cleaning" as any);
-                }
-
-                if (item.name === "Kitchen Cleaning") {
-                  router.push("/categories/kitchen-cleaning" as any);
-                }
-
-                if (item.name === "Bathroom Cleaning") {
-                  router.push("/categories/bathroom-cleaning" as any);
-                }
-              }}
-            />
-          )}
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingVertical: 4 }} // // boxes height
+        <SectionHeader
+          title="We Are Specialists In"
+          actionLabel="See more"
+          onPress={() => router.push("/categories")}
+          containerStyle={styles.sectionHeader}
+          titleStyle={styles.sectionHeading}
+          actionStyle={styles.seeAll}
+        />
+        <HorizontalCardList
+          data={filteredSpecialists}
+          onItemPress={(item) => {
+            if (item.route) {
+              router.push(item.route as any);
+            }
+          }}
+          contentContainerStyle={{ paddingVertical: 4 }}
         />
 
         {/* Offers & Discounts */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionHeading}>Offers & Discounts</Text>
-          <TouchableOpacity onPress={() => router.push("/offers" as any)}>
-            <Text style={styles.seeAll}>See more</Text>
-          </TouchableOpacity>
-        </View>
+        <SectionHeader
+          title="Offers & Discounts"
+          actionLabel="See more"
+          onPress={() => router.push("/offers" as any)}
+          containerStyle={styles.sectionHeader}
+          titleStyle={styles.sectionHeading}
+          actionStyle={styles.seeAll}
+        />
 
         {filteredOffers.length === 0 ? (
           <Text
@@ -1306,7 +752,7 @@ const HomeScreen: React.FC = () => {
                 <TouchableOpacity
                   activeOpacity={0.9}
                   style={styles.offerCardPremium}
-                  onPress={() => handleOfferPress(item.name)}
+                  onPress={() => router.push(item.route as any)}
                 >
                   <Image
                     source={{ uri: item.image }}
@@ -1358,96 +804,44 @@ const HomeScreen: React.FC = () => {
         )}
 
         {/* Cleaning Essentials */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionHeading}>Cleaning Essentials</Text>
-          <TouchableOpacity onPress={() => router.push("/cleaning" as any)}>
-            <Text style={styles.seeAll}>See more</Text>
-          </TouchableOpacity>
-        </View>
+        <SectionHeader
+          title="Cleaning Essentials"
+          actionLabel="See more"
+          onPress={() => router.push("/cleaning" as any)}
+          containerStyle={styles.sectionHeader}
+          titleStyle={styles.sectionHeading}
+          actionStyle={styles.seeAll}
+        />
 
-        {filteredEssentials.length === 0 ? (
-          <Text
-            style={{ textAlign: "center", color: "#6B7280", marginBottom: 10 }}
-          >
-            No cleaning essentials found
-          </Text>
-        ) : (
-          <FlatList
-            horizontal
-            data={filteredEssentials} // ✅ filters cleaning essentials
-            renderItem={({ item }) => (
-              <HorizontalCard
-                item={item}
-                onPress={() => {
-                  if (item.name === "Intense Bathroom Cleaning") {
-                    router.push("/cleaning/intense-bathroom");
-                  }
-
-                  if (item.name === "Pest Control Service") {
-                    router.push("/cleaning/pest-control");
-                  }
-
-                  if (item.name === "Apartment Pest Control") {
-                    router.push("/cleaning/apartment-pest");
-                  }
-
-                  if (item.name === "Bathroom Deep Cleaning") {
-                    router.push("/cleaning/bathroom-deep");
-                  }
-
-                  if (item.name === "Mattress Cleaning") {
-                    router.push("/cleaning/mattress-cleaning");
-                  }
-
-                  if (item.name === "Fridge Cleaning") {
-                    router.push("/cleaning/fridge-cleaning");
-                  }
-
-                  if (item.name === "Carpet Cleaning") {
-                    router.push("/cleaning/carpet-cleaning");
-                  }
-
-                  if (item.name === "Laundry & Ironing") {
-                    router.push("/cleaning/laundry");
-                  }
-                }}
-              />
-            )}
-            keyExtractor={(item) => item.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingVertical: 4 }} // boxes height
-          />
-        )}
+        <HorizontalCardList
+          data={filteredEssentials}
+          emptyText="No cleaning essentials found"
+          emptyTextStyle={{ textAlign: "center", color: "#6B7280", marginBottom: 10 }}
+          onItemPress={(item) => {
+            if (item.route) {
+              router.push(item.route as any);
+            }
+          }}
+          contentContainerStyle={{ paddingVertical: 4 }}
+        />
 
         {/* Home Repair & Installation */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionHeading}>Home Repair & Installation</Text>
-          <TouchableOpacity onPress={() => router.push("/repair" as any)}>
-            <Text style={styles.seeAll}>See more</Text>
-          </TouchableOpacity>
-        </View>
+        <SectionHeader
+          title="Home Repair & Installation"
+          actionLabel="See more"
+          onPress={() => router.push("/repair" as any)}
+          containerStyle={styles.sectionHeader}
+          titleStyle={styles.sectionHeading}
+          actionStyle={styles.seeAll}
+        />
 
-        {filteredRepair.length === 0 ? (
-          <Text
-            style={{ textAlign: "center", color: "#6B7280", marginBottom: 10 }}
-          >
-            No repair services found
-          </Text>
-        ) : (
-          <FlatList
-            horizontal
-            data={filteredRepair} // ✅ filters repair list
-            renderItem={({ item }) => (
-              <HorizontalCard
-                item={item}
-                onPress={() => router.push(getRepairRoute(item.id) as any)}
-              />
-            )}
-            keyExtractor={(item) => item.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingVertical: 4 }} // ✅ adds space top & bottom
-          />
-        )}
+        <HorizontalCardList
+          data={filteredRepair}
+          emptyText="No repair services found"
+          emptyTextStyle={{ textAlign: "center", color: "#6B7280", marginBottom: 10 }}
+          onItemPress={(item) => router.push(getRepairRoute(item.id) as any)}
+          contentContainerStyle={{ paddingVertical: 4 }}
+        />
 
         {/* Big Promotional Banner */}
         <View style={styles.bigBannerWrapper}>
@@ -1486,12 +880,14 @@ const HomeScreen: React.FC = () => {
         </View>
 
         {/* ✅ Recommended Services Section */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionHeading}>Recommended For You</Text>
-          <TouchableOpacity onPress={() => router.push("/recommended" as any)}>
-            <Text style={styles.seeAll}>See all</Text>
-          </TouchableOpacity>
-        </View>
+        <SectionHeader
+          title="Recommended For You"
+          actionLabel="See all"
+          onPress={() => router.push("/recommended" as any)}
+          containerStyle={styles.sectionHeader}
+          titleStyle={styles.sectionHeading}
+          actionStyle={styles.seeAll}
+        />
 
         {filteredRecommended.length === 0 ? (
           <Text
@@ -1516,19 +912,21 @@ const HomeScreen: React.FC = () => {
         )}
 
         {/* Rebook in 1 Tap */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionHeading}>Rebook in 1 Tap</Text>
-          <TouchableOpacity onPress={() => router.push("/bookings" as any)}>
-            <Text style={styles.seeAll}>History</Text>
-          </TouchableOpacity>
-        </View>
+        <SectionHeader
+          title="Rebook in 1 Tap"
+          actionLabel="History"
+          onPress={() => router.push("/bookings" as any)}
+          containerStyle={styles.sectionHeader}
+          titleStyle={styles.sectionHeading}
+          actionStyle={styles.seeAll}
+        />
         <FlatList
           horizontal
           data={rebookItems}
           keyExtractor={(item) => item.id}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.rebookListContent}
-          renderItem={({ item }: { item: RebookItem }) => (
+          renderItem={({ item }) => (
             <TouchableOpacity
               activeOpacity={0.9}
               style={styles.rebookCard}
@@ -1556,19 +954,21 @@ const HomeScreen: React.FC = () => {
         />
 
         {/* Seasonal Bundles */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionHeading}>Seasonal Bundles</Text>
-          <TouchableOpacity onPress={() => router.push("/offers" as any)}>
-            <Text style={styles.seeAll}>See all</Text>
-          </TouchableOpacity>
-        </View>
+        <SectionHeader
+          title="Seasonal Bundles"
+          actionLabel="See all"
+          onPress={() => router.push("/offers" as any)}
+          containerStyle={styles.sectionHeader}
+          titleStyle={styles.sectionHeading}
+          actionStyle={styles.seeAll}
+        />
         <FlatList
           horizontal
           data={seasonalBundles}
           keyExtractor={(item) => item.id}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.bundleListContent}
-          renderItem={({ item }: { item: SeasonalBundleItem }) => (
+          renderItem={({ item }) => (
             <TouchableOpacity activeOpacity={0.9} style={styles.bundleCard}>
               <Image source={{ uri: item.image }} style={styles.bundleImage} />
               <LinearGradient
@@ -1593,16 +993,18 @@ const HomeScreen: React.FC = () => {
         />
 
         {/* Customer Reviews */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionHeading}>Customer Reviews</Text>
-        </View>
+        <SectionHeader
+          title="Customer Reviews"
+          containerStyle={styles.sectionHeader}
+          titleStyle={styles.sectionHeading}
+        />
         <FlatList
           horizontal
           data={customerReviews}
           keyExtractor={(item) => item.id}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.reviewListContent}
-          renderItem={({ item }: { item: CustomerReviewItem }) => (
+          renderItem={({ item }) => (
             <View style={styles.reviewCard}>
               <View style={styles.reviewTopRow}>
                 <Image source={{ uri: item.avatar }} style={styles.reviewAvatar} />
@@ -1621,9 +1023,11 @@ const HomeScreen: React.FC = () => {
         />
 
         {/* Why Choose Us */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionHeading}>Why Choose Us</Text>
-        </View>
+        <SectionHeader
+          title="Why Choose Us"
+          containerStyle={styles.sectionHeader}
+          titleStyle={styles.sectionHeading}
+        />
         <View style={styles.whyChooseGrid}>
           {whyChooseItems.map((item) => (
             <View key={item.id} style={styles.whyChooseCard}>
@@ -1746,46 +1150,6 @@ const HomeScreen: React.FC = () => {
           <Text style={styles.footerMetaText}>urbannn v1.0.0 • © 2026 Urbannn Technologies</Text>
         </View>
 
-        {/* 
-          ✅ Quick Home Services Section
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionHeading}>Quick Home Services</Text>
-            <TouchableOpacity
-              onPress={() => router.push("/quick-services" as any)}
-            >
-              <Text style={styles.seeAll}>See all</Text>
-            </TouchableOpacity>
-          </View>
-
-        <FlatList
-          horizontal
-          data={services.slice(0, 6)} // first 6 quick services
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={[styles.miniCard, { width: 100 }]}
-              onPress={() => {
-                router.push(item.route as any);
-              }}
-            >
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: item.color, width: 60, height: 60 },
-                ]}
-              >
-                <Ionicons name={item.icon} size={26} color="#fff" />
-              </View>
-              <Text
-                numberOfLines={1}
-                style={{ fontSize: 12, textAlign: "center" }}
-              >
-                {item.name}
-              </Text>
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item) => item.id.toString()}
-          showsHorizontalScrollIndicator={false}
-        /> */}
       </ScrollView>
     </SafeAreaView>
   );

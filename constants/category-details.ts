@@ -1,6 +1,5 @@
-import { Image } from "react-native";
-
-const resolveAssetUri = (assetModule: number) => Image.resolveAssetSource(assetModule)?.uri ?? "";
+import { imageAssets } from "./image-assets";
+import { withImage } from "./image-utils";
 
 export type CategoryGallerySlide = {
   id: string;
@@ -8,11 +7,6 @@ export type CategoryGallerySlide = {
   title: string;
   subtitle: string;
 };
-
-type CategoryGallerySeed = Omit<CategoryGallerySlide, "image">;
-
-const withImage = (image: string, items: CategoryGallerySeed[]): CategoryGallerySlide[] =>
-  items.map((item) => ({ ...item, image }));
 
 export type CategoryPackage = {
   id: string;
@@ -61,17 +55,11 @@ export type CategorySlug =
   | "kitchen-cleaning"
   | "bathroom-cleaning";
 
-const categoryImages = {
-  homeCleaning: resolveAssetUri(require("../assets/images/home-deeep-cleaning.jpg")),
-  kitchenCleaning: resolveAssetUri(require("../assets/images/kitchen-cleaning.jpg")),
-  bathroomCleaning: resolveAssetUri(require("../assets/images/bathroom-cleaning.jpg")),
-} as const;
-
 export const categoryDetails: Record<CategorySlug, CategoryDetail> = {
   "home-cleaning": {
     title: "Full Home Cleaning",
     subtitle: "Deep hygiene service for living areas, bedrooms, and utility zones",
-    heroImage: categoryImages.homeCleaning,
+    heroImage: imageAssets.homeDeepCleaning,
     heroGradient: ["#14532D", "#0E7490"],
     offerLabel: "Whole Home Coverage",
     rating: "4.8",
@@ -94,7 +82,7 @@ export const categoryDetails: Record<CategorySlug, CategoryDetail> = {
       "Anti-bacterial touch-surface spray",
       "Corner detailing brush kit",
     ],
-    gallery: withImage(categoryImages.homeCleaning, [
+    gallery: withImage(imageAssets.homeDeepCleaning, [
       {
         id: "hc-g1",
         title: "Living Area Reset",
@@ -158,7 +146,7 @@ export const categoryDetails: Record<CategorySlug, CategoryDetail> = {
   "kitchen-cleaning": {
     title: "Kitchen Deep Cleaning",
     subtitle: "Degreasing, scrub treatment, and hygiene restoration for cooking areas",
-    heroImage: categoryImages.kitchenCleaning,
+    heroImage: imageAssets.kitchenCleaning,
     heroGradient: ["#9A3412", "#EA580C"],
     offerLabel: "Oil and Grime Removal",
     rating: "4.7",
@@ -181,7 +169,7 @@ export const categoryDetails: Record<CategorySlug, CategoryDetail> = {
       "Stainless steel polish wipe",
       "Odor reset spray",
     ],
-    gallery: withImage(categoryImages.kitchenCleaning, [
+    gallery: withImage(imageAssets.kitchenCleaning, [
       {
         id: "kc-g1",
         title: "Counter Degreasing",
@@ -246,7 +234,7 @@ export const categoryDetails: Record<CategorySlug, CategoryDetail> = {
   "bathroom-cleaning": {
     title: "Bathroom Cleaning",
     subtitle: "Tile, fixture, and commode cleaning with quick disinfect finish",
-    heroImage: categoryImages.bathroomCleaning,
+    heroImage: imageAssets.bathroomCleaning,
     heroGradient: ["#1D4ED8", "#06B6D4"],
     offerLabel: "Quick Hygiene Package",
     rating: "4.6",
@@ -269,7 +257,7 @@ export const categoryDetails: Record<CategorySlug, CategoryDetail> = {
       "Disinfectant spray finish",
       "Drainline detailing brush",
     ],
-    gallery: withImage(categoryImages.bathroomCleaning, [
+    gallery: withImage(imageAssets.bathroomCleaning, [
       {
         id: "bc-g1",
         title: "Tile Recovery",

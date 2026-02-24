@@ -29,7 +29,7 @@ export const recommendedServices = [
     price: 1599,
     rating: 4.9,
     image:
-      "https://images.pexels.com/photos/3865795/pexels-photo-3865795.jpeg?auto=compress&cs=tinysrgb&w=600",
+      "https://images.pexels.com/photos/3865792/pexels-photo-3865792.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     id: "r5",

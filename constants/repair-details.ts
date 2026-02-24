@@ -1,15 +1,14 @@
-import { Image } from "react-native";
-
-const resolveAssetUri = (assetModule: number) => Image.resolveAssetSource(assetModule)?.uri ?? "";
+import { imageAssets } from "./image-assets";
+import { withImage } from "./image-utils";
 
 const repairImages = {
-  carpentry: resolveAssetUri(require("../assets/images/carpentry-work.jpg")),
-  plumbing: resolveAssetUri(require("../assets/images/plumbing-fix.jpg")),
-  painting: resolveAssetUri(require("../assets/images/wall-painting.jpg")),
-  wallMounting: resolveAssetUri(require("../assets/images/wall-drilling.jpg")),
-  electrical: resolveAssetUri(require("../assets/images/ac-service-cleaning.jpg")),
-  curtain: resolveAssetUri(require("../assets/images/home-service.jpg")),
-  doorLock: resolveAssetUri(require("../assets/images/door-lock-repair.jpg")),
+  carpentry: imageAssets.carpentryWork,
+  plumbing: imageAssets.plumbingFix,
+  painting: imageAssets.wallPainting,
+  wallMounting: imageAssets.wallDrilling,
+  electrical: imageAssets.acServiceCleaningJpg,
+  curtain: imageAssets.homeService,
+  doorLock: imageAssets.doorLockRepair,
 } as const;
 
 export type RepairGalleryItem = {
@@ -18,11 +17,6 @@ export type RepairGalleryItem = {
   subtitle: string;
   image: string;
 };
-
-type RepairGallerySeed = Omit<RepairGalleryItem, "image">;
-
-const withImage = (image: string, items: RepairGallerySeed[]): RepairGalleryItem[] =>
-  items.map((item) => ({ ...item, image }));
 
 export type RepairPackage = {
   id: string;

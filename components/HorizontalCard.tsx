@@ -2,15 +2,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-
-// Define the item type
-export interface HorizontalItem {
-  id: string;
-  name: string;
-  price: number;
-  rating: number;
-  image: string;
-}
+import type { HorizontalItem } from "@/types/home";
 
 // Props for the card
 interface HorizontalCardProps {

@@ -299,7 +299,7 @@ export const recommendedServiceDetails: Record<
     title: "Wall Painting",
     subtitle: "Fresh interior painting with clean edges and smooth finish",
     heroImage:
-      "https://images.pexels.com/photos/3865795/pexels-photo-3865795.jpeg",
+      "https://images.pexels.com/photos/3865792/pexels-photo-3865792.jpeg?auto=compress&cs=tinysrgb&w=1200",
     heroGradient: ["#EC4899", "#EF4444"],
     offerLabel: "Festival Painting Offer",
     rating: "4.9",

@@ -90,7 +90,8 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { theme, toggleTheme } = useTheme();
   const { bookings, getEffectiveStatus } = useBookings();
-  const isDark = theme === "dark";
+  const isDarkTheme = theme === "dark";
+  const isDark = false;
 
   const [profile, setProfile] = useState<ProfileData>({
     fullName: "Majnu",
@@ -508,9 +509,9 @@ export default function ProfileScreen() {
               <Text style={[styles.switchLabel, { color: palette.textPrimary }]}>Dark mode</Text>
             </View>
             <Switch
-              value={isDark}
+              value={isDarkTheme}
               onValueChange={toggleTheme}
-              thumbColor={isDark ? "#A78BFA" : "#F8FAFC"}
+              thumbColor={isDarkTheme ? "#A78BFA" : "#F8FAFC"}
               trackColor={{ false: "#CBD5E1", true: "#7C3AED" }}
             />
           </View>
