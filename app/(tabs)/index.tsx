@@ -1,51 +1,51 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  Alert,
-  BackHandler,
-  Linking,
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  Dimensions,
-  Image,
-  FlatList,
-  Keyboard,
-  Platform,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { MotiView } from "moti";
-import { useRouter } from "expo-router";
-import { useFocusEffect } from "@react-navigation/native";
-import * as Location from "expo-location";
 import HorizontalCardList from "@/components/HorizontalCardList";
 import SectionHeader from "@/components/SectionHeader";
 import {
-  cleaningEssentials,
-  customerReviews,
-  footerCompanyLinks,
-  footerSocials,
-  footerSupportLinks,
-  footerTopCities,
-  homeImagePrefetchUrls,
-  offers,
-  rebookItems,
-  seasonalBundles,
-  services,
-  specialOffer,
-  specialists,
-  whyChooseItems,
+    cleaningEssentials,
+    customerReviews,
+    footerCompanyLinks,
+    footerSocials,
+    footerSupportLinks,
+    footerTopCities,
+    homeImagePrefetchUrls,
+    offers,
+    rebookItems,
+    seasonalBundles,
+    services,
+    specialOffer,
+    specialists,
+    whyChooseItems,
 } from "@/constants/home-data";
 import {
-  getRecommendedRoute,
-  recommendedServices,
+    getRecommendedRoute,
+    recommendedServices,
 } from "@/constants/recommended-services";
 import { getRepairRoute, repairServices } from "@/constants/repair-services";
 import type { HorizontalItem, SearchResultItem } from "@/types/home";
+import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
+import * as Location from "expo-location";
+import { useRouter } from "expo-router";
+import { MotiView } from "moti";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+    Alert,
+    BackHandler,
+    Dimensions,
+    FlatList,
+    Image,
+    Keyboard,
+    Linking,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const { width } = Dimensions.get("window");
@@ -115,6 +115,9 @@ const HomeScreen: React.FC = () => {
   const searchInputRef = useRef<TextInput>(null);
   const speechRecognitionRef = useRef<BrowserSpeechRecognition | null>(null);
   const router = useRouter();
+  
+  // Fetch services from backend (commented out for build)
+  // const { services: backendServices, loading: servicesLoading } = useServices();
 
   const normalizedSearch = normalizeSearchText(search);
   // ✅ Derived filtered lists based on search

@@ -1,19 +1,19 @@
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useBookings } from "../../context/BookingsContext";
 
 const professionalOptions = [
@@ -113,6 +113,7 @@ const buildScheduledAt = (isoDate: string, slot: string) => {
 export default function MensBookingScreen() {
   const router = useRouter();
   const { addBooking } = useBookings();
+  const [bookingLoading, setBookingLoading] = useState(false);
   const params = useLocalSearchParams<{ service?: string | string[]; amount?: string | string[] }>();
   const dateOptions = useMemo(() => getDateOptions(), []);
 
@@ -147,7 +148,17 @@ export default function MensBookingScreen() {
     !!selectedDate &&
     !!selectedSlot;
 
-  const handleConfirm = () => {
+  // Debug: Log form state
+  console.log('Form validation:', {
+    fullName: fullName.trim().length,
+    phone: phone.trim().length,
+    address: address.trim().length,
+    hasDate: !!selectedDate,
+    hasSlot: !!selectedSlot,
+    isValid: isFormValid
+  });
+
+  const handleConfirm = async () => {
     if (!isFormValid) {
       Alert.alert("Incomplete details", "Please fill all required booking details.");
       return;
@@ -160,31 +171,112 @@ export default function MensBookingScreen() {
 
     const scheduledAt = buildScheduledAt(selectedDate.isoDate, selectedSlot);
 
-    addBooking({
-      serviceName: bookingService,
-      scheduledAt,
-      dateLabel: selectedDate.value,
-      slot: selectedSlot,
-      customerName: fullName.trim(),
-      phone: phone.trim(),
-      address: address.trim(),
-      landmark: landmark.trim() || undefined,
-      notes: notes.trim() || undefined,
-      professionalName: selectedProfessional?.name ?? "Auto Assign Team",
-      paymentLabel: selectedPayment?.label ?? "Pay after service",
-      amount: serviceAmount,
-      convenienceFee,
-      totalAmount,
-    });
+    setBookingLoading(true);
 
-    router.push({
-      pathname: "/services/booking-success",
-      params: {
-        service: bookingService,
-        date: selectedDate.value,
+    try {
+      console.log("Creating booking...");
+      console.log("API URL:", 'http://192.168.0.100:3001/api/bookings/guest/address');
+
+      // Create address first (guest user flow)
+      const addressResponse = await fetch('http://192.168.0.100:3001/api/bookings/guest/address', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          full_name: fullName.trim(),
+          phone: phone.trim(),
+          address_line1: address.trim(),
+          landmark: landmark.trim() || null,
+          city: "Mumbai",
+          state: "Maharashtra",
+          pincode: "400001",
+        }),
+      });
+
+      console.log("Address response status:", addressResponse.status);
+
+      if (!addressResponse.ok) {
+        const errorData = await addressResponse.json();
+        console.error("Address error:", errorData);
+        throw new Error(errorData.error || 'Failed to save address');
+      }
+
+      const { address_id, user_id } = await addressResponse.json();
+      console.log("Address created:", address_id, "User:", user_id);
+
+      // Create booking
+      console.log("Creating booking with service_id:", "650e8400-e29b-41d4-a716-446655440011");
+      const bookingResponse = await fetch('http://192.168.0.100:3001/api/bookings/guest', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id,
+          service_id: "650e8400-e29b-41d4-a716-446655440011",
+          address_id,
+          scheduled_date: selectedDate.isoDate,
+          scheduled_time: selectedSlot,
+          special_instructions: notes.trim() || null,
+          customer_name: fullName.trim(),
+          customer_phone: phone.trim(),
+        }),
+      });
+
+      console.log("Booking response status:", bookingResponse.status);
+
+      if (!bookingResponse.ok) {
+        const errorData = await bookingResponse.json();
+        console.error("Booking error:", errorData);
+        throw new Error(errorData.error || 'Failed to create booking');
+      }
+
+      const { booking } = await bookingResponse.json();
+      console.log("Booking created:", booking.id);
+
+      // Save to local context
+      addBooking({
+        id: booking.id,
+        serviceName: bookingService,
+        scheduledAt,
+        dateLabel: selectedDate.value,
         slot: selectedSlot,
-      },
-    } as any);
+        customerName: fullName.trim(),
+        phone: phone.trim(),
+        address: address.trim(),
+        landmark: landmark.trim() || undefined,
+        notes: notes.trim() || undefined,
+        professionalName: selectedProfessional?.name ?? "Auto Assign Team",
+        paymentLabel: selectedPayment?.label ?? "Pay after service",
+        amount: serviceAmount,
+        convenienceFee,
+        totalAmount,
+        status: booking.status,
+      });
+
+      setBookingLoading(false);
+
+      router.push({
+        pathname: "/services/booking-success",
+        params: {
+          service: bookingService,
+          date: selectedDate.value,
+          slot: selectedSlot,
+          bookingId: booking.id,
+        },
+      } as any);
+
+    } catch (error: any) {
+      setBookingLoading(false);
+      console.error("Booking error:", error);
+      Alert.alert(
+        "Booking Failed",
+        error.message || "Could not create booking. Please try again."
+      );
+    }
   };
 
   return (
@@ -210,8 +302,8 @@ export default function MensBookingScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>1. Service selected</Text>
             <View style={styles.selectedServiceCard}>
-              <View>
-                <Text style={styles.selectedServiceTitle}>{bookingService}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.selectedServiceTitle} numberOfLines={2}>{bookingService}</Text>
                 <Text style={styles.selectedServiceMeta}>Picked from previous page</Text>
               </View>
               <Text style={styles.selectedServicePrice}>₹{serviceAmount}</Text>
@@ -392,13 +484,19 @@ export default function MensBookingScreen() {
           <View>
             <Text style={styles.bottomLabel}>Payable amount</Text>
             <Text style={styles.bottomPrice}>₹{totalAmount}</Text>
+            <Text style={{ color: '#94A3B8', fontSize: 10, marginTop: 2 }}>
+              {isFormValid ? '✓ Ready' : '✗ Fill form'}
+            </Text>
           </View>
           <TouchableOpacity
-            style={[styles.confirmButton, !isFormValid && styles.confirmButtonDisabled]}
+            style={[styles.confirmButton, (!isFormValid || bookingLoading) && styles.confirmButtonDisabled]}
             onPress={handleConfirm}
             activeOpacity={0.9}
+            disabled={!isFormValid || bookingLoading}
           >
-            <Text style={styles.confirmButtonText}>Confirm Booking</Text>
+            <Text style={styles.confirmButtonText}>
+              {bookingLoading ? "Processing..." : "Confirm Booking"}
+            </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -458,7 +556,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ECFDF5",
     padding: 12,
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
     gap: 10,
   },
@@ -466,6 +564,7 @@ const styles = StyleSheet.create({
     color: "#0F172A",
     fontSize: 15,
     fontWeight: "700",
+    flexWrap: "wrap",
   },
   selectedServiceMeta: {
     color: "#065F46",

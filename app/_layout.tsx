@@ -1,10 +1,11 @@
 // app/_layout.tsx
 import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React from "react";
 import "react-native-reanimated";
-import { StatusBar } from "expo-status-bar";
+import { AuthProvider } from "../context/AuthContext";
 import { BookingsProvider } from "../context/BookingsContext";
-import { ThemeProvider } from "../context/ThemeContext"; // ✅ fixed path
+import { ThemeProvider } from "../context/ThemeContext";
 
 /**
  * RootLayout - Main app navigation container.
@@ -12,19 +13,20 @@ import { ThemeProvider } from "../context/ThemeContext"; // ✅ fixed path
  */
 export default function RootLayout() {
   return (
-    // ✅ Wrap everything inside ThemeProvider for global dark/light theme
-    <ThemeProvider>
-      <BookingsProvider>
-        <StatusBar style="dark" backgroundColor="#ffffff" hidden={false} />
-        <Stack screenOptions={{ headerShown: false }}>
-          {/* Bottom tab navigation (Home, Explore, etc.) */}
-          <Stack.Screen name="(tabs)" />
+    <AuthProvider>
+      <ThemeProvider>
+        <BookingsProvider>
+          <StatusBar style="dark" backgroundColor="#ffffff" hidden={false} />
+          <Stack screenOptions={{ headerShown: false }}>
+            {/* Bottom tab navigation (Home, Explore, etc.) */}
+            <Stack.Screen name="(tabs)" />
 
-          {/* Service screens (Cleaning, Electrician, etc.) */}
-          <Stack.Screen name="services" />
-          <Stack.Screen name="notifications" />
-        </Stack>
-      </BookingsProvider>
-    </ThemeProvider>
+            {/* Service screens (Cleaning, Electrician, etc.) */}
+            <Stack.Screen name="services" />
+            <Stack.Screen name="notifications" />
+          </Stack>
+        </BookingsProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
