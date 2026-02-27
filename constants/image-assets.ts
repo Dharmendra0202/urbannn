@@ -6,10 +6,10 @@ export const imageAssets = {
   ),
   mensSalon: resolveAssetUri(require("../assets/images/mens-salon.jpg")),
   fullBodyMassage: resolveAssetUri(
-    require("../assets/images/full body massage.jpg")
+    require("../assets/images/full-body-massage.jpg")
   ),
   acServiceCleaningPng: resolveAssetUri(
-    require("../assets/images/AC service & cleaning.png")
+    require("../assets/images/ac-service-cleaning.png")
   ),
   acServiceCleaningJpg: resolveAssetUri(
     require("../assets/images/ac-service-cleaning.jpg")

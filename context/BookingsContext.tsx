@@ -68,16 +68,8 @@ export const BookingsProvider = ({ children }: { children: React.ReactNode }) =>
   const [bookings, setBookings] = useState<ServiceBooking[]>([]);
 
   const getEffectiveStatus = useCallback((booking: ServiceBooking): BookingStatus => {
-    if (booking.status !== "upcoming") {
-      return booking.status;
-    }
-
-    const scheduledMs = new Date(booking.scheduledAt).getTime();
-    if (Number.isNaN(scheduledMs)) {
-      return booking.status;
-    }
-
-    return Date.now() >= scheduledMs + COMPLETION_DELAY_MS ? "completed" : "upcoming";
+    // Simply return the actual status - don't auto-complete based on time
+    return booking.status;
   }, []);
 
   const addBooking = useCallback((payload: NewBookingInput) => {

@@ -119,9 +119,9 @@ router.post('/guest', async (req, res) => {
     // Calculate pricing
     const base_price = service.base_price;
     const discount_amount = (base_price * service.discount_percentage) / 100;
-    const convenience_fee = 49;
-    const tax_amount = ((base_price - discount_amount + convenience_fee) * 0.18);
-    const total_amount = base_price - discount_amount + convenience_fee + tax_amount;
+    const convenience_fee = 0;
+    const tax_amount = ((base_price - discount_amount) * 0.18);
+    const total_amount = base_price - discount_amount + tax_amount;
 
     // Create booking with customer info in special_instructions
     const booking_notes = `Customer: ${customer_name}, Phone: ${customer_phone}${special_instructions ? ', Notes: ' + special_instructions : ''}`;

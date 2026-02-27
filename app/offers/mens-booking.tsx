@@ -138,8 +138,8 @@ export default function MensBookingScreen() {
   const selectedDate = dateOptions.find((item) => item.id === selectedDateId);
   const selectedPayment = paymentOptions.find((item) => item.id === selectedPaymentId);
 
-  const convenienceFee = 49;
-  const totalAmount = serviceAmount + convenienceFee;
+  const convenienceFee = 0;
+  const totalAmount = serviceAmount;
 
   const isFormValid =
     fullName.trim().length >= 2 &&
@@ -468,10 +468,6 @@ export default function MensBookingScreen() {
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Service charge</Text>
               <Text style={styles.summaryValue}>₹{serviceAmount}</Text>
-            </View>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Convenience fee</Text>
-              <Text style={styles.summaryValue}>₹{convenienceFee}</Text>
             </View>
             <View style={[styles.summaryRow, styles.summaryTotalRow]}>
               <Text style={styles.summaryTotalLabel}>Total</Text>

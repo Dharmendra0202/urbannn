@@ -1,13 +1,13 @@
 // app/services/details.tsx
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ServiceDetails() {
-  const { title, desc, color } = useLocalSearchParams();
+  const { title, desc, color, price } = useLocalSearchParams();
   const router = useRouter();
 
   return (
@@ -45,7 +45,7 @@ export default function ServiceDetails() {
               pathname: "/offers/mens-booking",
               params: {
                 service: String(title ?? "Home Service"),
-                amount: "499",
+                amount: String(price ?? "499"),
               },
             } as any)
           }

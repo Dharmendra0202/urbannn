@@ -1,18 +1,18 @@
-import React, { useMemo, useState } from "react";
-import {
-  Alert,
-  FlatList,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import React, { useMemo, useState } from "react";
+import {
+    Alert,
+    FlatList,
+    Modal,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { BookingStatus, ServiceBooking, useBookings } from "../../context/BookingsContext";
 
 type StatusMeta = {
@@ -385,6 +385,71 @@ export default function BookingsScreen() {
               </View>
             )}
 
+            {selectedBooking && getEffectiveStatus(selectedBooking) === "upcoming" && (
+              <View style={styles.modalActionsRow}>
+                <TouchableOpacity
+                  style={[styles.modalActionButton, styles.modalCancelButton]}
+                  onPress={() => {
+                    if (selectedBooking) {
+                      setSelectedBooking(null);
+                      handleCancel(selectedBooking);
+                    }
+                  }}
+                >
+                  <Ionicons name="close-circle-outline" size={18} color="#B91C1C" />
+                  <Text style={styles.modalCancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalActionButton, styles.modalCompleteButton]}
+                  onPress={() => {
+                    if (selectedBooking) {
+                      setSelectedBooking(null);
+                      handleComplete(selectedBooking);
+                    }
+                  }}
+                >
+                  <Ionicons name="checkmark-circle-outline" size={18} color="#166534" />
+                  <Text style={styles.modalCompleteButtonText}>Complete</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {selectedBooking && getEffectiveStatus(selectedBooking) === "completed" && (
+              <View style={styles.modalCompletedSection}>
+                <Text style={styles.modalRateLabel}>Rate this service</Text>
+                <View style={styles.modalRatingRow}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <TouchableOpacity
+                      key={star}
+                      onPress={() => {
+                        if (selectedBooking) {
+                          handleRate(selectedBooking.id, star);
+                        }
+                      }}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Ionicons
+                        name={star <= (selectedBooking.rating ?? 0) ? "star" : "star-outline"}
+                        size={28}
+                        color="#F59E0B"
+                        style={styles.modalStarIcon}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <TouchableOpacity
+                  style={styles.modalBookAgainButton}
+                  onPress={() => {
+                    setSelectedBooking(null);
+                    router.push("/categories");
+                  }}
+                >
+                  <Ionicons name="repeat-outline" size={20} color="#FFFFFF" />
+                  <Text style={styles.modalBookAgainButtonText}>Book Again</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             <TouchableOpacity style={styles.closeModalButton} onPress={() => setSelectedBooking(null)}>
               <Text style={styles.closeModalButtonText}>Close</Text>
             </TouchableOpacity>
@@ -622,6 +687,76 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#0F172A",
     fontWeight: "600",
+  },
+  modalActionsRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 16,
+  },
+  modalActionButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  modalCancelButton: {
+    backgroundColor: "#FEE2E2",
+    borderWidth: 1,
+    borderColor: "#FCA5A5",
+  },
+  modalCancelButtonText: {
+    color: "#B91C1C",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  modalCompleteButton: {
+    backgroundColor: "#DCFCE7",
+    borderWidth: 1,
+    borderColor: "#86EFAC",
+  },
+  modalCompleteButtonText: {
+    color: "#166534",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  modalCompletedSection: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: "#F8FAFC",
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  modalRateLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#475569",
+    marginBottom: 8,
+  },
+  modalRatingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  modalStarIcon: {
+    marginHorizontal: 4,
+  },
+  modalBookAgainButton: {
+    width: "100%",
+    backgroundColor: "#0F172A",
+    borderRadius: 12,
+    paddingVertical: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  modalBookAgainButtonText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
   },
   closeModalButton: {
     marginTop: 18,
