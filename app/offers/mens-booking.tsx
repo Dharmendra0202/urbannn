@@ -125,6 +125,12 @@ export default function MensBookingScreen() {
   const [selectedDateId, setSelectedDateId] = useState("date-0");
   const [selectedSlot, setSelectedSlot] = useState(slotOptions[0]);
   const [selectedPaymentId, setSelectedPaymentId] = useState("pay-1");
+  
+  // Payment details states
+  const [upiId, setUpiId] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvv, setCardCvv] = useState("");
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -404,24 +410,22 @@ export default function MensBookingScreen() {
             </ScrollView>
 
             <Text style={[styles.sectionTitle, styles.subSectionTitle]}>5. Select time slot</Text>
-            {slotOptions.map((item) => {
-              const active = selectedSlot === item;
+            <View style={styles.slotGrid}>
+              {slotOptions.map((item) => {
+                const active = selectedSlot === item;
 
-              return (
-                <TouchableOpacity
-                  key={item}
-                  style={[styles.optionCard, active && styles.optionCardActive]}
-                  onPress={() => setSelectedSlot(item)}
-                >
-                  <Text style={styles.optionTitle}>{item}</Text>
-                  <Ionicons
-                    name={active ? "radio-button-on" : "radio-button-off"}
-                    size={20}
-                    color={active ? "#0F766E" : "#64748B"}
-                  />
-                </TouchableOpacity>
-              );
-            })}
+                return (
+                  <TouchableOpacity
+                    key={item}
+                    style={[styles.slotCard, active && styles.slotCardActive]}
+                    onPress={() => setSelectedSlot(item)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[styles.slotText, active && styles.slotTextActive]}>{item}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
 
           <View style={styles.section}>
@@ -430,21 +434,103 @@ export default function MensBookingScreen() {
               const active = selectedPaymentId === item.id;
 
               return (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[styles.optionCard, active && styles.optionCardActive]}
-                  onPress={() => setSelectedPaymentId(item.id)}
-                >
-                  <View style={styles.optionTextWrapInline}>
-                    <Ionicons name={item.icon as any} size={18} color="#0F172A" />
-                    <Text style={styles.optionTitle}>{item.label}</Text>
-                  </View>
-                  <Ionicons
-                    name={active ? "radio-button-on" : "radio-button-off"}
-                    size={20}
-                    color={active ? "#0F766E" : "#64748B"}
-                  />
-                </TouchableOpacity>
+                <View key={item.id}>
+                  <TouchableOpacity
+                    style={[styles.optionCard, active && styles.optionCardActive]}
+                    onPress={() => setSelectedPaymentId(item.id)}
+                  >
+                    <View style={styles.optionTextWrapInline}>
+                      <Ionicons name={item.icon as any} size={18} color="#0F172A" />
+                      <Text style={styles.optionTitle}>{item.label}</Text>
+                    </View>
+                    <Ionicons
+                      name={active ? "radio-button-on" : "radio-button-off"}
+                      size={20}
+                      color={active ? "#0F766E" : "#64748B"}
+                    />
+                  </TouchableOpacity>
+                  
+                  {/* UPI Details */}
+                  {active && item.id === "pay-2" && (
+                    <View style={styles.paymentDetailsCard}>
+                      <Text style={styles.paymentDetailsLabel}>Enter UPI ID</Text>
+                      <TextInput
+                        value={upiId}
+                        onChangeText={setUpiId}
+                        placeholder="example@upi"
+                        placeholderTextColor="#94A3B8"
+                        style={styles.paymentInput}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                      />
+                      <Text style={styles.paymentHint}>
+                        Enter your UPI ID (e.g., yourname@paytm, yourname@gpay)
+                      </Text>
+                    </View>
+                  )}
+                  
+                  {/* Card Details */}
+                  {active && item.id === "pay-3" && (
+                    <View style={styles.paymentDetailsCard}>
+                      <Text style={styles.paymentDetailsLabel}>Card Number</Text>
+                      <TextInput
+                        value={cardNumber}
+                        onChangeText={(text) => {
+                          // Format card number with spaces
+                          const cleaned = text.replace(/\s/g, '');
+                          const formatted = cleaned.match(/.{1,4}/g)?.join(' ') || cleaned;
+                          setCardNumber(formatted);
+                        }}
+                        placeholder="1234 5678 9012 3456"
+                        placeholderTextColor="#94A3B8"
+                        style={styles.paymentInput}
+                        keyboardType="number-pad"
+                        maxLength={19}
+                      />
+                      
+                      <View style={styles.cardDetailsRow}>
+                        <View style={styles.cardDetailHalf}>
+                          <Text style={styles.paymentDetailsLabel}>Expiry (MM/YY)</Text>
+                          <TextInput
+                            value={cardExpiry}
+                            onChangeText={(text) => {
+                              // Format expiry as MM/YY
+                              const cleaned = text.replace(/\D/g, '');
+                              if (cleaned.length >= 2) {
+                                setCardExpiry(cleaned.slice(0, 2) + '/' + cleaned.slice(2, 4));
+                              } else {
+                                setCardExpiry(cleaned);
+                              }
+                            }}
+                            placeholder="MM/YY"
+                            placeholderTextColor="#94A3B8"
+                            style={styles.paymentInput}
+                            keyboardType="number-pad"
+                            maxLength={5}
+                          />
+                        </View>
+                        
+                        <View style={styles.cardDetailHalf}>
+                          <Text style={styles.paymentDetailsLabel}>CVV</Text>
+                          <TextInput
+                            value={cardCvv}
+                            onChangeText={setCardCvv}
+                            placeholder="123"
+                            placeholderTextColor="#94A3B8"
+                            style={styles.paymentInput}
+                            keyboardType="number-pad"
+                            maxLength={3}
+                            secureTextEntry
+                          />
+                        </View>
+                      </View>
+                      
+                      <Text style={styles.paymentHint}>
+                        Your card details are secure and encrypted
+                      </Text>
+                    </View>
+                  )}
+                </View>
               );
             })}
           </View>
@@ -712,5 +798,75 @@ const styles = StyleSheet.create({
     color: "#052E16",
     fontSize: 14,
     fontWeight: "800",
+  },
+  paymentDetailsCard: {
+    marginTop: 12,
+    marginHorizontal: 0,
+    padding: 16,
+    backgroundColor: "#F8FAFC",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+  },
+  paymentDetailsLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#0F172A",
+    marginBottom: 8,
+  },
+  paymentInput: {
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: "#0F172A",
+    marginBottom: 12,
+  },
+  paymentHint: {
+    fontSize: 12,
+    color: "#64748B",
+    marginTop: -6,
+  },
+  cardDetailsRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  cardDetailHalf: {
+    flex: 1,
+  },
+  slotGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 10,
+  },
+  slotCard: {
+    width: "48%",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1.5,
+    borderColor: "#E2E8F0",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  slotCardActive: {
+    backgroundColor: "#F0FDF4",
+    borderColor: "#10B981",
+    borderWidth: 2,
+  },
+  slotText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#475569",
+    textAlign: "center",
+  },
+  slotTextActive: {
+    color: "#047857",
+    fontWeight: "700",
   },
 });

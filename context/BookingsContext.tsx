@@ -1,4 +1,7 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+
+const BOOKINGS_STORAGE_KEY = "@urbannn_bookings";
 
 export type BookingStatus = "upcoming" | "completed" | "cancelled";
 
@@ -66,6 +69,43 @@ const generateBookingId = () =>
 
 export const BookingsProvider = ({ children }: { children: React.ReactNode }) => {
   const [bookings, setBookings] = useState<ServiceBooking[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load bookings from storage on mount
+  useEffect(() => {
+    const loadBookings = async () => {
+      try {
+        const stored = await AsyncStorage.getItem(BOOKINGS_STORAGE_KEY);
+        if (stored) {
+          const parsedBookings = JSON.parse(stored);
+          setBookings(parsedBookings);
+          console.log(`Loaded ${parsedBookings.length} bookings from storage`);
+        }
+      } catch (error) {
+        console.error("Error loading bookings:", error);
+      } finally {
+        setIsLoaded(true);
+      }
+    };
+
+    loadBookings();
+  }, []);
+
+  // Save bookings to storage whenever they change
+  useEffect(() => {
+    if (!isLoaded) return; // Don't save on initial load
+
+    const saveBookings = async () => {
+      try {
+        await AsyncStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(bookings));
+        console.log(`Saved ${bookings.length} bookings to storage`);
+      } catch (error) {
+        console.error("Error saving bookings:", error);
+      }
+    };
+
+    saveBookings();
+  }, [bookings, isLoaded]);
 
   const getEffectiveStatus = useCallback((booking: ServiceBooking): BookingStatus => {
     // Simply return the actual status - don't auto-complete based on time

@@ -5,18 +5,18 @@ import { useRouter } from "expo-router";
 import { MotiView } from "moti";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBookings } from "../../context/BookingsContext";
@@ -30,7 +30,7 @@ type ProfileData = {
 };
 
 type QuickAction = {
-  key: "bookings" | "addresses" | "payments" | "support" | "offers";
+  key: "bookings" | "addresses" | "payments" | "support" | "offers" | "admin";
   title: string;
   subtitle: string;
   icon: React.ComponentProps<typeof Ionicons>["name"];
@@ -240,6 +240,13 @@ export default function ProfileScreen() {
 
   const quickActions: QuickAction[] = [
     {
+      key: "admin",
+      title: "Admin Dashboard",
+      subtitle: "Manage bookings and services",
+      icon: "shield-checkmark-outline",
+      iconBg: "#FEE2E2",
+    },
+    {
       key: "bookings",
       title: "My Bookings",
       subtitle: `${insights.upcomingCount} upcoming services`,
@@ -277,6 +284,11 @@ export default function ProfileScreen() {
   ];
 
   const handleQuickAction = (key: QuickAction["key"]) => {
+    if (key === "admin") {
+      router.push("/admin/login" as any);
+      return;
+    }
+
     if (key === "bookings") {
       router.push("/bookings");
       return;

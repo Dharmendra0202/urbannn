@@ -1,9 +1,9 @@
-import "react-native-gesture-handler";
-import { Tabs } from "expo-router";
-import React from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
 import { MotiText, MotiView } from "moti";
+import React from "react";
 import { StyleSheet } from "react-native";
+import "react-native-gesture-handler";
 import { Easing } from "react-native-reanimated";
 
 type TabName = React.ComponentProps<typeof Ionicons>["name"];
@@ -17,10 +17,10 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: "#ffffff",
           borderTopWidth: 0,
-          height: 67,
+          height: 65,
           paddingTop: 8,
           paddingBottom: 10,
-          elevation: 14,
+          elevation: 12,
           shadowColor: "#0f172a",
           shadowOpacity: 0.08,
           shadowRadius: 12,
@@ -57,7 +57,7 @@ export default function TabsLayout() {
           ),
           tabBarIcon: ({ focused }) => (
             <AnimatedTabIcon
-              name={focused ? "grid" : "grid-outline"}
+              name={focused ? "apps" : "apps-outline"}
               accentColor="#3B82F6"
               focused={focused}
             />
@@ -73,7 +73,7 @@ export default function TabsLayout() {
           ),
           tabBarIcon: ({ focused }) => (
             <AnimatedTabIcon
-              name={focused ? "calendar" : "calendar-outline"}
+              name={focused ? "receipt" : "receipt-outline"}
               accentColor="#22C55E"
               focused={focused}
             />
@@ -89,7 +89,7 @@ export default function TabsLayout() {
           ),
           tabBarIcon: ({ focused }) => (
             <AnimatedTabIcon
-              name={focused ? "person" : "person-outline"}
+              name={focused ? "person-circle" : "person-circle-outline"}
               accentColor="#EC4899"
               focused={focused}
             />
@@ -112,63 +112,34 @@ function AnimatedTabIcon({
   return (
     <MotiView
       animate={{
-        scale: focused ? 1.06 : 1,
-        translateY: focused ? -1 : 0,
+        scale: focused ? 1.1 : 1,
+        translateY: focused ? -2 : 0,
       }}
       transition={{
-        type: "timing",
-        duration: 280,
-        easing: Easing.out(Easing.cubic),
+        type: "spring",
+        damping: 15,
+        stiffness: 180,
       }}
       style={styles.iconContainer}
     >
+      {/* Subtle icon animation */}
       <MotiView
         animate={{
-          opacity: focused ? 0.95 : 0,
-          scale: focused ? 1 : 0.68,
+          scale: focused ? [1, 1.08, 1] : 1,
         }}
         transition={{
           type: "timing",
-          duration: 320,
-          easing: Easing.out(Easing.exp),
+          duration: 400,
+          easing: Easing.out(Easing.ease),
         }}
-        style={[
-          styles.iconGlow,
-          {
-            backgroundColor: `${accentColor}24`,
-          },
-        ]}
-      />
-      <MotiView
-        animate={{
-          opacity: focused ? 0.55 : 0,
-          scale: focused ? 1.16 : 0.74,
-        }}
-        transition={{
-          type: "timing",
-          duration: 340,
-          easing: Easing.out(Easing.cubic),
-        }}
-        style={[styles.iconRing, { borderColor: `${accentColor}70` }]}
-      />
-      <Ionicons
-        name={name}
-        size={22}
-        color={focused ? accentColor : "#94A3B8"}
-        style={styles.icon}
-      />
-      <MotiView
-        animate={{
-          width: focused ? 18 : 6,
-          opacity: focused ? 1 : 0.45,
-        }}
-        transition={{
-          type: "timing",
-          duration: 300,
-          easing: Easing.out(Easing.cubic),
-        }}
-        style={[styles.activeLine, { backgroundColor: accentColor }]}
-      />
+      >
+        <Ionicons
+          name={name}
+          size={26}
+          color={focused ? accentColor : "#94A3B8"}
+          style={styles.icon}
+        />
+      </MotiView>
     </MotiView>
   );
 }
@@ -185,16 +156,16 @@ function AnimatedTabLabel({
   return (
     <MotiText
       animate={{
-        opacity: focused ? 1 : 0.75,
-        scale: focused ? 1 : 0.96,
-        translateY: focused ? 0 : 1,
+        opacity: focused ? 1 : 0.65,
+        scale: focused ? 1.05 : 1,
+        translateY: focused ? -1 : 0,
       }}
       transition={{
-        type: "timing",
-        duration: 280,
-        easing: Easing.out(Easing.cubic),
+        type: "spring",
+        damping: 16,
+        stiffness: 200,
       }}
-      style={[styles.label, { color: focused ? accentColor : "#94A3B8" }]}
+      style={[styles.label, { color: focused ? accentColor : "#64748B" }]}
     >
       {label}
     </MotiText>
@@ -203,36 +174,18 @@ function AnimatedTabLabel({
 
 const styles = StyleSheet.create({
   iconContainer: {
-    width: 56,
-    height: 36,
+    width: 50,
+    height: 38,
     alignItems: "center",
     justifyContent: "center",
-  },
-  iconGlow: {
-    position: "absolute",
-    width: 34,
-    height: 34,
-    borderRadius: 999,
-  },
-  iconRing: {
-    position: "absolute",
-    width: 34,
-    height: 34,
-    borderRadius: 999,
-    borderWidth: 1.4,
   },
   icon: {
     zIndex: 1,
   },
-  activeLine: {
-    position: "absolute",
-    bottom: -1,
-    height: 3,
-    borderRadius: 3,
-  },
   label: {
-    fontSize: 12,
-    fontWeight: "700",
+    fontSize: 11,
+    fontWeight: "600",
     letterSpacing: 0.2,
+    marginTop: 2,
   },
 });

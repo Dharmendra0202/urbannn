@@ -191,12 +191,6 @@ export default function BookingsScreen() {
             <Text style={styles.subtleActionText}>+1 Day</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.actionButton, styles.positiveActionButton]}
-            onPress={() => handleComplete(booking)}
-          >
-            <Text style={styles.positiveActionText}>Complete</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
             style={[styles.actionButton, styles.destructiveActionButton]}
             onPress={() => handleCancel(booking)}
           >
@@ -397,19 +391,7 @@ export default function BookingsScreen() {
                   }}
                 >
                   <Ionicons name="close-circle-outline" size={18} color="#B91C1C" />
-                  <Text style={styles.modalCancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.modalActionButton, styles.modalCompleteButton]}
-                  onPress={() => {
-                    if (selectedBooking) {
-                      setSelectedBooking(null);
-                      handleComplete(selectedBooking);
-                    }
-                  }}
-                >
-                  <Ionicons name="checkmark-circle-outline" size={18} color="#166534" />
-                  <Text style={styles.modalCompleteButtonText}>Complete</Text>
+                  <Text style={styles.modalCancelButtonText}>Cancel Booking</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -706,6 +688,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#FEE2E2",
     borderWidth: 1,
     borderColor: "#FCA5A5",
+    flex: 0,
+    width: "100%",
   },
   modalCancelButtonText: {
     color: "#B91C1C",
