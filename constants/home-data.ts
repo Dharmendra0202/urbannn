@@ -1,14 +1,14 @@
-import { imageAssets } from "./image-assets";
 import type {
-  CustomerReviewItem,
-  FooterSocialLink,
-  HorizontalItem,
-  OfferItem,
-  RebookItem,
-  SeasonalBundleItem,
-  ServiceItem,
-  WhyChooseItem,
+    CustomerReviewItem,
+    FooterSocialLink,
+    HorizontalItem,
+    OfferItem,
+    RebookItem,
+    SeasonalBundleItem,
+    ServiceItem,
+    WhyChooseItem,
 } from "../types/home";
+import { imageAssets } from "./image-assets";
 
 export const specialOffer = {
   id: "special1",
@@ -145,7 +145,7 @@ export const offers: OfferItem[] = [
     name: "AC Service & Cleaning",
     price: 899,
     rating: 4.8,
-    image: imageAssets.acServiceCleaningPng,
+    image: imageAssets.acServiceCleaning,
     discount: "26% OFF",
     eta: "50 min",
     tint: ["rgba(56,189,248,0.06)", "rgba(15,23,42,0.42)"],
@@ -288,7 +288,7 @@ export const seasonalBundles: SeasonalBundleItem[] = [
     subtitle: "AC service + full home cleaning",
     price: 1699,
     save: "Save 24%",
-    image: imageAssets.acServiceCleaningJpg,
+    image: imageAssets.acServiceCleaning,
     gradient: ["#0EA5E9", "#1D4ED8"],
   },
   {

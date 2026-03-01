@@ -6,7 +6,7 @@ const repairImages = {
   plumbing: imageAssets.plumbingFix,
   painting: imageAssets.wallPainting,
   wallMounting: imageAssets.wallDrilling,
-  electrical: imageAssets.acServiceCleaningJpg,
+  electrical: imageAssets.acServiceCleaning,
   curtain: imageAssets.homeService,
   doorLock: imageAssets.doorLockRepair,
 } as const;

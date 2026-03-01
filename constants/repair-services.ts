@@ -34,7 +34,7 @@ export const repairServices = [
     name: "Electrical Installation",
     price: 699,
     rating: 4.8,
-    image: imageAssets.acServiceCleaningJpg,
+    image: imageAssets.acServiceCleaning,
   },
   {
     id: "rp6",

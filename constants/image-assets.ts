@@ -8,10 +8,7 @@ export const imageAssets = {
   fullBodyMassage: resolveAssetUri(
     require("../assets/images/full-body-massage.jpg")
   ),
-  acServiceCleaningPng: resolveAssetUri(
-    require("../assets/images/ac-service-cleaning.png")
-  ),
-  acServiceCleaningJpg: resolveAssetUri(
+  acServiceCleaning: resolveAssetUri(
     require("../assets/images/ac-service-cleaning.jpg")
   ),
   refrigeratorRepair: resolveAssetUri(

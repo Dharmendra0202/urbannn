@@ -70,7 +70,7 @@ const images = {
   women: imageAssets.salonAtHomeWomen,
   men: imageAssets.mensSalon,
   spa: imageAssets.fullBodyMassage,
-  tech: imageAssets.acServiceCleaningPng,
+  tech: imageAssets.acServiceCleaning,
   appliance: imageAssets.refrigeratorRepair,
   home: imageAssets.homeService,
 } as const;

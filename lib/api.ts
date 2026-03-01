@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 
-const API_URL = 'http://192.168.0.100:3001/api'; // Backend running on port 3001
+const API_URL = 'https://urbannn-server.vercel.app/api'; // Backend deployed on Vercel
 
 // Helper to get auth token
 const getAuthToken = async () => {

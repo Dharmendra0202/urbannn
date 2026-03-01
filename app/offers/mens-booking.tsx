@@ -181,10 +181,10 @@ export default function MensBookingScreen() {
 
     try {
       console.log("Creating booking...");
-      console.log("API URL:", 'http://192.168.0.100:3001/api/bookings/guest/address');
+      console.log("API URL:", 'https://urbannn-server.vercel.app/api/bookings/guest/address');
 
       // Create address first (guest user flow)
-      const addressResponse = await fetch('http://192.168.0.100:3001/api/bookings/guest/address', {
+      const addressResponse = await fetch('https://urbannn-server.vercel.app/api/bookings/guest/address', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -214,7 +214,7 @@ export default function MensBookingScreen() {
 
       // Create booking
       console.log("Creating booking with service_id:", "650e8400-e29b-41d4-a716-446655440011");
-      const bookingResponse = await fetch('http://192.168.0.100:3001/api/bookings/guest', {
+      const bookingResponse = await fetch('https://urbannn-server.vercel.app/api/bookings/guest', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
