@@ -1,8 +1,11 @@
+import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
+import { makeRedirectUri } from 'expo-auth-session';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { MotiView } from 'moti';
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Alert,
     Dimensions,
@@ -13,20 +16,59 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+WebBrowser.maybeCompleteAuthSession();
+
 const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-  const handleGoogleLogin = () => {
-    Alert.alert(
-      'Google Login',
-      'Google login works in the built APK/IPA!\n\nFor now, you can continue as guest to test the app.',
-      [
-        { text: 'Continue as Guest', onPress: () => router.replace('/(tabs)') },
-        { text: 'OK' },
-      ]
-    );
+  const handleGoogleLogin = async () => {
+    try {
+      setLoading(true);
+      
+      const redirectUrl = makeRedirectUri({
+        scheme: 'urbannn',
+        path: 'auth/callback',
+      });
+
+      console.log('Redirect URL:', redirectUrl);
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: false,
+        },
+      });
+
+      if (error) {
+        console.error('Supabase error:', error);
+        Alert.alert('Error', error.message);
+        setLoading(false);
+        return;
+      }
+
+      if (data?.url) {
+        const result = await WebBrowser.openAuthSessionAsync(
+          data.url,
+          redirectUrl
+        );
+
+        if (result.type === 'success') {
+          console.log('Login successful!');
+          router.replace('/(tabs)');
+        } else if (result.type === 'cancel') {
+          Alert.alert('Cancelled', 'Login was cancelled');
+        }
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      Alert.alert('Error', error.message || 'Failed to sign in with Google');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const continueAsGuest = () => {
@@ -104,6 +146,7 @@ export default function LoginScreen() {
               style={styles.googleButton}
               onPress={handleGoogleLogin}
               activeOpacity={0.9}
+              disabled={loading}
             >
               <LinearGradient
                 colors={['#FFFFFF', '#FEF3F2']}
@@ -113,7 +156,7 @@ export default function LoginScreen() {
                   <Ionicons name="logo-google" size={26} color="#DB4437" />
                 </View>
                 <Text style={styles.googleButtonText}>
-                  Continue with Google
+                  {loading ? 'Opening Google...' : 'Continue with Google'}
                 </Text>
                 <Ionicons name="arrow-forward-circle" size={24} color="#8B5CF6" />
               </LinearGradient>
