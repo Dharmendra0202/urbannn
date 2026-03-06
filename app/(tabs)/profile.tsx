@@ -1,3 +1,4 @@
+import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system/legacy";
 import { LinearGradient } from "expo-linear-gradient";
@@ -94,10 +95,10 @@ export default function ProfileScreen() {
   const isDark = false;
 
   const [profile, setProfile] = useState<ProfileData>({
-    fullName: "Majnu",
-    email: "dv45564@gmail.com",
-    phone: "8383999973",
-    city: "Thane",
+    fullName: "Guest User",
+    email: "",
+    phone: "",
+    city: "Not set",
   });
 
   const [draftProfile, setDraftProfile] = useState(profile);
@@ -112,40 +113,59 @@ export default function ProfileScreen() {
   const [logoutEmail, setLogoutEmail] = useState(profile.email);
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [otpInput, setOtpInput] = useState("");
+  
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userSession, setUserSession] = useState<any>(null);
 
+  // Check for logged-in user
   useEffect(() => {
     let alive = true;
 
-    const hydrateProfile = async () => {
+    const loadUserSession = async () => {
       try {
-        const storageUri = getProfileStorageUri();
-        if (!storageUri) {
-          return;
-        }
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        console.log('=== PROFILE SESSION CHECK ===');
+        console.log('Session:', session ? 'Found' : 'Not found');
+        console.log('User:', session?.user?.email);
+        console.log('User metadata:', session?.user?.user_metadata);
+        
+        if (!alive) return;
 
-        const fileInfo = await FileSystem.getInfoAsync(storageUri);
-        if (!fileInfo.exists) {
-          return;
+        if (session?.user) {
+          setUserSession(session);
+          setIsLoggedIn(true);
+          
+          // Update profile with real user data from Google
+          const userData = session.user.user_metadata;
+          const newProfile = {
+            fullName: userData.full_name || userData.name || 'User',
+            email: session.user.email || '',
+            phone: userData.phone || '',
+            city: 'Not set', // User can update this
+          };
+          
+          console.log('Setting profile to:', newProfile);
+          setProfile(newProfile);
+          setDraftProfile(newProfile);
+        } else {
+          console.log('No session, loading from storage...');
+          // Try to load from local storage for guest users
+          const storageUri = getProfileStorageUri();
+          if (storageUri) {
+            const fileInfo = await FileSystem.getInfoAsync(storageUri);
+            if (fileInfo.exists) {
+              const rawData = await FileSystem.readAsStringAsync(storageUri);
+              const parsedData = JSON.parse(rawData) as PersistedProfileState;
+              if (alive && parsedData.profile) {
+                setProfile(parsedData.profile);
+                setDraftProfile(parsedData.profile);
+              }
+            }
+          }
         }
-
-        const rawData = await FileSystem.readAsStringAsync(storageUri);
-        const parsedData = JSON.parse(rawData) as PersistedProfileState;
-        if (!alive) {
-          return;
-        }
-
-        if (parsedData.profile) {
-          setProfile(parsedData.profile);
-          setDraftProfile(parsedData.profile);
-        }
-        if (typeof parsedData.notificationEnabled === "boolean") {
-          setNotificationEnabled(parsedData.notificationEnabled);
-        }
-        if (typeof parsedData.biometricEnabled === "boolean") {
-          setBiometricEnabled(parsedData.biometricEnabled);
-        }
-      } catch {
-        Alert.alert("Profile restore failed", "Using default profile values for now.");
+      } catch (error) {
+        console.error('Error loading user session:', error);
       } finally {
         if (alive) {
           setIsProfileLoaded(true);
@@ -153,10 +173,43 @@ export default function ProfileScreen() {
       }
     };
 
-    hydrateProfile();
+    loadUserSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('=== AUTH STATE CHANGED ===');
+      console.log('Event:', _event);
+      console.log('Session:', session ? 'Found' : 'Not found');
+      
+      if (!alive) return;
+      
+      if (session?.user) {
+        setUserSession(session);
+        setIsLoggedIn(true);
+        const userData = session.user.user_metadata;
+        const newProfile = {
+          fullName: userData.full_name || userData.name || 'User',
+          email: session.user.email || '',
+          phone: userData.phone || '',
+          city: profile.city || 'Not set',
+        };
+        console.log('Auth changed - setting profile to:', newProfile);
+        setProfile(newProfile);
+      } else {
+        setUserSession(null);
+        setIsLoggedIn(false);
+        setProfile({
+          fullName: "Guest User",
+          email: "",
+          phone: "",
+          city: "Not set",
+        });
+      }
+    });
 
     return () => {
       alive = false;
+      subscription.unsubscribe();
     };
   }, []);
 
@@ -371,17 +424,35 @@ export default function ProfileScreen() {
     Alert.alert("OTP Sent", `Demo OTP for testing: ${otp}`);
   };
 
-  const verifyOtpAndLogout = () => {
+  const verifyOtpAndLogout = async () => {
     if (otpInput.trim() !== generatedOtp) {
       Alert.alert("Invalid OTP", "Please enter the correct OTP.");
+      return;
+    }
+
+    // Sign out from Supabase
+    const { error } = await supabase.auth.signOut();
+    
+    if (error) {
+      Alert.alert("Error", "Failed to sign out. Please try again.");
       return;
     }
 
     setShowLogoutModal(false);
     setOtpInput("");
     setGeneratedOtp("");
+    setIsLoggedIn(false);
+    setUserSession(null);
+    
+    // Reset profile to guest
+    setProfile({
+      fullName: "Guest User",
+      email: "",
+      phone: "",
+      city: "Not set",
+    });
+    
     Alert.alert("Logged out", "You have been logged out successfully.");
-    router.replace("/");
   };
 
   return (
@@ -432,16 +503,26 @@ export default function ProfileScreen() {
               <Text style={styles.heroEmail}>{profile.email}</Text>
             </View>
 
-            {/* Sign In Button inside card - Transparent */}
-            <TouchableOpacity
-              style={styles.heroSignInButton}
-              onPress={() => router.push('/auth/login' as any)}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="logo-google" size={18} color="#FFFFFF" />
-              <Text style={styles.heroSignInText}>Sign in with Google</Text>
-              <Ionicons name="arrow-forward" size={16} color="rgba(255,255,255,0.8)" />
-            </TouchableOpacity>
+            {/* Sign In Button - Only show if not logged in */}
+            {!isLoggedIn && (
+              <TouchableOpacity
+                style={styles.heroSignInButton}
+                onPress={() => router.push('/auth/login' as any)}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="logo-google" size={18} color="#FFFFFF" />
+                <Text style={styles.heroSignInText}>Sign in with Google</Text>
+                <Ionicons name="arrow-forward" size={16} color="rgba(255,255,255,0.8)" />
+              </TouchableOpacity>
+            )}
+            
+            {/* Logged In Badge */}
+            {isLoggedIn && (
+              <View style={styles.loggedInBadge}>
+                <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+                <Text style={styles.loggedInText}>Signed in with Google</Text>
+              </View>
+            )}
           </LinearGradient>
         </View>
       </MotiView>
@@ -1039,5 +1120,23 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#FFFFFF",
     textAlign: "center",
+  },
+  loggedInBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(16, 185, 129, 0.2)",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginTop: 14,
+    gap: 8,
+    borderWidth: 1.5,
+    borderColor: "rgba(16, 185, 129, 0.4)",
+  },
+  loggedInText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#FFFFFF",
   },
 });

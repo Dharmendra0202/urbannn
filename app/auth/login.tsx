@@ -33,6 +33,7 @@ export default function LoginScreen() {
         path: 'auth/callback',
       });
 
+      console.log('=== GOOGLE LOGIN DEBUG ===');
       console.log('Redirect URL:', redirectUrl);
 
       const { data, error } = await supabase.auth.signInWithOAuth({
@@ -43,22 +44,67 @@ export default function LoginScreen() {
         },
       });
 
+      console.log('OAuth Response:', { data, error });
+
       if (error) {
         console.error('Supabase error:', error);
-        Alert.alert('Error', error.message);
+        Alert.alert('Error', `${error.message}\n\nCheck console for details`);
         setLoading(false);
         return;
       }
 
       if (data?.url) {
+        console.log('Opening OAuth URL:', data.url);
+        
         const result = await WebBrowser.openAuthSessionAsync(
           data.url,
           redirectUrl
         );
 
+        console.log('Browser result:', result);
+
         if (result.type === 'success') {
           console.log('Login successful!');
-          router.replace('/(tabs)');
+          console.log('Result URL:', result.url);
+          
+          // Extract tokens from URL hash
+          const url = result.url;
+          const hashIndex = url.indexOf('#');
+          
+          if (hashIndex !== -1) {
+            const hash = url.substring(hashIndex + 1);
+            const params = new URLSearchParams(hash);
+            
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+            
+            console.log('Access token found:', !!accessToken);
+            console.log('Refresh token found:', !!refreshToken);
+            
+            if (accessToken && refreshToken) {
+              // Set the session manually
+              const { data, error } = await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken,
+              });
+              
+              if (error) {
+                console.error('Error setting session:', error);
+                Alert.alert('Session Error', error.message);
+                return;
+              }
+              
+              console.log('Session set successfully!');
+              console.log('User:', data.session?.user?.email);
+              
+              // Navigate to home
+              router.replace('/(tabs)');
+            } else {
+              Alert.alert('Error', 'Could not extract tokens from login response');
+            }
+          } else {
+            Alert.alert('Error', 'Invalid login response format');
+          }
         } else if (result.type === 'cancel') {
           Alert.alert('Cancelled', 'Login was cancelled');
         }
