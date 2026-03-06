@@ -432,14 +432,16 @@ export default function ProfileScreen() {
               <Text style={styles.heroEmail}>{profile.email}</Text>
             </View>
 
-            {!!insights.nextBooking && (
-              <View style={styles.nextVisitPill}>
-                <Ionicons name="sparkles-outline" size={14} color="#E0F2FE" />
-                <Text style={styles.nextVisitText}>
-                  Next: {formatNextVisit(insights.nextBooking.scheduledAt, insights.nextBooking.slot)}
-                </Text>
-              </View>
-            )}
+            {/* Sign In Button inside card - Transparent */}
+            <TouchableOpacity
+              style={styles.heroSignInButton}
+              onPress={() => router.push('/auth/login' as any)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="logo-google" size={18} color="#FFFFFF" />
+              <Text style={styles.heroSignInText}>Sign in with Google</Text>
+              <Ionicons name="arrow-forward" size={16} color="rgba(255,255,255,0.8)" />
+            </TouchableOpacity>
           </LinearGradient>
         </View>
       </MotiView>
@@ -1017,5 +1019,25 @@ const styles = StyleSheet.create({
     color: "#334155",
     fontSize: 13,
     fontWeight: "700",
+  },
+  heroSignInButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginTop: 14,
+    gap: 8,
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+  },
+  heroSignInText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    textAlign: "center",
   },
 });
