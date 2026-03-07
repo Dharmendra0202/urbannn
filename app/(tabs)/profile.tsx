@@ -7,9 +7,7 @@ import { MotiView } from "moti";
 import React, { useEffect, useMemo, useState } from "react";
 import {
     Alert,
-    KeyboardAvoidingView,
     Modal,
-    Platform,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -17,7 +15,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBookings } from "../../context/BookingsContext";
@@ -107,12 +105,6 @@ export default function ProfileScreen() {
   const [notificationEnabled, setNotificationEnabled] = useState(true);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [isProfileLoaded, setIsProfileLoaded] = useState(false);
-
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [logoutStep, setLogoutStep] = useState<"email" | "otp">("email");
-  const [logoutEmail, setLogoutEmail] = useState(profile.email);
-  const [generatedOtp, setGeneratedOtp] = useState("");
-  const [otpInput, setOtpInput] = useState("");
   
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userSession, setUserSession] = useState<any>(null);
@@ -403,56 +395,43 @@ export default function ProfileScreen() {
     setShowEditModal(false);
   };
 
-  const openLogoutModal = () => {
-    setLogoutStep("email");
-    setLogoutEmail(profile.email);
-    setOtpInput("");
-    setGeneratedOtp("");
-    setShowLogoutModal(true);
-  };
+  const handleLogout = async () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            // Sign out from Supabase
+            const { error } = await supabase.auth.signOut();
+            
+            if (error) {
+              Alert.alert("Error", "Failed to sign out. Please try again.");
+              return;
+            }
 
-  const sendOtp = () => {
-    const email = logoutEmail.trim();
-    if (!email.includes("@")) {
-      Alert.alert("Invalid email", "Please enter a valid email address.");
-      return;
-    }
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(otp);
-    setLogoutStep("otp");
-    Alert.alert("OTP Sent", `Demo OTP for testing: ${otp}`);
-  };
-
-  const verifyOtpAndLogout = async () => {
-    if (otpInput.trim() !== generatedOtp) {
-      Alert.alert("Invalid OTP", "Please enter the correct OTP.");
-      return;
-    }
-
-    // Sign out from Supabase
-    const { error } = await supabase.auth.signOut();
-    
-    if (error) {
-      Alert.alert("Error", "Failed to sign out. Please try again.");
-      return;
-    }
-
-    setShowLogoutModal(false);
-    setOtpInput("");
-    setGeneratedOtp("");
-    setIsLoggedIn(false);
-    setUserSession(null);
-    
-    // Reset profile to guest
-    setProfile({
-      fullName: "Guest User",
-      email: "",
-      phone: "",
-      city: "Not set",
-    });
-    
-    Alert.alert("Logged out", "You have been logged out successfully.");
+            setIsLoggedIn(false);
+            setUserSession(null);
+            
+            // Reset profile to guest
+            setProfile({
+              fullName: "Guest User",
+              email: "",
+              phone: "",
+              city: "Not set",
+            });
+            
+            Alert.alert("Logged out", "You have been logged out successfully.");
+          }
+        }
+      ]
+    );
   };
 
   return (
@@ -644,7 +623,7 @@ export default function ProfileScreen() {
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ delay: 430, type: "timing", duration: 450 }}
       >
-        <TouchableOpacity style={styles.logoutButton} onPress={openLogoutModal}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <LinearGradient
             colors={["#FEE2E2", "#FECACA"]}
             start={{ x: 0, y: 0 }}
@@ -652,7 +631,7 @@ export default function ProfileScreen() {
             style={styles.logoutGradient}
           >
             <Ionicons name="log-out-outline" size={20} color="#B91C1C" />
-            <Text style={styles.logoutText}>Secure Logout</Text>
+            <Text style={styles.logoutText}>Logout</Text>
           </LinearGradient>
         </TouchableOpacity>
       </MotiView>
@@ -711,68 +690,7 @@ export default function ProfileScreen() {
         </Pressable>
       </Modal>
 
-      <Modal
-        visible={showLogoutModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowLogoutModal(false)}
-      >
-        <Pressable style={styles.modalBackdrop} onPress={() => setShowLogoutModal(false)}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : undefined}
-            style={styles.modalKeyboardWrap}
-          >
-            <Pressable
-              style={[styles.modalCard, { backgroundColor: palette.cardBg, borderColor: palette.border }]}
-              onPress={() => undefined}
-            >
-              <Text style={[styles.modalTitle, { color: palette.textPrimary }]}>Verify Before Logout</Text>
-              <Text style={[styles.modalSubtitle, { color: palette.textSecondary }]}>For account security, confirm with email OTP.</Text>
 
-              {logoutStep === "email" ? (
-                <>
-                  <TextInput
-                    style={[styles.input, { color: palette.textPrimary, borderColor: palette.border, backgroundColor: palette.inputBg }]}
-                    placeholder="Enter your email"
-                    placeholderTextColor={palette.textSecondary}
-                    value={logoutEmail}
-                    onChangeText={setLogoutEmail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                  />
-                  <TouchableOpacity style={styles.primaryModalButton} onPress={sendOtp}>
-                    <Text style={styles.primaryModalButtonText}>Send OTP</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <>
-                  <TextInput
-                    style={[styles.input, { color: palette.textPrimary, borderColor: palette.border, backgroundColor: palette.inputBg }]}
-                    placeholder="Enter 6-digit OTP"
-                    placeholderTextColor={palette.textSecondary}
-                    keyboardType="numeric"
-                    value={otpInput}
-                    onChangeText={setOtpInput}
-                    maxLength={6}
-                  />
-                  <TouchableOpacity style={styles.primaryModalButton} onPress={verifyOtpAndLogout}>
-                    <Text style={styles.primaryModalButtonText}>Verify & Logout</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.secondaryModalButton}
-                    onPress={() => {
-                      setLogoutStep("email");
-                      setOtpInput("");
-                    }}
-                  >
-                    <Text style={styles.secondaryModalButtonText}>Change Email</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </Pressable>
-          </KeyboardAvoidingView>
-        </Pressable>
-      </Modal>
     </ScrollView>
   );
 }

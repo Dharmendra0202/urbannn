@@ -91,22 +91,29 @@ export default function LoginScreen() {
               if (error) {
                 console.error('Error setting session:', error);
                 Alert.alert('Session Error', error.message);
+                setLoading(false);
                 return;
               }
               
               console.log('Session set successfully!');
               console.log('User:', data.session?.user?.email);
               
+              // Small delay to ensure session is saved
+              await new Promise(resolve => setTimeout(resolve, 300));
+              
               // Navigate to home
               router.replace('/(tabs)');
             } else {
               Alert.alert('Error', 'Could not extract tokens from login response');
+              setLoading(false);
             }
           } else {
             Alert.alert('Error', 'Invalid login response format');
+            setLoading(false);
           }
         } else if (result.type === 'cancel') {
           Alert.alert('Cancelled', 'Login was cancelled');
+          setLoading(false);
         }
       }
     } catch (error: any) {
