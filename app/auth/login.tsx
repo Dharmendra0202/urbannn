@@ -172,31 +172,20 @@ export default function LoginScreen() {
         <View style={styles.content}>
           {/* Logo/Icon Area */}
           <MotiView
-            from={{ scale: 0.5, opacity: 0, rotate: '-180deg' }}
-            animate={{ scale: 1, opacity: 1, rotate: '0deg' }}
+            from={{ opacity: 0, translateY: -20 }}
+            animate={{ opacity: 1, translateY: 0 }}
             transition={{ 
-              type: 'spring',
-              damping: 15,
-              stiffness: 100,
+              type: 'timing',
+              duration: 600,
             }}
             style={styles.logoContainer}
           >
-            <MotiView
-              from={{ scale: 1 }}
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{
-                type: 'timing',
-                duration: 2000,
-                loop: true,
-              }}
+            <LinearGradient
+              colors={['#FFFFFF', '#F0ABFC']}
+              style={styles.iconCircle}
             >
-              <LinearGradient
-                colors={['#FFFFFF', '#F0ABFC']}
-                style={styles.iconCircle}
-              >
-                <Ionicons name="home" size={60} color="#8B5CF6" />
-              </LinearGradient>
-            </MotiView>
+              <Ionicons name="home" size={48} color="#8B5CF6" />
+            </LinearGradient>
             <Text style={styles.appName}>Urbannn</Text>
             <Text style={styles.tagline}>Home Services at Your Doorstep</Text>
           </MotiView>
@@ -333,35 +322,35 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   iconCircle: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
-    borderWidth: 4,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
+    marginBottom: 20,
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
   },
   appName: {
-    fontSize: 48,
+    fontSize: 42,
     fontWeight: '900',
     color: '#FFFFFF',
-    marginBottom: 8,
-    letterSpacing: 2,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    marginBottom: 6,
+    letterSpacing: 1.5,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
     textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
+    textShadowRadius: 6,
   },
   tagline: {
-    fontSize: 17,
+    fontSize: 15,
     color: '#FFFFFF',
     fontWeight: '600',
-    opacity: 0.95,
+    opacity: 0.9,
   },
   loginContainer: {
     width: '100%',
