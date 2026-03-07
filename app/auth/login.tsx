@@ -172,17 +172,31 @@ export default function LoginScreen() {
         <View style={styles.content}>
           {/* Logo/Icon Area */}
           <MotiView
-            from={{ translateY: -50, opacity: 0 }}
-            animate={{ translateY: 0, opacity: 1 }}
-            transition={{ type: 'timing', duration: 800 }}
+            from={{ scale: 0.5, opacity: 0, rotate: '-180deg' }}
+            animate={{ scale: 1, opacity: 1, rotate: '0deg' }}
+            transition={{ 
+              type: 'spring',
+              damping: 15,
+              stiffness: 100,
+            }}
             style={styles.logoContainer}
           >
-            <LinearGradient
-              colors={['#FFFFFF', '#F0ABFC']}
-              style={styles.iconCircle}
+            <MotiView
+              from={{ scale: 1 }}
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{
+                type: 'timing',
+                duration: 2000,
+                loop: true,
+              }}
             >
-              <Ionicons name="home" size={60} color="#8B5CF6" />
-            </LinearGradient>
+              <LinearGradient
+                colors={['#FFFFFF', '#F0ABFC']}
+                style={styles.iconCircle}
+              >
+                <Ionicons name="home" size={60} color="#8B5CF6" />
+              </LinearGradient>
+            </MotiView>
             <Text style={styles.appName}>Urbannn</Text>
             <Text style={styles.tagline}>Home Services at Your Doorstep</Text>
           </MotiView>
@@ -355,15 +369,10 @@ const styles = StyleSheet.create({
   googleButton: {
     borderRadius: 16,
     marginBottom: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
   },
   googleButtonContent: {
     flexDirection: 'row',
@@ -382,7 +391,7 @@ const styles = StyleSheet.create({
   infoBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -415,22 +424,23 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   guestButton: {
-    borderRadius: 18,
+    borderRadius: 16,
     marginBottom: 28,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
   guestButtonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
+    paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 16,
   },
   guestButtonText: {
-    fontSize: 17,
-    fontWeight: '800',
+    fontSize: 16,
+    fontWeight: '700',
     color: '#FFFFFF',
     marginLeft: 10,
   },
