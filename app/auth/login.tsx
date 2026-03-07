@@ -194,32 +194,26 @@ export default function LoginScreen() {
             transition={{ type: 'timing', duration: 800, delay: 200 }}
             style={styles.loginContainer}
           >
-            {/* Google Login Button - Wider */}
+            {/* Google Login Button - Slim & Professional */}
             <TouchableOpacity
               style={styles.googleButton}
               onPress={handleGoogleLogin}
-              activeOpacity={0.9}
+              activeOpacity={0.8}
               disabled={loading}
             >
-              <LinearGradient
-                colors={['#FFFFFF', '#FEF3F2']}
-                style={styles.googleButtonGradient}
-              >
-                <View style={styles.googleIconContainer}>
-                  <Ionicons name="logo-google" size={26} color="#DB4437" />
-                </View>
+              <View style={styles.googleButtonContent}>
+                <Ionicons name="logo-google" size={20} color="#FFFFFF" />
                 <Text style={styles.googleButtonText}>
-                  {loading ? 'Opening Google...' : 'Continue with Google'}
+                  {loading ? 'Signing in...' : 'Continue with Google'}
                 </Text>
-                <Ionicons name="arrow-forward-circle" size={24} color="#8B5CF6" />
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
 
             {/* Info Box */}
             <View style={styles.infoBox}>
-              <Ionicons name="sparkles" size={18} color="#FDE047" />
+              <Ionicons name="information-circle" size={16} color="rgba(255, 255, 255, 0.9)" />
               <Text style={styles.infoText}>
-                Google login works in the built APK. Use guest mode in Expo Go.
+                Secure authentication powered by Google
               </Text>
             </View>
 
@@ -359,60 +353,49 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   googleButton: {
-    borderRadius: 18,
+    borderRadius: 16,
     marginBottom: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  googleButtonGradient: {
+  googleButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 18,
-    paddingHorizontal: 24,
-    borderRadius: 18,
-  },
-  googleIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#DB4437',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    gap: 12,
   },
   googleButtonText: {
-    flex: 1,
-    fontSize: 17,
-    fontWeight: '800',
-    color: '#1F2937',
-    textAlign: 'center',
-    marginHorizontal: 12,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
   },
   infoBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
     marginBottom: 24,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.35)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   infoText: {
     flex: 1,
-    fontSize: 13,
-    color: '#FFFFFF',
-    marginLeft: 12,
-    lineHeight: 19,
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginLeft: 10,
+    lineHeight: 16,
     fontWeight: '600',
   },
   divider: {
