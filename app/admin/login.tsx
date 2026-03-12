@@ -16,7 +16,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Simple admin credentials (in production, use secure authentication)
-const ADMIN_USERNAME = "dharmendra";
+const ADMIN_USERNAME = "Ayush sharma";
 const ADMIN_PASSWORD = "majnu@2909";
 
 export default function AdminLogin() {
