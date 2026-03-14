@@ -1,17 +1,19 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
+import * as LocalAuthentication from "expo-local-authentication";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -19,12 +21,23 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const ADMIN_USERNAME = "Ayush sharma";
 const ADMIN_PASSWORD = "majnu@2909";
 
+// Key used to confirm biometric was set up BY the admin on this device
+const ADMIN_BIOMETRIC_KEY = "admin_biometric_enabled";
+
 export default function AdminLogin() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+
+  useEffect(() => {
+    // Only show biometric button if admin explicitly enabled it on this device
+    AsyncStorage.getItem(ADMIN_BIOMETRIC_KEY).then((val) => {
+      setBiometricAvailable(val === "true");
+    });
+  }, []);
 
   const handleLogin = () => {
     if (!username.trim() || !password.trim()) {
@@ -34,18 +47,42 @@ export default function AdminLogin() {
 
     setLoading(true);
 
-    // Simulate authentication delay
     setTimeout(() => {
       const enteredUsername = username.trim();
       const enteredPassword = password.trim();
-      
-      console.log("Entered username:", enteredUsername);
-      console.log("Entered password:", enteredPassword);
-      console.log("Expected username:", ADMIN_USERNAME);
-      console.log("Expected password:", ADMIN_PASSWORD);
-      
+
       if (enteredUsername === ADMIN_USERNAME && enteredPassword === ADMIN_PASSWORD) {
-        // Success - navigate to dashboard
+        // First successful password login — offer to enable biometric for next time
+        AsyncStorage.getItem(ADMIN_BIOMETRIC_KEY).then(async (val) => {
+          if (val !== "true") {
+            const hasHardware = await LocalAuthentication.hasHardwareAsync();
+            const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+            if (hasHardware && isEnrolled) {
+              Alert.alert(
+                "Enable Biometric Login?",
+                "Use your fingerprint or Face ID to log in as admin next time.",
+                [
+                  { text: "Not now", style: "cancel" },
+                  {
+                    text: "Enable",
+                    onPress: async () => {
+                      // Verify once more before saving
+                      const result = await LocalAuthentication.authenticateAsync({
+                        promptMessage: "Confirm your biometric to enable admin access",
+                        fallbackLabel: "Use passcode",
+                        cancelLabel: "Cancel",
+                        disableDeviceFallback: false,
+                      });
+                      if (result.success) {
+                        await AsyncStorage.setItem(ADMIN_BIOMETRIC_KEY, "true");
+                      }
+                    },
+                  },
+                ]
+              );
+            }
+          }
+        });
         router.replace("/admin/dashboard" as any);
       } else {
         Alert.alert("Login Failed", "Invalid username or password");
@@ -53,6 +90,32 @@ export default function AdminLogin() {
       }
       setLoading(false);
     }, 500);
+  };
+
+  const handleBiometricLogin = async () => {
+    // Double-check the flag — only proceed if admin set this up
+    const enabled = await AsyncStorage.getItem(ADMIN_BIOMETRIC_KEY);
+    if (enabled !== "true") {
+      Alert.alert("Not set up", "Biometric admin login has not been enabled on this device.");
+      return;
+    }
+
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: "Authenticate to access Admin Dashboard",
+      fallbackLabel: "Use password instead",
+      cancelLabel: "Cancel",
+      // Require device biometrics only — no device passcode fallback as primary
+      disableDeviceFallback: false,
+    });
+
+    if (result.success) {
+      // Biometric passed — grant access (credentials were verified when biometric was set up)
+      router.replace("/admin/dashboard" as any);
+    } else if (result.error === "user_cancel") {
+      // User cancelled — do nothing
+    } else {
+      Alert.alert("Authentication failed", "Biometric not recognised. Use your password.");
+    }
   };
 
   return (
@@ -140,6 +203,18 @@ export default function AdminLogin() {
               <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
             </LinearGradient>
           </TouchableOpacity>
+
+          {/* Biometric Login — only shown if admin enabled it on this device */}
+          {biometricAvailable && (
+            <TouchableOpacity
+              style={styles.biometricButton}
+              onPress={handleBiometricLogin}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="finger-print-outline" size={22} color="#EF4444" />
+              <Text style={styles.biometricText}>Use Biometric Login</Text>
+            </TouchableOpacity>
+          )}
 
           {/* Info */}
           <View style={styles.infoBox}>
@@ -261,5 +336,22 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 13,
     color: "#64748B",
+  },
+  biometricButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 14,
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: "#FECACA",
+    backgroundColor: "#FFF5F5",
+  },
+  biometricText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#EF4444",
   },
 });

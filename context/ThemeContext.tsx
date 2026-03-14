@@ -1,7 +1,5 @@
 // app/context/ThemeContext.tsx
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { Appearance } from "react-native";
-
+import React, { createContext, ReactNode, useContext, useState } from "react";
 type Theme = "light" | "dark";
 
 interface ThemeContextType {
@@ -12,15 +10,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const systemTheme = Appearance.getColorScheme() as Theme;
-  const [theme, setTheme] = useState<Theme>(systemTheme || "light");
-
-  useEffect(() => {
-    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
-      setTheme(colorScheme === "dark" ? "dark" : "light");
-    });
-    return () => subscription.remove();
-  }, []);
+  const [theme, setTheme] = useState<Theme>("light");
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));

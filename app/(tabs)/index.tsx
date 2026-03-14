@@ -972,7 +972,11 @@ const HomeScreen: React.FC = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.bundleListContent}
           renderItem={({ item }) => (
-            <TouchableOpacity activeOpacity={0.9} style={styles.bundleCard}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={styles.bundleCard}
+              onPress={() => item.route && router.push(item.route as any)}
+            >
               <Image source={{ uri: item.image }} style={styles.bundleImage} />
               <LinearGradient
                 colors={["rgba(2,6,23,0.2)", "rgba(2,6,23,0.72)"]}

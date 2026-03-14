@@ -73,6 +73,18 @@ const getNextDayLabel = (date: Date) =>
 
 export default function BookingsScreen() {
   const router = useRouter();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const colors = {
+    bg: isDark ? "#0F172A" : "#F8FAFC",
+    card: isDark ? "#1E293B" : "#FFFFFF",
+    border: isDark ? "#334155" : "#E2E8F0",
+    text: isDark ? "#F1F5F9" : "#0F172A",
+    subtext: isDark ? "#94A3B8" : "#64748B",
+    input: isDark ? "#1E293B" : "#FFFFFF",
+    modalBg: isDark ? "#1E293B" : "#FFFFFF",
+    modalSection: isDark ? "#0F172A" : "#F8FAFC",
+  };
   const {
     getBookingsByStatus,
     getEffectiveStatus,
@@ -234,11 +246,11 @@ export default function BookingsScreen() {
     return (
       <TouchableOpacity
         activeOpacity={0.9}
-        style={styles.card}
+        style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
         onPress={() => setSelectedBooking(item)}
       >
         <View style={styles.cardHeader}>
-          <Text style={styles.serviceName}>{item.serviceName}</Text>
+          <Text style={[styles.serviceName, { color: colors.text }]}>{item.serviceName}</Text>
           <View style={[styles.statusPill, { backgroundColor: statusMeta.softBg }]}>
             <Ionicons name={statusMeta.icon} size={13} color={statusMeta.color} />
             <Text style={[styles.statusText, { color: statusMeta.color }]}>{statusMeta.label}</Text>
@@ -246,22 +258,22 @@ export default function BookingsScreen() {
         </View>
 
         <View style={styles.metaRow}>
-          <Ionicons name="calendar-outline" size={14} color="#64748B" />
-          <Text style={styles.metaText}>{formatVisitDate(item.scheduledAt)}</Text>
-          <Text style={styles.dot}>•</Text>
-          <Text style={styles.metaText}>₹{item.totalAmount}</Text>
+          <Ionicons name="calendar-outline" size={14} color={colors.subtext} />
+          <Text style={[styles.metaText, { color: colors.subtext }]}>{formatVisitDate(item.scheduledAt)}</Text>
+          <Text style={[styles.dot, { color: colors.border }]}>•</Text>
+          <Text style={[styles.metaText, { color: colors.subtext }]}>₹{item.totalAmount}</Text>
         </View>
 
         <View style={styles.metaRow}>
-          <Ionicons name="location-outline" size={14} color="#64748B" />
-          <Text style={styles.metaText} numberOfLines={1}>
+          <Ionicons name="location-outline" size={14} color={colors.subtext} />
+          <Text style={[styles.metaText, { color: colors.subtext }]} numberOfLines={1}>
             {item.address}
           </Text>
         </View>
 
         <View style={styles.metaRow}>
-          <Ionicons name="person-outline" size={14} color="#64748B" />
-          <Text style={styles.metaText}>{item.professionalName}</Text>
+          <Ionicons name="person-outline" size={14} color={colors.subtext} />
+          <Text style={[styles.metaText, { color: colors.subtext }]}>{item.professionalName}</Text>
         </View>
 
         {renderActions(item, status)}
@@ -272,22 +284,22 @@ export default function BookingsScreen() {
   const hasSearch = searchQuery.trim().length > 0;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <View style={styles.headerWrap}>
-        <Text style={styles.title}>My Bookings</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.text }]}>My Bookings</Text>
+        <Text style={[styles.subtitle, { color: colors.subtext }]}>
           {counts.upcoming} upcoming • {counts.completed} completed • {counts.cancelled} cancelled
         </Text>
       </View>
 
-      <View style={styles.searchBox}>
-        <Ionicons name="search-outline" size={16} color="#64748B" />
+      <View style={[styles.searchBox, { backgroundColor: colors.input, borderColor: colors.border }]}>
+        <Ionicons name="search-outline" size={16} color={colors.subtext} />
         <TextInput
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholder="Search by service, area, or professional"
-          placeholderTextColor="#94A3B8"
-          style={styles.searchInput}
+          placeholderTextColor={isDark ? "#475569" : "#94A3B8"}
+          style={[styles.searchInput, { color: colors.text }]}
         />
       </View>
 
@@ -323,10 +335,10 @@ export default function BookingsScreen() {
         ListEmptyComponent={
           <View style={styles.emptyWrap}>
             <Ionicons name={STATUS_META[activeTab].icon} size={42} color="#94A3B8" />
-            <Text style={styles.emptyTitle}>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>
               {hasSearch ? "No match found" : `No ${STATUS_META[activeTab].label.toLowerCase()} bookings`}
             </Text>
-            <Text style={styles.emptyText}>
+            <Text style={[styles.emptyText, { color: colors.subtext }]}>
               {hasSearch
                 ? "Try searching with a service name or area."
                 : "Once you confirm a service booking, it will appear here automatically."}
@@ -345,37 +357,37 @@ export default function BookingsScreen() {
 
       <Modal visible={!!selectedBooking} transparent animationType="slide" onRequestClose={() => setSelectedBooking(null)}>
         <Pressable style={styles.modalBackdrop} onPress={() => setSelectedBooking(null)}>
-          <Pressable style={styles.modalCard}>
-            <Text style={styles.modalTitle}>{selectedBooking?.serviceName}</Text>
+          <Pressable style={[styles.modalCard, { backgroundColor: colors.modalBg }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>{selectedBooking?.serviceName}</Text>
 
             <View style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Visit</Text>
-              <Text style={styles.modalValue}>{selectedBooking?.dateLabel} • {selectedBooking?.slot}</Text>
+              <Text style={[styles.modalLabel, { color: colors.subtext }]}>Visit</Text>
+              <Text style={[styles.modalValue, { color: colors.text }]}>{selectedBooking?.dateLabel} • {selectedBooking?.slot}</Text>
             </View>
             <View style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Address</Text>
-              <Text style={styles.modalValue}>{selectedBooking?.address}</Text>
+              <Text style={[styles.modalLabel, { color: colors.subtext }]}>Address</Text>
+              <Text style={[styles.modalValue, { color: colors.text }]}>{selectedBooking?.address}</Text>
             </View>
             <View style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Customer</Text>
-              <Text style={styles.modalValue}>{selectedBooking?.customerName} ({selectedBooking?.phone})</Text>
+              <Text style={[styles.modalLabel, { color: colors.subtext }]}>Customer</Text>
+              <Text style={[styles.modalValue, { color: colors.text }]}>{selectedBooking?.customerName} ({selectedBooking?.phone})</Text>
             </View>
             <View style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Professional</Text>
-              <Text style={styles.modalValue}>{selectedBooking?.professionalName}</Text>
+              <Text style={[styles.modalLabel, { color: colors.subtext }]}>Professional</Text>
+              <Text style={[styles.modalValue, { color: colors.text }]}>{selectedBooking?.professionalName}</Text>
             </View>
             <View style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Payment</Text>
-              <Text style={styles.modalValue}>{selectedBooking?.paymentLabel}</Text>
+              <Text style={[styles.modalLabel, { color: colors.subtext }]}>Payment</Text>
+              <Text style={[styles.modalValue, { color: colors.text }]}>{selectedBooking?.paymentLabel}</Text>
             </View>
             <View style={styles.modalItem}>
-              <Text style={styles.modalLabel}>Total</Text>
-              <Text style={styles.modalValue}>₹{selectedBooking?.totalAmount}</Text>
+              <Text style={[styles.modalLabel, { color: colors.subtext }]}>Total</Text>
+              <Text style={[styles.modalValue, { color: colors.text }]}>₹{selectedBooking?.totalAmount}</Text>
             </View>
             {!!selectedBooking?.notes && (
               <View style={styles.modalItem}>
-                <Text style={styles.modalLabel}>Notes</Text>
-                <Text style={styles.modalValue}>{selectedBooking.notes}</Text>
+                <Text style={[styles.modalLabel, { color: colors.subtext }]}>Notes</Text>
+                <Text style={[styles.modalValue, { color: colors.text }]}>{selectedBooking.notes}</Text>
               </View>
             )}
 
@@ -397,8 +409,8 @@ export default function BookingsScreen() {
             )}
 
             {selectedBooking && getEffectiveStatus(selectedBooking) === "completed" && (
-              <View style={styles.modalCompletedSection}>
-                <Text style={styles.modalRateLabel}>Rate this service</Text>
+              <View style={[styles.modalCompletedSection, { backgroundColor: colors.modalSection }]}>
+                <Text style={[styles.modalRateLabel, { color: colors.subtext }]}>Rate this service</Text>
                 <View style={styles.modalRatingRow}>
                   {[1, 2, 3, 4, 5].map((star) => (
                     <TouchableOpacity

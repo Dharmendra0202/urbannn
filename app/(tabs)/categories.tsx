@@ -1,21 +1,21 @@
-import React, { useMemo, useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-  ImageBackground,
-  FlatList,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { MotiView } from "moti";
+import React, { useMemo, useState } from "react";
+import {
+    FlatList,
+    ImageBackground,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    useWindowDimensions,
+    View,
+} from "react-native";
 import { Easing } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type FilterKey = "All" | "Cleaning" | "Repair" | "Salon" | "Electrical";
 
@@ -176,6 +176,18 @@ const dealCards = [
 export default function CategoriesScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const colors = {
+    bg: isDark ? "#0F172A" : "#F8FAFC",
+    card: isDark ? "#1E293B" : "#FFFFFF",
+    border: isDark ? "#334155" : "#E2E8F0",
+    text: isDark ? "#F1F5F9" : "#0F172A",
+    subtext: isDark ? "#94A3B8" : "#64748B",
+    input: isDark ? "#1E293B" : "#FFFFFF",
+    filterChip: isDark ? "#1E293B" : "#EEF2FF",
+    filterText: isDark ? "#A5B4FC" : "#3730A3",
+  };
   const [selectedFilter, setSelectedFilter] = useState<FilterKey>("All");
   const [query, setQuery] = useState("");
 
@@ -198,7 +210,7 @@ export default function CategoriesScreen() {
   }, [query, selectedFilter]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.bg }]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -222,14 +234,14 @@ export default function CategoriesScreen() {
           </TouchableOpacity>
         </LinearGradient>
 
-        <View style={styles.searchWrap}>
-          <Ionicons name="search-outline" size={18} color="#64748B" />
+        <View style={[styles.searchWrap, { backgroundColor: colors.input, borderColor: colors.border }]}>
+          <Ionicons name="search-outline" size={18} color={colors.subtext} />
           <TextInput
             value={query}
             onChangeText={setQuery}
             placeholder="Search categories or services"
-            placeholderTextColor="#94A3B8"
-            style={styles.searchInput}
+            placeholderTextColor={isDark ? "#475569" : "#94A3B8"}
+            style={[styles.searchInput, { color: colors.text }]}
           />
           {query.length > 0 ? (
             <TouchableOpacity onPress={() => setQuery("")}>
@@ -245,9 +257,9 @@ export default function CategoriesScreen() {
               <TouchableOpacity
                 key={filter}
                 onPress={() => setSelectedFilter(filter)}
-                style={[styles.filterChip, active && styles.filterChipActive]}
+                style={[styles.filterChip, { backgroundColor: active ? "#4F46E5" : colors.filterChip }]}
               >
-                <Text style={[styles.filterText, active && styles.filterTextActive]}>
+                <Text style={[styles.filterText, { color: active ? "#FFFFFF" : colors.filterText }]}>
                   {filter}
                 </Text>
               </TouchableOpacity>
@@ -256,8 +268,8 @@ export default function CategoriesScreen() {
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Popular Categories</Text>
-          <Text style={styles.sectionMeta}>{filteredCategories.length} found</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Popular Categories</Text>
+          <Text style={[styles.sectionMeta, { color: colors.subtext }]}>{filteredCategories.length} found</Text>
         </View>
 
         <View style={styles.grid}>
@@ -280,7 +292,7 @@ export default function CategoriesScreen() {
             >
               <TouchableOpacity
                 activeOpacity={0.9}
-                style={styles.categoryCard}
+                style={[styles.categoryCard, { backgroundColor: colors.card, borderColor: colors.border }]}
                 onPress={() => router.push(item.route as any)}
               >
                 <LinearGradient
@@ -291,8 +303,8 @@ export default function CategoriesScreen() {
                 >
                   <Ionicons name={item.icon} size={22} color="#FFFFFF" />
                 </LinearGradient>
-                <Text style={styles.categoryTitle}>{item.title}</Text>
-                <Text numberOfLines={2} style={styles.categorySub}>
+                <Text style={[styles.categoryTitle, { color: colors.text }]}>{item.title}</Text>
+                <Text numberOfLines={2} style={[styles.categorySub, { color: colors.subtext }]}>
                   {item.subtitle}
                 </Text>
               </TouchableOpacity>
@@ -301,7 +313,7 @@ export default function CategoriesScreen() {
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Collections</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Collections</Text>
           <TouchableOpacity onPress={() => router.push("/special-offer" as any)}>
             <Text style={styles.linkText}>See all</Text>
           </TouchableOpacity>
@@ -337,7 +349,7 @@ export default function CategoriesScreen() {
         />
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Trending Deals</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Trending Deals</Text>
           <TouchableOpacity onPress={() => router.push("/special-offer")}>
             <Text style={styles.linkText}>Explore</Text>
           </TouchableOpacity>

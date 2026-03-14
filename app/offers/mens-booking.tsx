@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useBookings } from "../../context/BookingsContext";
+import { getServiceIdFromName } from "../../utils/serviceMapping";
 
 const professionalOptions = [
   { id: "pro-1", name: "Auto Assign Team", rating: "4.8" },
@@ -114,12 +115,27 @@ export default function MensBookingScreen() {
   const router = useRouter();
   const { addBooking } = useBookings();
   const [bookingLoading, setBookingLoading] = useState(false);
-  const params = useLocalSearchParams<{ service?: string | string[]; amount?: string | string[] }>();
+  const params = useLocalSearchParams<{ 
+    service?: string | string[]; 
+    amount?: string | string[];
+    service_id?: string | string[];
+  }>();
   const dateOptions = useMemo(() => getDateOptions(), []);
 
   const bookingService = getStringParam(params.service, "Home Service Booking");
   const rawAmount = Number(getStringParam(params.amount, "499"));
   const serviceAmount = !Number.isNaN(rawAmount) && rawAmount > 0 ? rawAmount : 499;
+  
+  // Get service_id from params, or derive from service name as fallback
+  const serviceIdFromParams = getStringParam(params.service_id, "");
+  const serviceId = serviceIdFromParams || getServiceIdFromName(bookingService);
+  
+  console.log('Booking screen initialized:', {
+    service: bookingService,
+    amount: serviceAmount,
+    service_id: serviceId,
+    fromParams: !!serviceIdFromParams
+  });
 
   const [selectedProfessionalId, setSelectedProfessionalId] = useState("pro-1");
   const [selectedDateId, setSelectedDateId] = useState("date-0");
@@ -213,7 +229,7 @@ export default function MensBookingScreen() {
       console.log("Address created:", address_id, "User:", user_id);
 
       // Create booking
-      console.log("Creating booking with service_id:", "650e8400-e29b-41d4-a716-446655440011");
+      console.log("Creating booking with service_id:", serviceId);
       const bookingResponse = await fetch('https://urbannn-server.vercel.app/api/bookings/guest', {
         method: 'POST',
         headers: { 
@@ -222,7 +238,7 @@ export default function MensBookingScreen() {
         },
         body: JSON.stringify({
           user_id,
-          service_id: "650e8400-e29b-41d4-a716-446655440011",
+          service_id: serviceId,
           address_id,
           scheduled_date: selectedDate.isoDate,
           scheduled_time: selectedSlot,
@@ -245,7 +261,6 @@ export default function MensBookingScreen() {
 
       // Save to local context
       addBooking({
-        id: booking.id,
         serviceName: bookingService,
         scheduledAt,
         dateLabel: selectedDate.value,
@@ -260,7 +275,6 @@ export default function MensBookingScreen() {
         amount: serviceAmount,
         convenienceFee,
         totalAmount,
-        status: booking.status,
       });
 
       setBookingLoading(false);

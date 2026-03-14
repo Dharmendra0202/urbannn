@@ -290,6 +290,7 @@ export const seasonalBundles: SeasonalBundleItem[] = [
     save: "Save 24%",
     image: imageAssets.acServiceCleaning,
     gradient: ["#0EA5E9", "#1D4ED8"],
+    route: "/offers/ac-service",
   },
   {
     id: "bundle-2",
@@ -300,6 +301,7 @@ export const seasonalBundles: SeasonalBundleItem[] = [
     image:
       "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=900",
     gradient: ["#EC4899", "#8B5CF6"],
+    route: "/offers/womens-salon",
   },
   {
     id: "bundle-3",
@@ -310,6 +312,7 @@ export const seasonalBundles: SeasonalBundleItem[] = [
     image:
       "https://images.pexels.com/photos/6197120/pexels-photo-6197120.jpeg?auto=compress&cs=tinysrgb&w=900",
     gradient: ["#F97316", "#EA580C"],
+    route: "/offers/pest-control",
   },
 ];
 
@@ -408,7 +411,7 @@ export const footerTopCities = ["Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Pu
 export const footerSocials: FooterSocialLink[] = [
   { id: "insta", icon: "logo-instagram", url: "https://www.instagram.com" },
   { id: "facebook", icon: "logo-facebook", url: "https://www.facebook.com" },
-  { id: "x", icon: "logo-twitter", url: "https://x.com" },
+  { id: "linkedin", icon: "logo-linkedin", url: "https://www.linkedin.com" },
 ];
 
 const isRemoteUrl = (value: string) => value.startsWith("http");

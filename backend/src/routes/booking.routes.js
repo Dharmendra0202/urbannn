@@ -96,15 +96,20 @@ router.post('/guest', async (req, res) => {
 
     const parsed_time = parseTimeSlot(scheduled_time);
 
-    // Get service details
-    const { data: service } = await supabase
+    // Get service details - use admin client to bypass RLS
+    const { data: service, error: serviceError } = await supabaseAdmin
       .from('services')
       .select('*')
       .eq('id', service_id)
       .single();
 
+    console.log('Service lookup:', { service_id, found: !!service, error: serviceError?.message });
+
     if (!service) {
-      return res.status(404).json({ error: 'Service not found' });
+      return res.status(404).json({ 
+        error: 'Service not found',
+        detail: `service_id "${service_id}" does not exist. Please run seed.sql on your Supabase database.`
+      });
     }
 
     // Get available provider (auto-assign)
@@ -250,14 +255,19 @@ router.post('/', authenticate, async (req, res) => {
     } = req.body;
 
     // Get service details
-    const { data: service } = await supabase
+    const { data: service, error: serviceError } = await supabaseAdmin
       .from('services')
       .select('*')
       .eq('id', service_id)
       .single();
 
+    console.log('Service lookup (auth):', { service_id, found: !!service, error: serviceError?.message });
+
     if (!service) {
-      return res.status(404).json({ error: 'Service not found' });
+      return res.status(404).json({ 
+        error: 'Service not found',
+        detail: `service_id "${service_id}" does not exist. Please run seed.sql on your Supabase database.`
+      });
     }
 
     // Calculate pricing

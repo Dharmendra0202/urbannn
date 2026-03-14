@@ -1,7 +1,9 @@
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system/legacy";
 import { LinearGradient } from "expo-linear-gradient";
+import * as LocalAuthentication from "expo-local-authentication";
 import { useRouter } from "expo-router";
 import { MotiView } from "moti";
 import React, { useEffect, useMemo, useState } from "react";
@@ -90,7 +92,7 @@ export default function ProfileScreen() {
   const { theme, toggleTheme } = useTheme();
   const { bookings, getEffectiveStatus } = useBookings();
   const isDarkTheme = theme === "dark";
-  const isDark = false;
+  const isDark = isDarkTheme;
 
   const [profile, setProfile] = useState<ProfileData>({
     fullName: "Guest User",
@@ -105,6 +107,13 @@ export default function ProfileScreen() {
   const [notificationEnabled, setNotificationEnabled] = useState(true);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [isProfileLoaded, setIsProfileLoaded] = useState(false);
+
+  // Load persisted biometric setting
+  useEffect(() => {
+    AsyncStorage.getItem("biometric_enabled").then((val) => {
+      if (val === "true") setBiometricEnabled(true);
+    });
+  }, []);
   
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userSession, setUserSession] = useState<any>(null);
@@ -345,7 +354,7 @@ export default function ProfileScreen() {
     }
 
     if (key === "addresses") {
-      Alert.alert("Saved Addresses", "Address management can be added next.");
+      router.push("/profile/saved-addresses" as any);
       return;
     }
 
@@ -375,12 +384,12 @@ export default function ProfileScreen() {
       return;
     }
 
-    if (!cleanedEmail.includes("@")) {
+    if (cleanedEmail.length > 0 && !cleanedEmail.includes("@")) {
       Alert.alert("Invalid email", "Please enter a valid email address.");
       return;
     }
 
-    if (cleanedPhone.length < 10) {
+    if (cleanedPhone.length > 0 && cleanedPhone.length < 10) {
       Alert.alert("Invalid phone", "Please enter a valid 10-digit mobile number.");
       return;
     }
@@ -391,7 +400,6 @@ export default function ProfileScreen() {
       phone: cleanedPhone,
       city: draftProfile.city.trim() || "Not set",
     });
-    setLogoutEmail(cleanedEmail);
     setShowEditModal(false);
   };
 
@@ -468,7 +476,9 @@ export default function ProfileScreen() {
                 </View>
                 <View>
                   <Text style={styles.heroName}>{profile.fullName}</Text>
-                  <Text style={styles.heroMeta}>{profile.city}</Text>
+                  <Text style={styles.heroMeta}>
+                    {profile.phone ? `+91 ${profile.phone}` : "Not set"}
+                  </Text>
                 </View>
               </View>
               <TouchableOpacity style={styles.heroEditButton} onPress={openEditModal}>
@@ -610,7 +620,42 @@ export default function ProfileScreen() {
             </View>
             <Switch
               value={biometricEnabled}
-              onValueChange={setBiometricEnabled}
+              onValueChange={async (val) => {
+                if (val) {
+                  // Check hardware support
+                  const hasHardware = await LocalAuthentication.hasHardwareAsync();
+                  const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+                  if (!hasHardware || !isEnrolled) {
+                    Alert.alert(
+                      "Not available",
+                      "Biometric authentication is not set up on this device. Please enroll fingerprint or Face ID in your device settings."
+                    );
+                    return;
+                  }
+                  // Verify identity before enabling
+                  const result = await LocalAuthentication.authenticateAsync({
+                    promptMessage: "Confirm your identity to enable biometric lock",
+                    fallbackLabel: "Use passcode",
+                    cancelLabel: "Cancel",
+                  });
+                  if (result.success) {
+                    setBiometricEnabled(true);
+                    await AsyncStorage.setItem("biometric_enabled", "true");
+                    Alert.alert("Biometric lock enabled", "You'll be prompted to authenticate when opening the app.");
+                  }
+                } else {
+                  // Verify identity before disabling
+                  const result = await LocalAuthentication.authenticateAsync({
+                    promptMessage: "Confirm your identity to disable biometric lock",
+                    fallbackLabel: "Use passcode",
+                    cancelLabel: "Cancel",
+                  });
+                  if (result.success) {
+                    setBiometricEnabled(false);
+                    await AsyncStorage.setItem("biometric_enabled", "false");
+                  }
+                }
+              }}
               thumbColor={biometricEnabled ? "#FDE68A" : "#F8FAFC"}
               trackColor={{ false: "#CBD5E1", true: "#F59E0B" }}
             />

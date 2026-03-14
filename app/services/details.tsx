@@ -7,7 +7,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ServiceDetails() {
-  const { title, desc, color, price } = useLocalSearchParams();
+  const { title, desc, color, price, service_id } = useLocalSearchParams();
   const router = useRouter();
 
   return (
@@ -46,6 +46,7 @@ export default function ServiceDetails() {
               params: {
                 service: String(title ?? "Home Service"),
                 amount: String(price ?? "499"),
+                service_id: String(service_id ?? "650e8400-e29b-41d4-a716-446655440011"),
               },
             } as any)
           }

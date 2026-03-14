@@ -44,6 +44,7 @@ export interface SeasonalBundleItem {
   save: string;
   image: string;
   gradient: [string, string];
+  route?: string;
 }
 
 export interface CustomerReviewItem {
