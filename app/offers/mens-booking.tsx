@@ -13,10 +13,17 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import RazorpayCheckout from "react-native-razorpay";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useBookings } from "../../context/BookingsContext";
 import { getServiceIdFromName } from "../../utils/serviceMapping";
+
+// Safe import — react-native-razorpay is a native module, not available in Expo Go
+let RazorpayCheckout: { open: (options: Record<string, any>) => Promise<any> } | null = null;
+try {
+  RazorpayCheckout = require("react-native-razorpay").default;
+} catch {
+  RazorpayCheckout = null;
+}
 
 const BACKEND_URL = 'https://urbannn-server.vercel.app';
 
@@ -257,6 +264,14 @@ export default function MensBookingScreen() {
         };
 
         setBookingLoading(false);
+
+        if (!RazorpayCheckout) {
+          Alert.alert(
+            "Payment unavailable",
+            "Online payment requires a native build. Please use 'Pay after service' or install the APK build."
+          );
+          return;
+        }
 
         RazorpayCheckout.open(options)
           .then(async (paymentData: any) => {
