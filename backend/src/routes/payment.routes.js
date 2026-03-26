@@ -2,8 +2,60 @@ const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
 const razorpay = require('../config/razorpay');
-const { supabase } = require('../config/supabase');
+const { supabase, supabaseAdmin } = require('../config/supabase');
 const { authenticate } = require('../middleware/auth.middleware');
+
+// Create Razorpay order (guest-friendly, no auth required)
+router.post('/create-order-guest', async (req, res) => {
+  try {
+    const { amount, booking_service, receipt_note } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Invalid amount' });
+    }
+
+    const options = {
+      amount: Math.round(amount * 100), // paise
+      currency: 'INR',
+      receipt: receipt_note || `order_${Date.now()}`,
+      notes: { booking_service: booking_service || 'Home Service' },
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    res.json({
+      order_id: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      key_id: process.env.RAZORPAY_KEY_ID,
+    });
+  } catch (error) {
+    console.error('Create guest order error:', error);
+    res.status(500).json({ error: 'Failed to create payment order' });
+  }
+});
+
+// Verify payment (guest-friendly)
+router.post('/verify-guest', async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+    const sign = razorpay_order_id + '|' + razorpay_payment_id;
+    const expectedSign = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(sign)
+      .digest('hex');
+
+    if (razorpay_signature !== expectedSign) {
+      return res.status(400).json({ error: 'Invalid payment signature', verified: false });
+    }
+
+    res.json({ verified: true, payment_id: razorpay_payment_id });
+  } catch (error) {
+    console.error('Verify guest payment error:', error);
+    res.status(500).json({ error: 'Payment verification failed' });
+  }
+});
 
 // Create Razorpay order
 router.post('/create-order', authenticate, async (req, res) => {

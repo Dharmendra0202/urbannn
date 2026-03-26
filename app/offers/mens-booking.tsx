@@ -13,9 +13,12 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import RazorpayCheckout from "react-native-razorpay";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useBookings } from "../../context/BookingsContext";
 import { getServiceIdFromName } from "../../utils/serviceMapping";
+
+const BACKEND_URL = 'https://urbannn-server.vercel.app';
 
 const professionalOptions = [
   { id: "pro-1", name: "Auto Assign Team", rating: "4.8" },
@@ -192,20 +195,13 @@ export default function MensBookingScreen() {
     }
 
     const scheduledAt = buildScheduledAt(selectedDate.isoDate, selectedSlot);
-
     setBookingLoading(true);
 
     try {
-      console.log("Creating booking...");
-      console.log("API URL:", 'https://urbannn-server.vercel.app/api/bookings/guest/address');
-
-      // Create address first (guest user flow)
-      const addressResponse = await fetch('https://urbannn-server.vercel.app/api/bookings/guest/address', {
+      // Step 1: Create address
+      const addressResponse = await fetch(`${BACKEND_URL}/api/bookings/guest/address`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
           full_name: fullName.trim(),
           phone: phone.trim(),
@@ -217,86 +213,166 @@ export default function MensBookingScreen() {
         }),
       });
 
-      console.log("Address response status:", addressResponse.status);
-
       if (!addressResponse.ok) {
-        const errorData = await addressResponse.json();
-        console.error("Address error:", errorData);
-        throw new Error(errorData.error || 'Failed to save address');
+        const err = await addressResponse.json();
+        throw new Error(err.error || 'Failed to save address');
       }
 
       const { address_id, user_id } = await addressResponse.json();
-      console.log("Address created:", address_id, "User:", user_id);
 
-      // Create booking
-      console.log("Creating booking with service_id:", serviceId);
-      const bookingResponse = await fetch('https://urbannn-server.vercel.app/api/bookings/guest', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id,
-          service_id: serviceId,
-          address_id,
-          scheduled_date: selectedDate.isoDate,
-          scheduled_time: selectedSlot,
-          special_instructions: notes.trim() || null,
-          customer_name: fullName.trim(),
-          customer_phone: phone.trim(),
-        }),
-      });
+      // Step 2: If online payment selected, go through Razorpay first
+      if (selectedPaymentId === "pay-2" || selectedPaymentId === "pay-3") {
+        // Create Razorpay order on backend
+        const orderResponse = await fetch(`${BACKEND_URL}/api/payments/create-order-guest`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: totalAmount,
+            booking_service: bookingService,
+            receipt_note: `booking_${Date.now()}`,
+          }),
+        });
 
-      console.log("Booking response status:", bookingResponse.status);
+        if (!orderResponse.ok) {
+          throw new Error('Failed to create payment order');
+        }
 
-      if (!bookingResponse.ok) {
-        const errorData = await bookingResponse.json();
-        console.error("Booking error:", errorData);
-        throw new Error(errorData.error || 'Failed to create booking');
+        const { order_id, amount: orderAmount, currency, key_id } = await orderResponse.json();
+
+        // Open Razorpay checkout
+        const options = {
+          description: bookingService,
+          image: 'https://i.imgur.com/3g7nmJC.png',
+          currency,
+          key: key_id,
+          amount: orderAmount,
+          order_id,
+          name: 'Urbannn',
+          prefill: {
+            email: 'customer@urbannn.app',
+            contact: phone.trim(),
+            name: fullName.trim(),
+          },
+          theme: { color: '#0F766E' },
+        };
+
+        setBookingLoading(false);
+
+        RazorpayCheckout.open(options)
+          .then(async (paymentData: any) => {
+            setBookingLoading(true);
+
+            // Verify payment on backend
+            const verifyResponse = await fetch(`${BACKEND_URL}/api/payments/verify-guest`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: paymentData.razorpay_order_id,
+                razorpay_payment_id: paymentData.razorpay_payment_id,
+                razorpay_signature: paymentData.razorpay_signature,
+              }),
+            });
+
+            const verifyResult = await verifyResponse.json();
+
+            if (!verifyResult.verified) {
+              throw new Error('Payment verification failed. Please contact support.');
+            }
+
+            // Payment verified — create booking
+            await createBookingAndNavigate({
+              user_id, address_id, scheduledAt,
+              paymentStatus: 'paid',
+              paymentId: paymentData.razorpay_payment_id,
+            });
+          })
+          .catch((error: any) => {
+            setBookingLoading(false);
+            if (error?.code !== 0) {
+              // code 0 = user cancelled
+              Alert.alert("Payment failed", error?.description || "Payment was not completed.");
+            }
+          });
+
+        return;
       }
 
-      const { booking } = await bookingResponse.json();
-      console.log("Booking created:", booking.id);
-
-      // Save to local context
-      addBooking({
-        serviceName: bookingService,
-        scheduledAt,
-        dateLabel: selectedDate.value,
-        slot: selectedSlot,
-        customerName: fullName.trim(),
-        phone: phone.trim(),
-        address: address.trim(),
-        landmark: landmark.trim() || undefined,
-        notes: notes.trim() || undefined,
-        professionalName: selectedProfessional?.name ?? "Auto Assign Team",
-        paymentLabel: selectedPayment?.label ?? "Pay after service",
-        amount: serviceAmount,
-        convenienceFee,
-        totalAmount,
-      });
-
-      setBookingLoading(false);
-
-      router.push({
-        pathname: "/services/booking-success",
-        params: {
-          service: bookingService,
-          date: selectedDate.value,
-          slot: selectedSlot,
-          bookingId: booking.id,
-        },
-      } as any);
+      // Step 3: Cash on delivery — create booking directly
+      await createBookingAndNavigate({ user_id, address_id, scheduledAt, paymentStatus: 'pending' });
 
     } catch (error: any) {
       setBookingLoading(false);
-      console.error("Booking error:", error);
-      Alert.alert(
-        "Booking Failed",
-        error.message || "Could not create booking. Please try again."
-      );
+      Alert.alert("Booking Failed", error.message || "Could not create booking. Please try again.");
     }
+  };
+
+  const createBookingAndNavigate = async ({
+    user_id,
+    address_id,
+    scheduledAt,
+    paymentStatus,
+    paymentId,
+  }: {
+    user_id: string;
+    address_id: string;
+    scheduledAt: string;
+    paymentStatus: string;
+    paymentId?: string;
+  }) => {
+    if (!selectedDate) return;
+
+    const bookingResponse = await fetch(`${BACKEND_URL}/api/bookings/guest`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        user_id,
+        service_id: serviceId,
+        address_id,
+        scheduled_date: selectedDate.isoDate,
+        scheduled_time: selectedSlot,
+        special_instructions: notes.trim() || null,
+        customer_name: fullName.trim(),
+        customer_phone: phone.trim(),
+        payment_status: paymentStatus,
+        razorpay_payment_id: paymentId || null,
+      }),
+    });
+
+    if (!bookingResponse.ok) {
+      const errorData = await bookingResponse.json();
+      throw new Error(errorData.error || 'Failed to create booking');
+    }
+
+    const { booking } = await bookingResponse.json();
+
+    addBooking({
+      serviceName: bookingService,
+      scheduledAt,
+      dateLabel: selectedDate.value,
+      slot: selectedSlot,
+      customerName: fullName.trim(),
+      phone: phone.trim(),
+      address: address.trim(),
+      landmark: landmark.trim() || undefined,
+      notes: notes.trim() || undefined,
+      professionalName: selectedProfessional?.name ?? "Auto Assign Team",
+      paymentLabel: selectedPayment?.label ?? "Pay after service",
+      amount: serviceAmount,
+      convenienceFee,
+      totalAmount,
+    });
+
+    setBookingLoading(false);
+
+    router.push({
+      pathname: "/services/booking-success",
+      params: {
+        service: bookingService,
+        date: selectedDate.value,
+        slot: selectedSlot,
+        bookingId: booking.id,
+      },
+    } as any);
   };
 
   return (
