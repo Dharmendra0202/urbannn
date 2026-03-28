@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BookingStatus, ServiceBooking, useBookings } from "../../context/BookingsContext";
+import { useTheme } from "../../context/ThemeContext";
 
 type StatusMeta = {
   label: string;

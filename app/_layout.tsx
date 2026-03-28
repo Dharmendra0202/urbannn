@@ -115,26 +115,11 @@ function AppContent() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="services" />
         <Stack.Screen name="notifications" />
-        <Stack.Screen
-          name="offers"
-          options={{ animation: "slide_from_bottom", animationDuration: 320 }}
-        />
-        <Stack.Screen
-          name="categories"
-          options={{ animation: "slide_from_bottom", animationDuration: 320 }}
-        />
-        <Stack.Screen
-          name="cleaning"
-          options={{ animation: "slide_from_bottom", animationDuration: 320 }}
-        />
-        <Stack.Screen
-          name="repair"
-          options={{ animation: "slide_from_bottom", animationDuration: 320 }}
-        />
-        <Stack.Screen
-          name="recommended"
-          options={{ animation: "slide_from_bottom", animationDuration: 320 }}
-        />
+        <Stack.Screen name="offers/index" options={{ animation: "slide_from_bottom", animationDuration: 320 }} />
+        <Stack.Screen name="categories/index" options={{ animation: "slide_from_bottom", animationDuration: 320 }} />
+        <Stack.Screen name="cleaning/index" options={{ animation: "slide_from_bottom", animationDuration: 320 }} />
+        <Stack.Screen name="repair/index" options={{ animation: "slide_from_bottom", animationDuration: 320 }} />
+        <Stack.Screen name="recommended/index" options={{ animation: "slide_from_bottom", animationDuration: 320 }} />
       </Stack>
     </BookingsProvider>
   );

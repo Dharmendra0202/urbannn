@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import { Easing } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTheme } from "../../context/ThemeContext";
 
 type FilterKey = "All" | "Cleaning" | "Repair" | "Salon" | "Electrical";
 
