@@ -1,11 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput,
-  Modal, ScrollView, Alert, ActivityIndicator,
-} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { supabase } from '../../lib/supabase';
+import React, { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Modal, ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 
 interface Provider {
   id: string;
@@ -32,19 +38,9 @@ export default function ProvidersScreen() {
   const fetchProviders = async () => {
     try {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        Alert.alert('Error', 'Please login first');
-        router.replace('/admin/login');
-        return;
-      }
-      
-      const response = await fetch('https://urbannn-server.vercel.app/api/providers', {
-        headers: { 'Authorization': `Bearer ${session.access_token}` },
-      });
-      
+      const response = await fetch('https://urbannn-server.vercel.app/api/providers');
       const result = await response.json();
-      
+
       if (response.ok) {
         const safeProviders = (result.providers || []).map((p: any) => ({
           id: p.id || '',
@@ -75,15 +71,10 @@ export default function ProvidersScreen() {
       Alert.alert('Error', 'Please fill all required fields');
       return;
     }
-    
     try {
-      const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch('https://urbannn-server.vercel.app/api/providers', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
           phone: formData.phone,
@@ -92,9 +83,7 @@ export default function ProvidersScreen() {
           rating: 4.5,
         }),
       });
-      
       const result = await response.json();
-      
       if (response.ok) {
         Alert.alert('Success', 'Provider added successfully');
         setShowAddModal(false);
@@ -104,33 +93,26 @@ export default function ProvidersScreen() {
         Alert.alert('Error', result.error || 'Failed to add provider');
       }
     } catch (error) {
-      console.error('Error adding provider:', error);
       Alert.alert('Error', 'Failed to add provider');
     }
   };
 
   const handleToggleAvailability = async (provider: Provider) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch(
         `https://urbannn-server.vercel.app/api/providers/${provider.id}/availability`,
         {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session?.access_token}`,
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ is_available: !provider.is_available }),
         }
       );
-      
       if (response.ok) {
         fetchProviders();
       } else {
         Alert.alert('Error', 'Failed to update availability');
       }
     } catch (error) {
-      console.error('Error updating availability:', error);
       Alert.alert('Error', 'Failed to update availability');
     }
   };
