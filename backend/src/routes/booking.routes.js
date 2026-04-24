@@ -16,17 +16,37 @@ router.post('/guest/address', async (req, res) => {
       pincode,
     } = req.body;
 
-    // Get the guest user (created via script)
-    const { data: guestUser, error: userError } = await supabaseAdmin
+    // Get or create the guest user
+    let { data: guestUser, error: userError } = await supabaseAdmin
       .from('users')
       .select('id')
       .eq('email', 'guest@urbannn.app')
       .single();
 
+    // Auto-create guest user if it doesn't exist
     if (userError || !guestUser) {
-      return res.status(500).json({ 
-        error: 'Guest user not found. Please run: node backend/create-guest-user.js' 
-      });
+      console.log('Guest user not found, creating...');
+      const { data: newGuestUser, error: createError } = await supabaseAdmin
+        .from('users')
+        .upsert([{
+          id: '00000000-0000-0000-0000-000000000001',
+          phone: '0000000000',
+          full_name: 'Guest User',
+          email: 'guest@urbannn.app',
+        }], { onConflict: 'id', ignoreDuplicates: false })
+        .select()
+        .single();
+
+      if (createError) {
+        console.error('Failed to create guest user:', createError);
+        return res.status(500).json({ 
+          error: 'Failed to initialize guest user',
+          details: createError.message
+        });
+      }
+      
+      guestUser = newGuestUser;
+      console.log('Guest user created successfully');
     }
 
     const guest_user_id = guestUser.id;

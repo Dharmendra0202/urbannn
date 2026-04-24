@@ -51,6 +51,24 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const { width } = Dimensions.get("window");
 const cardWidth = (width - 80) / 4;
 
+// Safe navigation helper to prevent crashes
+const safeNavigate = (router: any, route: string) => {
+  try {
+    if (!route) {
+      console.warn('Navigation attempted with empty route');
+      return;
+    }
+    router.push(route as any);
+  } catch (error) {
+    console.error('Navigation error:', error);
+    Alert.alert(
+      'Navigation Error',
+      'Unable to navigate. Please try again.',
+      [{ text: 'OK' }]
+    );
+  }
+};
+
 type BrowserSpeechRecognition = {
   lang: string;
   continuous: boolean;
@@ -475,18 +493,33 @@ const HomeScreen: React.FC = () => {
   };
 
   const handleNotificationPress = () => {
-    router.push("/notifications");
+    try {
+      safeNavigate(router, "/notifications");
+    } catch (error) {
+      console.error("Navigation error:", error);
+    }
   };
 
   const handleTopSearchPress = (item: SearchResultItem) => {
-    setSearch(item.name);
-    Keyboard.dismiss();
-    router.push(item.route as any);
+    try {
+      setSearch(item.name);
+      Keyboard.dismiss();
+      if (item.route) {
+        safeNavigate(router, item.route);
+      }
+    } catch (error) {
+      console.error("Search navigation error:", error);
+    }
   };
 
   const handleSupportCall = async () => {
     try {
-      await Linking.openURL("tel:+919999999999");
+      const canOpen = await Linking.canOpenURL("tel:+919999999999");
+      if (canOpen) {
+        await Linking.openURL("tel:+919999999999");
+      } else {
+        Alert.alert("Unable to place call", "Phone dialer is not available on this device.");
+      }
     } catch (error) {
       console.log("Call support error:", error);
       Alert.alert("Unable to place call", "Please try again in a moment.");
@@ -495,7 +528,12 @@ const HomeScreen: React.FC = () => {
 
   const handleSupportEmail = async () => {
     try {
-      await Linking.openURL("mailto:support@urbannn.app");
+      const canOpen = await Linking.canOpenURL("mailto:support@urbannn.app");
+      if (canOpen) {
+        await Linking.openURL("mailto:support@urbannn.app");
+      } else {
+        Alert.alert("Unable to open email", "Email client is not available on this device.");
+      }
     } catch (error) {
       console.log("Email support error:", error);
       Alert.alert("Unable to open email", "Please try again in a moment.");
@@ -525,7 +563,16 @@ const HomeScreen: React.FC = () => {
 
   const handleFooterSocialPress = async (url: string) => {
     try {
-      await Linking.openURL(url);
+      if (!url) {
+        console.warn("Empty URL provided");
+        return;
+      }
+      const canOpen = await Linking.canOpenURL(url);
+      if (canOpen) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert("Unable to open link", "This link cannot be opened on your device.");
+      }
     } catch (error) {
       console.log("Open social link error:", error);
       Alert.alert("Unable to open link", "Please try again in a moment.");
@@ -687,7 +734,15 @@ const HomeScreen: React.FC = () => {
               <TouchableOpacity
                 activeOpacity={0.9}
                 style={styles.serviceCard}
-                onPress={() => router.push(service.route as any)}
+                onPress={() => {
+                  try {
+                    if (service.route) {
+                      safeNavigate(router, service.route);
+                    }
+                  } catch (error) {
+                    console.error("Service navigation error:", error);
+                  }
+                }}
               >
                 <View
                   style={[
@@ -710,7 +765,13 @@ const HomeScreen: React.FC = () => {
         <SectionHeader
           title="We Are Specialists In"
           actionLabel="See more"
-          onPress={() => router.push("/categories")}
+          onPress={() => {
+            try {
+              safeNavigate(router, "/categories");
+            } catch (error) {
+              console.error("Categories navigation error:", error);
+            }
+          }}
           containerStyle={styles.sectionHeader}
           titleStyle={styles.sectionHeading}
           actionStyle={styles.seeAll}
@@ -718,8 +779,12 @@ const HomeScreen: React.FC = () => {
         <HorizontalCardList
           data={filteredSpecialists}
           onItemPress={(item) => {
-            if (item.route) {
-              router.push(item.route as any);
+            try {
+              if (item.route) {
+                safeNavigate(router, item.route);
+              }
+            } catch (error) {
+              console.error("Specialist navigation error:", error);
             }
           }}
           contentContainerStyle={{ paddingVertical: 4 }}
@@ -729,7 +794,13 @@ const HomeScreen: React.FC = () => {
         <SectionHeader
           title="Offers & Discounts"
           actionLabel="See more"
-          onPress={() => router.push("/offers" as any)}
+          onPress={() => {
+            try {
+              safeNavigate(router, "/offers");
+            } catch (error) {
+              console.error("Offers navigation error:", error);
+            }
+          }}
           containerStyle={styles.sectionHeader}
           titleStyle={styles.sectionHeading}
           actionStyle={styles.seeAll}
@@ -755,7 +826,15 @@ const HomeScreen: React.FC = () => {
                 <TouchableOpacity
                   activeOpacity={0.9}
                   style={styles.offerCardPremium}
-                  onPress={() => router.push(item.route as any)}
+                  onPress={() => {
+                    try {
+                      if (item.route) {
+                        safeNavigate(router, item.route);
+                      }
+                    } catch (error) {
+                      console.error("Offer navigation error:", error);
+                    }
+                  }}
                 >
                   <Image
                     source={{ uri: item.image }}
@@ -810,7 +889,13 @@ const HomeScreen: React.FC = () => {
         <SectionHeader
           title="Cleaning Essentials"
           actionLabel="See more"
-          onPress={() => router.push("/cleaning" as any)}
+          onPress={() => {
+            try {
+              safeNavigate(router, "/cleaning");
+            } catch (error) {
+              console.error("Cleaning navigation error:", error);
+            }
+          }}
           containerStyle={styles.sectionHeader}
           titleStyle={styles.sectionHeading}
           actionStyle={styles.seeAll}
@@ -821,8 +906,12 @@ const HomeScreen: React.FC = () => {
           emptyText="No cleaning essentials found"
           emptyTextStyle={{ textAlign: "center", color: "#6B7280", marginBottom: 10 }}
           onItemPress={(item) => {
-            if (item.route) {
-              router.push(item.route as any);
+            try {
+              if (item.route) {
+                safeNavigate(router, item.route);
+              }
+            } catch (error) {
+              console.error("Cleaning item navigation error:", error);
             }
           }}
           contentContainerStyle={{ paddingVertical: 4 }}
@@ -832,7 +921,13 @@ const HomeScreen: React.FC = () => {
         <SectionHeader
           title="Home Repair & Installation"
           actionLabel="See more"
-          onPress={() => router.push("/repair" as any)}
+          onPress={() => {
+            try {
+              safeNavigate(router, "/repair");
+            } catch (error) {
+              console.error("Repair navigation error:", error);
+            }
+          }}
           containerStyle={styles.sectionHeader}
           titleStyle={styles.sectionHeading}
           actionStyle={styles.seeAll}
@@ -842,7 +937,16 @@ const HomeScreen: React.FC = () => {
           data={filteredRepair}
           emptyText="No repair services found"
           emptyTextStyle={{ textAlign: "center", color: "#6B7280", marginBottom: 10 }}
-          onItemPress={(item) => router.push(getRepairRoute(item.id) as any)}
+          onItemPress={(item) => {
+            try {
+              const route = getRepairRoute(item.id);
+              if (route) {
+                safeNavigate(router, route);
+              }
+            } catch (error) {
+              console.error("Repair item navigation error:", error);
+            }
+          }}
           contentContainerStyle={{ paddingVertical: 4 }}
         />
 
@@ -873,7 +977,13 @@ const HomeScreen: React.FC = () => {
               </Text>
               <TouchableOpacity
                 style={styles.bigBannerButton}
-                onPress={() => router.push("/special-offer")} // 👈 opens a new screen
+                onPress={() => {
+                  try {
+                    safeNavigate(router, "/special-offer");
+                  } catch (error) {
+                    console.error("Special offer navigation error:", error);
+                  }
+                }}
               >
                 <Text style={styles.bigBannerButtonText}>Explore More</Text>
                 <Ionicons name="arrow-forward" size={16} color="#312E81" />
@@ -886,7 +996,13 @@ const HomeScreen: React.FC = () => {
         <SectionHeader
           title="Recommended For You"
           actionLabel="See all"
-          onPress={() => router.push("/recommended" as any)}
+          onPress={() => {
+            try {
+              safeNavigate(router, "/recommended");
+            } catch (error) {
+              console.error("Recommended navigation error:", error);
+            }
+          }}
           containerStyle={styles.sectionHeader}
           titleStyle={styles.sectionHeading}
           actionStyle={styles.seeAll}
@@ -905,7 +1021,16 @@ const HomeScreen: React.FC = () => {
             renderItem={({ item }) => (
               <MiniServiceCard
                 item={item}
-                onPress={() => router.push(getRecommendedRoute(item.id) as any)}
+                onPress={() => {
+                  try {
+                    const route = getRecommendedRoute(item.id);
+                    if (route) {
+                      safeNavigate(router, route);
+                    }
+                  } catch (error) {
+                    console.error("Recommended item navigation error:", error);
+                  }
+                }}
               />
             )}
             keyExtractor={(item) => item.id}
@@ -918,7 +1043,13 @@ const HomeScreen: React.FC = () => {
         <SectionHeader
           title="Rebook in 1 Tap"
           actionLabel="History"
-          onPress={() => router.push("/bookings" as any)}
+          onPress={() => {
+            try {
+              safeNavigate(router, "/bookings");
+            } catch (error) {
+              console.error("Bookings navigation error:", error);
+            }
+          }}
           containerStyle={styles.sectionHeader}
           titleStyle={styles.sectionHeading}
           actionStyle={styles.seeAll}
@@ -933,7 +1064,15 @@ const HomeScreen: React.FC = () => {
             <TouchableOpacity
               activeOpacity={0.9}
               style={styles.rebookCard}
-              onPress={() => router.push(item.route as any)}
+              onPress={() => {
+                try {
+                  if (item.route) {
+                    safeNavigate(router, item.route);
+                  }
+                } catch (error) {
+                  console.error("Rebook navigation error:", error);
+                }
+              }}
             >
               <Image source={{ uri: item.image }} style={styles.rebookImage} />
               <View style={styles.rebookContent}>
@@ -945,7 +1084,15 @@ const HomeScreen: React.FC = () => {
                   <Text style={styles.rebookPrice}>INR {item.price}</Text>
                   <TouchableOpacity
                     style={styles.rebookButton}
-                    onPress={() => router.push(item.route as any)}
+                    onPress={() => {
+                      try {
+                        if (item.route) {
+                          safeNavigate(router, item.route);
+                        }
+                      } catch (error) {
+                        console.error("Rebook button navigation error:", error);
+                      }
+                    }}
                     activeOpacity={0.85}
                   >
                     <Text style={styles.rebookButtonText}>Rebook</Text>
@@ -960,7 +1107,13 @@ const HomeScreen: React.FC = () => {
         <SectionHeader
           title="Seasonal Bundles"
           actionLabel="See all"
-          onPress={() => router.push("/offers" as any)}
+          onPress={() => {
+            try {
+              safeNavigate(router, "/offers");
+            } catch (error) {
+              console.error("Seasonal bundles navigation error:", error);
+            }
+          }}
           containerStyle={styles.sectionHeader}
           titleStyle={styles.sectionHeading}
           actionStyle={styles.seeAll}
@@ -975,7 +1128,15 @@ const HomeScreen: React.FC = () => {
             <TouchableOpacity
               activeOpacity={0.9}
               style={styles.bundleCard}
-              onPress={() => item.route && router.push(item.route as any)}
+              onPress={() => {
+                try {
+                  if (item.route) {
+                    safeNavigate(router, item.route);
+                  }
+                } catch (error) {
+                  console.error("Bundle navigation error:", error);
+                }
+              }}
             >
               <Image source={{ uri: item.image }} style={styles.bundleImage} />
               <LinearGradient
