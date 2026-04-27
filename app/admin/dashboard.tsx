@@ -272,6 +272,18 @@ export default function AdminDashboard() {
           </LinearGradient>
         </View>
 
+        {/* Quick Actions */}
+        <View style={styles.quickActionsContainer}>
+          <TouchableOpacity
+            style={styles.quickActionButton}
+            onPress={() => router.push('/admin/bookings' as any)}
+          >
+            <Ionicons name="list" size={24} color="#7C3AED" />
+            <Text style={styles.quickActionText}>Manage All Bookings</Text>
+            <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+          </TouchableOpacity>
+        </View>
+
         {/* Pie Chart */}
         {pieChartData.length > 0 && (
           <View style={styles.chartContainer}>
@@ -514,6 +526,26 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#FFFFFF",
     marginTop: 4,
+  },
+  quickActionsContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  quickActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 12,
+  },
+  quickActionText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0F172A',
   },
   chartContainer: {
     backgroundColor: "#FFFFFF",
