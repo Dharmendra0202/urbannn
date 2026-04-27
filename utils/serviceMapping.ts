@@ -11,6 +11,7 @@ export const SERVICE_NAME_TO_ID_MAP: Record<string, string> = {
   
   // Repair & Installation
   'Plumbing Services': '650e8400-e29b-41d4-a716-446655440006',
+  'Pipe Leakage Repair': '650e8400-e29b-41d4-a716-446655440006', // Maps to Plumbing
   'Electrical Services': '650e8400-e29b-41d4-a716-446655440007',
   'Carpentry Work': '650e8400-e29b-41d4-a716-446655440008',
   'Wall Painting': '650e8400-e29b-41d4-a716-446655440009',
@@ -29,6 +30,10 @@ export const SERVICE_NAME_TO_ID_MAP: Record<string, string> = {
   // Pest Control
   'General Pest Control': '650e8400-e29b-41d4-a716-446655440016',
   'Pest Control': '650e8400-e29b-41d4-a716-446655440016',
+  
+  // Generic fallbacks
+  'General Home Service': '650e8400-e29b-41d4-a716-446655440001',
+  'Home Service': '650e8400-e29b-41d4-a716-446655440001',
 };
 
 // Default service ID (Mens Haircut & Grooming)

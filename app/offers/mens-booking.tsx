@@ -180,17 +180,21 @@ export default function MensBookingScreen() {
     !!selectedDate &&
     !!selectedSlot;
 
-  // Debug: Log form state
-  console.log('Form validation:', {
-    fullName: fullName.trim().length,
-    phone: phone.trim().length,
-    address: address.trim().length,
-    hasDate: !!selectedDate,
-    hasSlot: !!selectedSlot,
-    isValid: isFormValid
-  });
+  // Debug: Log form state whenever it changes
+  React.useEffect(() => {
+    console.log('Form validation:', {
+      fullName: fullName.trim().length,
+      phone: phone.trim().length,
+      address: address.trim().length,
+      hasDate: !!selectedDate,
+      hasSlot: !!selectedSlot,
+      isValid: isFormValid
+    });
+  }, [fullName, phone, address, selectedDate, selectedSlot, isFormValid]);
 
   const handleConfirm = async () => {
+    console.log('Confirm button pressed!', { isFormValid, bookingLoading });
+    
     if (!isFormValid) {
       Alert.alert("Incomplete details", "Please fill all required booking details.");
       return;
@@ -201,11 +205,40 @@ export default function MensBookingScreen() {
       return;
     }
 
+    // Test network connectivity first
+    try {
+      console.log('Testing network connectivity...');
+      const testResponse = await fetch('https://urbannn-server.vercel.app/health', {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+      console.log('Network test response:', testResponse.status);
+      
+      if (!testResponse.ok) {
+        Alert.alert(
+          "Connection Error",
+          "Cannot connect to server. Please check your internet connection and try again."
+        );
+        return;
+      }
+    } catch (netError) {
+      console.error('Network test failed:', netError);
+      Alert.alert(
+        "No Internet Connection",
+        "Please check your internet connection and try again."
+      );
+      return;
+    }
+
     const scheduledAt = buildScheduledAt(selectedDate.isoDate, selectedSlot);
     setBookingLoading(true);
 
     try {
+      console.log('Creating booking...', { fullName, phone, address });
+      console.log('Backend URL:', BACKEND_URL);
+      
       // Step 1: Create address
+      console.log('Step 1: Creating address...');
       const addressResponse = await fetch(`${BACKEND_URL}/api/bookings/guest/address`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -220,8 +253,11 @@ export default function MensBookingScreen() {
         }),
       });
 
+      console.log('Address response status:', addressResponse.status);
+
       if (!addressResponse.ok) {
-        const err = await addressResponse.json();
+        const err = await addressResponse.json().catch(() => ({ error: 'Network error' }));
+        console.error('Address creation failed:', err);
         throw new Error(err.error || 'Failed to save address');
       }
 
@@ -317,7 +353,24 @@ export default function MensBookingScreen() {
 
     } catch (error: any) {
       setBookingLoading(false);
-      Alert.alert("Booking Failed", error.message || "Could not create booking. Please try again.");
+      console.error('Booking error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        name: error.name,
+        stack: error.stack
+      });
+      
+      let errorMessage = "Could not create booking. Please try again.";
+      
+      if (error.message.includes('Network request failed')) {
+        errorMessage = "Network error. Please check your internet connection.";
+      } else if (error.message.includes('Failed to fetch')) {
+        errorMessage = "Cannot connect to server. Please check your internet connection.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      Alert.alert("Booking Failed", errorMessage);
     }
   };
 
@@ -672,7 +725,14 @@ export default function MensBookingScreen() {
             <Text style={styles.bottomLabel}>Payable amount</Text>
             <Text style={styles.bottomPrice}>₹{totalAmount}</Text>
             <Text style={{ color: '#94A3B8', fontSize: 10, marginTop: 2 }}>
-              {isFormValid ? '✓ Ready' : '✗ Fill form'}
+              {isFormValid ? '✓ Ready to book' : (
+                !fullName.trim() ? '✗ Enter name' :
+                phone.trim().length < 10 ? '✗ Enter phone' :
+                address.trim().length < 8 ? '✗ Enter address' :
+                !selectedDate ? '✗ Select date' :
+                !selectedSlot ? '✗ Select time' :
+                '✗ Fill form'
+              )}
             </Text>
           </View>
           <TouchableOpacity

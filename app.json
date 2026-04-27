@@ -27,7 +27,11 @@
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE"
-      ]
+      ],
+      "usesCleartextTraffic": false,
+      "networkSecurityConfig": {
+        "cleartextTrafficPermitted": false
+      }
     },
     "web": {
       "output": "static",
