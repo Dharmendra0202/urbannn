@@ -32,6 +32,8 @@ app.use('/api/coupons', require('./routes/coupon.routes'));
 app.use('/api/notifications', require('./routes/notification.routes'));
 app.use('/api/providers', require('./routes/provider.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
+app.use('/api/chat', require('./routes/chat.routes'));
+app.use('/api/admin/provider-management', require('./routes/provider-management.routes'));
 
 // Health check
 app.get('/health', (req, res) => {

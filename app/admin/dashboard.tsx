@@ -282,6 +282,15 @@ export default function AdminDashboard() {
             <Text style={styles.quickActionText}>Manage All Bookings</Text>
             <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.quickActionButton}
+            onPress={() => router.push('/admin/provider-management' as any)}
+          >
+            <Ionicons name="people" size={24} color="#10B981" />
+            <Text style={styles.quickActionText}>Manage Service Providers</Text>
+            <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+          </TouchableOpacity>
         </View>
 
         {/* Pie Chart */}

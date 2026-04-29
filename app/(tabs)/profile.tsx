@@ -8,16 +8,16 @@ import { useRouter } from "expo-router";
 import { MotiView } from "moti";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-    Alert,
-    Modal,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBookings } from "../../context/BookingsContext";
@@ -31,7 +31,7 @@ type ProfileData = {
 };
 
 type QuickAction = {
-  key: "bookings" | "addresses" | "payments" | "support" | "offers" | "admin";
+  key: "bookings" | "addresses" | "support" | "offers" | "admin";
   title: string;
   subtitle: string;
   icon: React.ComponentProps<typeof Ionicons>["name"];
@@ -315,13 +315,6 @@ export default function ProfileScreen() {
       iconBg: "#E0E7FF",
     },
     {
-      key: "payments",
-      title: "Payment Methods",
-      subtitle: "Cards, UPI, and saved options",
-      icon: "card-outline",
-      iconBg: "#DCFCE7",
-    },
-    {
       key: "support",
       title: "Help & Support",
       subtitle: "Call, chat, or raise a ticket",
@@ -358,8 +351,8 @@ export default function ProfileScreen() {
       return;
     }
 
-    if (key === "payments") {
-      Alert.alert("Payment Methods", "Payment method management can be added next.");
+    if (key === "support") {
+      router.push("/support" as any);
       return;
     }
 
