@@ -16,7 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const BACKEND_URL = 'https://urbannn-server.vercel.app';
 
-type BookingStatus = 'all' | 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+type BookingStatus = 'all' | 'pending' | 'confirmed' | 'assigned' | 'in_progress' | 'completed' | 'cancelled';
 
 interface Booking {
   id: string;
@@ -59,6 +59,9 @@ export default function AdminBookingsScreen() {
   const [activeTab, setActiveTab] = useState<BookingStatus>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
+  const [completingBooking, setCompletingBooking] = useState<string | null>(null);
+  const [assignModalVisible, setAssignModalVisible] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
     fetchBookings();
@@ -122,6 +125,59 @@ export default function AdminBookingsScreen() {
               Alert.alert('Error', 'Failed to delete booking');
             } finally {
               setDeleteLoading(null);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleAssignProvider = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setAssignModalVisible(true);
+  };
+
+  const handleAssignSuccess = () => {
+    fetchBookings();
+    fetchStats();
+  };
+
+  const handleCompleteBooking = (bookingId: string, bookingNumber: string) => {
+    Alert.alert(
+      'Complete Booking',
+      `Mark booking ${bookingNumber} as completed? This will calculate provider earnings.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Complete',
+          onPress: async () => {
+            setCompletingBooking(bookingId);
+            try {
+              const response = await fetch(
+                `${BACKEND_URL}/api/bookings/${bookingId}/complete`,
+                {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                }
+              );
+
+              const data = await response.json();
+
+              if (response.ok) {
+                Alert.alert(
+                  'Success',
+                  `Booking completed! Provider earning: ₹${data.earnings?.provider_earning || 0}`
+                );
+                fetchBookings();
+                fetchStats();
+              } else {
+                Alert.alert('Error', data.error || 'Failed to complete booking');
+              }
+            } catch (error) {
+              console.error('Complete booking error:', error);
+              Alert.alert('Error', 'Failed to complete booking');
+            } finally {
+              setCompletingBooking(null);
             }
           },
         },
@@ -309,7 +365,7 @@ export default function AdminBookingsScreen() {
 
         {/* Filter Tabs */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsContainer}>
-          {(['all', 'pending', 'confirmed', 'in_progress', 'completed', 'cancelled'] as BookingStatus[]).map((status) => (
+          {(['all', 'pending', 'confirmed', 'assigned', 'in_progress', 'completed', 'cancelled'] as BookingStatus[]).map((status) => (
             <TouchableOpacity
               key={status}
               style={[styles.tab, activeTab === status && styles.tabActive]}
@@ -402,20 +458,63 @@ export default function AdminBookingsScreen() {
                     <Text style={styles.createdAt}>
                       Created: {formatDate(booking.created_at)}
                     </Text>
-                    <TouchableOpacity
-                      style={styles.deleteButton}
-                      onPress={() => handleDeleteBooking(booking.id, booking.booking_number)}
-                      disabled={isDeleting}
-                    >
-                      {isDeleting ? (
-                        <ActivityIndicator size="small" color="#EF4444" />
-                      ) : (
+                    
+                    <View style={styles.actionButtons}>
+                      {/* Assign Provider button for pending/confirmed bookings */}
+                      {(booking.status === 'pending' || booking.status === 'confirmed') && !booking.provider && (
+                        <TouchableOpacity
+                          style={styles.assignButton}
+                          onPress={() => handleAssignProvider(booking)}
+                        >
+                          <Ionicons name="person-add" size={14} color="#7C3AED" />
+                          <Text style={styles.assignButtonText}>Assign</Text>
+                        </TouchableOpacity>
+                      )}
+
+                      {/* Mark Complete button for assigned bookings */}
+                      {booking.status === 'assigned' && (
                         <>
-                          <Ionicons name="trash-outline" size={16} color="#EF4444" />
-                          <Text style={styles.deleteButtonText}>Delete</Text>
+                          <TouchableOpacity
+                            style={styles.completeButton}
+                            onPress={() => handleCompleteBooking(booking.id, booking.booking_number)}
+                            disabled={completingBooking === booking.id}
+                          >
+                            {completingBooking === booking.id ? (
+                              <ActivityIndicator size="small" color="#FFFFFF" />
+                            ) : (
+                              <>
+                                <Ionicons name="checkmark-circle" size={14} color="#FFFFFF" />
+                                <Text style={styles.completeButtonText}>Complete</Text>
+                              </>
+                            )}
+                          </TouchableOpacity>
+
+                          <TouchableOpacity
+                            style={styles.reassignButton}
+                            onPress={() => handleAssignProvider(booking)}
+                          >
+                            <Ionicons name="swap-horizontal" size={14} color="#F59E0B" />
+                            <Text style={styles.reassignButtonText}>Reassign</Text>
+                          </TouchableOpacity>
                         </>
                       )}
-                    </TouchableOpacity>
+
+                      {/* Delete button */}
+                      <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={() => handleDeleteBooking(booking.id, booking.booking_number)}
+                        disabled={isDeleting}
+                      >
+                        {isDeleting ? (
+                          <ActivityIndicator size="small" color="#EF4444" />
+                        ) : (
+                          <>
+                            <Ionicons name="trash-outline" size={14} color="#EF4444" />
+                            <Text style={styles.deleteButtonText}>Delete</Text>
+                          </>
+                        )}
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
               );
@@ -425,6 +524,20 @@ export default function AdminBookingsScreen() {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Provider Assignment Modal */}
+      {selectedBooking && (
+        <ProviderAssignmentModal
+          visible={assignModalVisible}
+          bookingId={selectedBooking.id}
+          bookingService={selectedBooking.service.name}
+          onClose={() => {
+            setAssignModalVisible(false);
+            setSelectedBooking(null);
+          }}
+          onAssignSuccess={handleAssignSuccess}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -634,6 +747,53 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#94A3B8',
   },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  assignButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: '#EDE9FE',
+  },
+  assignButtonText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#7C3AED',
+  },
+  completeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: '#10B981',
+  },
+  completeButtonText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  reassignButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: '#FEF3C7',
+  },
+  reassignButtonText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#F59E0B',
+  },
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -644,7 +804,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEE2E2',
   },
   deleteButtonText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
     color: '#EF4444',
   },
